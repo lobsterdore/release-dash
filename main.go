@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/google/go-github/v32/github"
@@ -13,24 +12,28 @@ import (
 func main() {
 	ctx := context.Background()
 
-	gh_pat := os.Getenv("GH_PAT")
+	ghPat := os.Getenv("GH_PAT")
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: gh_pat},
+		&oauth2.Token{AccessToken: ghPat},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 
 	client := github.NewClient(tc)
 
-	repo, _, err := client.Repositories.Get(ctx, "JSainsburyPLC", "api-issa-canary")
+	repo, _, err := client.Repositories.Get(ctx, "lobsterdore", "lobstercms")
 
 	if err != nil {
-		if _, ok := err.(*github.RateLimitError); ok {
-			log.Println("hit rate limit")
-		}
-
-		fmt.Println("Bang")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println(repo)
+	releases, _, err := client.Repositories.ListReleases(ctx, "lobsterdore", "lobstercms", nil)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	fmt.Println(repo.Name)
+	fmt.Println(releases)
 }
