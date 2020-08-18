@@ -20,20 +20,26 @@ func main() {
 
 	client := github.NewClient(tc)
 
-	repo, _, err := client.Repositories.Get(ctx, "lobsterdore", "lobstercms")
-
+	refFrom, _, err := client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	releases, _, err := client.Repositories.ListReleases(ctx, "lobsterdore", "lobstercms", nil)
-
+	refTo, _, err := client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.7.0")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println(repo.Name)
-	fmt.Println(releases)
+	comparison, _, err := client.Repositories.CompareCommits(ctx, "lobsterdore", "lobstercms", *refFrom.Object.SHA, *refTo.Object.SHA)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	for i := 0; i < len(comparison.Commits); i++ {
+		fmt.Println(*comparison.Commits[i].Commit.Message)
+	}
+
 }
