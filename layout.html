@@ -1,0 +1,10 @@
+<html>
+    <head><title>Tester</title></head>
+    <body>
+        <h1>Test Dashboard</h1>
+
+{{range .Commits }}
+        <p>{{ .Commit.Message }}</p>
+{{ end }}
+    </body>
+</html>
