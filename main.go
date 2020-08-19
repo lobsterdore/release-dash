@@ -15,7 +15,7 @@ type dashpageData struct {
 	Commits []*github.RepositoryCommit
 }
 
-func getChangelog(ctx context.Context) *github.CommitsComparison {
+func getGithubClient(ctx context.Context) *github.Client {
 	ghPat := os.Getenv("GH_PAT")
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: ghPat},
@@ -24,6 +24,10 @@ func getChangelog(ctx context.Context) *github.CommitsComparison {
 
 	client := github.NewClient(tc)
 
+	return client
+}
+
+func getChangelog(ctx context.Context, client *github.Client) *github.CommitsComparison {
 	refFrom, _, err := client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
 	if err != nil {
 		fmt.Println(err)
@@ -47,15 +51,20 @@ func getChangelog(ctx context.Context) *github.CommitsComparison {
 
 func main() {
 
-	tmpl := template.Must(template.ParseFiles("layout.html"))
 	http.HandleFunc("/", func(respWriter http.ResponseWriter, request *http.Request) {
-		comparison := getChangelog(request.Context())
+		ctx := request.Context()
+		tmpl := template.Must(template.ParseFiles("layout.html"))
+
+		client := getGithubClient(ctx)
+		comparison := getChangelog(ctx, client)
+
 		data := dashpageData{
 			Commits: comparison.Commits,
 		}
 
 		tmpl.Execute(respWriter, data)
 	})
+
 	http.ListenAndServe(":8080", nil)
 
 }
