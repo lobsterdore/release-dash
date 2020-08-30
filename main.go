@@ -10,8 +10,23 @@ import (
 	"time"
 
 	"github.com/lobsterdore/ops-dash/config"
+	"github.com/lobsterdore/ops-dash/handler"
 	"github.com/lobsterdore/ops-dash/service"
 )
+
+func NewRouter() *http.ServeMux {
+	router := http.NewServeMux()
+
+	client := service.GetGithubClient(ctx)
+
+	httpHander = handler.HttpHandler{
+		GithubService: client
+	}
+
+	router.HandleFunc("/", handler.Homepage())
+
+	return router
+}
 
 func main() {
 	cfg, err := config.NewConfig("./config.yaml")
@@ -28,7 +43,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:         cfg.Server.Host + ":" + cfg.Server.Port,
-		Handler:      service.NewRouter(),
+		Handler:      NewRouter(),
 		ReadTimeout:  cfg.Server.Timeout.Read * time.Second,
 		WriteTimeout: cfg.Server.Timeout.Write * time.Second,
 		IdleTimeout:  cfg.Server.Timeout.Idle * time.Second,
