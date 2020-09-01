@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 )
 
@@ -13,7 +13,7 @@ type GithubService struct {
 	Client *github.Client
 }
 
-func GetGithubService(ctx context.Context) *GithubService {
+func NewGithubService(ctx context.Context) *GithubService {
 	ghPat := os.Getenv("GH_PAT")
 
 	ts := oauth2.StaticTokenSource(
@@ -22,27 +22,27 @@ func GetGithubService(ctx context.Context) *GithubService {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	service :=  GithubService{
-		Client: client
+	service := GithubService{
+		Client: client,
 	}
 
-	return client
+	return &service
 }
 
 func (c *GithubService) GetChangelog(ctx context.Context) (*github.CommitsComparison, error) {
-	refFrom, _, err := c.client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
+	refFrom, _, err := c.Client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	refTo, _, err := c.client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.7.0")
+	refTo, _, err := c.Client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.7.0")
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	comparison, _, err := c.client.Repositories.CompareCommits(ctx, "lobsterdore", "lobstercms", *refFrom.Object.SHA, *refTo.Object.SHA)
+	comparison, _, err := c.Client.Repositories.CompareCommits(ctx, "lobsterdore", "lobstercms", *refFrom.Object.SHA, *refTo.Object.SHA)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

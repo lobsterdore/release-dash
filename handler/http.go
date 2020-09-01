@@ -9,12 +9,12 @@ import (
 	"github.com/lobsterdore/ops-dash/service"
 )
 
-type HttpHandler struct {
-	GithubService *service.GithubService
+type dashpageData struct {
+	Commits []github.RepositoryCommit
 }
 
-type dashpageData struct {
-	Commits []*github.RepositoryCommit
+type HttpHandler struct {
+	GithubService *service.GithubService
 }
 
 func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Request) {
@@ -22,7 +22,7 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 	tmpl := template.Must(template.ParseFiles("layout.html"))
 
-	comparison, err := h.GithubService.GetChangelog(ctx, client)
+	comparison, err := h.GithubService.GetChangelog(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,5 +31,8 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 		Commits: comparison.Commits,
 	}
 
-	tmpl.Execute(respWriter, data)
+	err = tmpl.Execute(respWriter, data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

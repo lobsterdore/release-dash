@@ -14,16 +14,16 @@ import (
 	"github.com/lobsterdore/ops-dash/service"
 )
 
-func NewRouter() *http.ServeMux {
+func NewRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
 
-	client := service.GetGithubClient(ctx)
+	ghService := service.NewGithubService(ctx)
 
-	httpHander = handler.HttpHandler{
-		GithubService: client
+	httpHandler := handler.HttpHandler{
+		GithubService: ghService,
 	}
 
-	router.HandleFunc("/", handler.Homepage())
+	router.HandleFunc("/", httpHandler.Homepage)
 
 	return router
 }
@@ -43,7 +43,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:         cfg.Server.Host + ":" + cfg.Server.Port,
-		Handler:      NewRouter(),
+		Handler:      NewRouter(ctx),
 		ReadTimeout:  cfg.Server.Timeout.Read * time.Second,
 		WriteTimeout: cfg.Server.Timeout.Write * time.Second,
 		IdleTimeout:  cfg.Server.Timeout.Idle * time.Second,
