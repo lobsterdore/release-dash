@@ -22,7 +22,7 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 	tmpl := template.Must(template.ParseFiles("html/homepage.html"))
 
-	comparison, err := h.GithubService.GetChangelog(ctx)
+	comparison, err := h.GithubService.GetChangelog(ctx, "lobsterdore", "lobstercms", "dev", "prd")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 type GithubService interface {
-	GetChangelog(ctx context.Context) (*github.CommitsComparison, error)
+	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
 }
 
 type githubService struct {
@@ -33,20 +33,20 @@ func NewGithubService(ctx context.Context) GithubService {
 	return &service
 }
 
-func (c *githubService) GetChangelog(ctx context.Context) (*github.CommitsComparison, error) {
-	refFrom, _, err := c.Client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
+func (c *githubService) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error) {
+	refFrom, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	refTo, _, err := c.Client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.7.0")
+	refTo, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
 
-	comparison, _, err := c.Client.Repositories.CompareCommits(ctx, "lobsterdore", "lobstercms", *refFrom.Object.SHA, *refTo.Object.SHA)
+	comparison, _, err := c.Client.Repositories.CompareCommits(ctx, owner, repo, *refFrom.Object.SHA, *refTo.Object.SHA)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
