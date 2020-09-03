@@ -14,13 +14,13 @@ type dashpageData struct {
 }
 
 type HttpHandler struct {
-	GithubService *service.GithubService
+	GithubService service.GithubService
 }
 
 func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Request) {
 	log.Printf("Requested - '/' ")
 	ctx := request.Context()
-	tmpl := template.Must(template.ParseFiles("layout.html"))
+	tmpl := template.Must(template.ParseFiles("html/homepage.html"))
 
 	comparison, err := h.GithubService.GetChangelog(ctx)
 	if err != nil {

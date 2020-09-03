@@ -9,11 +9,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GithubService struct {
+type GithubService interface {
+	GetChangelog(ctx context.Context) (*github.CommitsComparison, error)
+}
+
+type githubService struct {
 	Client *github.Client
 }
 
-func NewGithubService(ctx context.Context) *GithubService {
+func NewGithubService(ctx context.Context) GithubService {
 	ghPat := os.Getenv("GH_PAT")
 
 	ts := oauth2.StaticTokenSource(
@@ -22,14 +26,14 @@ func NewGithubService(ctx context.Context) *GithubService {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	service := GithubService{
+	service := githubService{
 		Client: client,
 	}
 
 	return &service
 }
 
-func (c *GithubService) GetChangelog(ctx context.Context) (*github.CommitsComparison, error) {
+func (c *githubService) GetChangelog(ctx context.Context) (*github.CommitsComparison, error) {
 	refFrom, _, err := c.Client.Git.GetRef(ctx, "lobsterdore", "lobstercms", "tags/v2.1.0")
 	if err != nil {
 		log.Fatal(err)
