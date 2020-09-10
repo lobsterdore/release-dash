@@ -31,13 +31,13 @@ func NewRouter(ctx context.Context) *http.ServeMux {
 func main() {
 	cfg, err := config.NewConfig("./config.yaml")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("unable to retrieve configuration %s", err)
 	}
 
 	var runChan = make(chan os.Signal, 1)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		cfg.Server.Timeout.Server,
+		cfg.Server.Timeout.Server*time.Second,
 	)
 	defer cancel()
 

@@ -1,15 +1,26 @@
 <html>
-    <head><title>Tester</title></head>
-    <body>
-        <h1>Test Dashboard</h1>
-{{range .Commits }}
-        <div>
-            <p>
-                <img src="{{ .Author.AvatarURL }}" width="60px" />
-                {{ .Commit.Message }}
-                <a href="{{ .HTMLURL }}">View Commit</a>
-            </p>
-        </div>
+  <head><title>Tester</title></head>
+  <body>
+    <h1>Test Dashboard</h1>
+    <h2>Dev > Stg</h2>
+{{range .CommitsStg }}
+    <div>
+      <p>
+        <img src="{{ .Author.AvatarURL }}" width="60px" />
+        {{ .Commit.Message }}
+        <a href="{{ .HTMLURL }}">View Commit</a>
+      </p>
+    </div>
 {{ end }}
-    </body>
+<h2>Stg > Prd</h2>
+{{range .CommitsPrd }}
+    <div>
+      <p>
+        <img src="{{ .Author.AvatarURL }}" width="60px" />
+        {{ .Commit.Message }}
+        <a href="{{ .HTMLURL }}">View Commit</a>
+      </p>
+    </div>
+{{ end }}
+  </body>
 </html>

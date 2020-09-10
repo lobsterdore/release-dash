@@ -10,7 +10,8 @@ import (
 )
 
 type dashpageData struct {
-	Commits []github.RepositoryCommit
+	CommitsStg []github.RepositoryCommit
+	CommitsPrd []github.RepositoryCommit
 }
 
 type HttpHandler struct {
@@ -22,17 +23,28 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 	tmpl := template.Must(template.ParseFiles("html/homepage.html"))
 
-	comparison, err := h.GithubService.GetChangelog(ctx, "lobsterdore", "lobstercms", "dev", "prd")
+	comparisonStg, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-dev")
 	if err != nil {
-		log.Fatal(err)
+		respWriter.WriteHeader(http.StatusInternalServerError)
+		_, _ = respWriter.Write([]byte(err.Error()))
+		return
+	}
+	comparisonPrd, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-prd")
+	if err != nil {
+		respWriter.WriteHeader(http.StatusInternalServerError)
+		_, _ = respWriter.Write([]byte(err.Error()))
+		return
 	}
 
 	data := dashpageData{
-		Commits: comparison.Commits,
+		CommitsStg: comparisonStg.Commits,
+		CommitsPrd: comparisonPrd.Commits,
 	}
 
 	err = tmpl.Execute(respWriter, data)
 	if err != nil {
-		log.Fatal(err)
+		respWriter.WriteHeader(http.StatusInternalServerError)
+		_, _ = respWriter.Write([]byte(err.Error()))
+		return
 	}
 }

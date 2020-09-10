@@ -4,7 +4,7 @@ server:
   host: 127.0.0.1
   port: 8080
   timeout:
-    server: 30
-    read: 15
-    write: 10
-    idle: 5
+    server: 40
+    read: 25
+    write: 20
+    idle: 15
