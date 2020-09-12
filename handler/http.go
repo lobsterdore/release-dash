@@ -23,22 +23,15 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 	tmpl := template.Must(template.ParseFiles("html/homepage.html"))
 
+	data := dashpageData{}
+
 	comparisonStg, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-dev")
-	if err != nil {
-		respWriter.WriteHeader(http.StatusInternalServerError)
-		_, _ = respWriter.Write([]byte(err.Error()))
-		return
+	if err == nil {
+		data.CommitsStg = comparisonStg.Commits
 	}
 	comparisonPrd, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-prd")
-	if err != nil {
-		respWriter.WriteHeader(http.StatusInternalServerError)
-		_, _ = respWriter.Write([]byte(err.Error()))
-		return
-	}
-
-	data := dashpageData{
-		CommitsStg: comparisonStg.Commits,
-		CommitsPrd: comparisonPrd.Commits,
+	if err == nil {
+		data.CommitsPrd = comparisonPrd.Commits
 	}
 
 	err = tmpl.Execute(respWriter, data)
