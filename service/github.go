@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -11,6 +12,7 @@ import (
 
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
+	GetDashboardReposFromOrg(ctx context.Context, org string) error
 }
 
 type githubService struct {
@@ -53,4 +55,20 @@ func (c *githubService) GetChangelog(ctx context.Context, owner string, repo str
 	}
 
 	return comparison, nil
+}
+
+func (c *githubService) GetDashboardReposFromOrg(ctx context.Context, org string) error {
+	orgRepos, _, err := c.Client.Repositories.ListByOrg(ctx, org, nil)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	fmt.Println(orgRepos)
+
+	for _, repo := range orgRepos {
+		fmt.Println(repo)
+	}
+
+	return nil
 }

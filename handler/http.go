@@ -25,11 +25,16 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 
 	data := dashpageData{}
 
-	comparisonStg, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-dev")
+	org := "JSainsburyPLC"
+	repo := "smartshop-api-go-canary"
+
+	_ = h.GithubService.GetDashboardReposFromOrg(ctx, org)
+
+	comparisonStg, err := h.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-dev")
 	if err == nil {
 		data.CommitsStg = comparisonStg.Commits
 	}
-	comparisonPrd, err := h.GithubService.GetChangelog(ctx, "JSainsburyPLC", "smartshop-api-go-canary", "container-stg", "container-prd")
+	comparisonPrd, err := h.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-prd")
 	if err == nil {
 		data.CommitsPrd = comparisonPrd.Commits
 	}
