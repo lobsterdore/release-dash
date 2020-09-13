@@ -13,6 +13,7 @@ import (
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
 	GetDashboardReposFromOrg(ctx context.Context, org string) error
+	GetDashboardRepos(ctx context.Context, user string) error
 }
 
 type githubService struct {
@@ -55,6 +56,18 @@ func (c *githubService) GetChangelog(ctx context.Context, owner string, repo str
 	}
 
 	return comparison, nil
+}
+
+func (c *githubService) GetDashboardRepos(ctx context.Context, user string) error {
+	opts := github.RepositoryListOptions{}
+	repos, _, err := c.Client.Repositories.List(ctx, user, &opts)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	fmt.Println(repos)
+
+	return nil
 }
 
 func (c *githubService) GetDashboardReposFromOrg(ctx context.Context, org string) error {
