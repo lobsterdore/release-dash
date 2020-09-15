@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -12,7 +11,6 @@ import (
 
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
-	GetDashboardReposFromOrg(ctx context.Context, org string) error
 	GetDashboardRepos(ctx context.Context, user string) error
 }
 
@@ -59,25 +57,24 @@ func (c *githubService) GetChangelog(ctx context.Context, owner string, repo str
 }
 
 func (c *githubService) GetDashboardRepos(ctx context.Context, user string) error {
-	opts := github.RepositoryListOptions{}
-	repos, _, err := c.Client.Repositories.List(ctx, user, &opts)
-	if err != nil {
-		log.Println(err)
-		return err
+	opts := &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
 	}
-	fmt.Println(repos)
-
-	return nil
-}
-
-func (c *githubService) GetDashboardReposFromOrg(ctx context.Context, org string) error {
-	orgRepos, _, err := c.Client.Repositories.ListByOrg(ctx, org, nil)
-	if err != nil {
-		log.Println(err)
-		return err
+	var allRepos []*github.Repository
+	for {
+		repos, resp, err := c.Client.Repositories.List(ctx, "", opts)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		allRepos = append(allRepos, repos...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
 	}
 
-	for _, repo := range orgRepos {
+	for _, repo := range allRepos {
 		branch, err := c.GetRepoBranch(ctx, repo, "master")
 		if err != nil {
 			log.Println(err)
@@ -86,18 +83,36 @@ func (c *githubService) GetDashboardReposFromOrg(ctx context.Context, org string
 		if branch == nil {
 			continue
 		}
-		repoTree, _, err := c.Client.Git.GetTree(ctx, *repo.Owner.Login, *repo.Name, *branch.Commit.SHA, false)
+
+		content, err := c.GetDashboardConfigFile(ctx, *repo.Owner.Login, *repo.Name, *branch.Commit.SHA)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-
-		for _, treeEntry := range repoTree.Entries {
-			if *treeEntry.Path == "deployment/smartshop.yml" {
-				fmt.Println(repo)
-			}
+		if content == nil {
+			continue
 		}
-		// fmt.Println(repo)
+
+		log.Println(*content.Content)
+
+		// raw, err := base64.StdEncoding.DecodeString(*content.Content)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	continue
+		// }
+		// log.Println(raw)
+
+		// repoTree, _, err := c.Client.Git.GetTree(ctx, *repo.Owner.Login, *repo.Name, *branch.Commit.SHA, true)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	continue
+		// }
+
+		// for _, treeEntry := range repoTree.Entries {
+		// 	if *treeEntry.Path == "deployment/smartshop.yml" {
+		// 		fmt.Println(repo)
+		// 	}
+		// }
 	}
 
 	return nil
@@ -113,6 +128,27 @@ func (c *githubService) GetRepoBranch(ctx context.Context, repo *github.Reposito
 	for _, branch := range branches {
 		if *branch.Name == branchName {
 			return branch, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (c *githubService) GetDashboardConfigFile(ctx context.Context, owner string, repo string, sha string) (*github.RepositoryContent, error) {
+	repoTree, _, err := c.Client.Git.GetTree(ctx, owner, repo, sha, true)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for _, treeEntry := range repoTree.Entries {
+		if *treeEntry.Path == "deployment/smartshop.yml" {
+			content, _, _, err := c.Client.Repositories.GetContents(ctx, owner, repo, "deployment/smartshop.yml", nil)
+			if err != nil {
+				log.Println(err)
+				return nil, err
+			}
+			return content, nil
 		}
 	}
 

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,7 +29,7 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 	org := "JSainsburyPLC"
 	repo := "smartshop-api-go-canary"
 
-	fmt.Println(os.Getenv("GH_USER"))
+	// fmt.Println(os.Getenv("GH_USER"))
 
 	_ = h.GithubService.GetDashboardRepos(ctx, os.Getenv("GH_USER"))
 
