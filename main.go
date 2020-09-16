@@ -19,6 +19,8 @@ func NewRouter(ctx context.Context) *http.ServeMux {
 
 	ghService := service.NewGithubService(ctx)
 
+	_ = ghService.GetDashboardRepos(ctx)
+
 	httpHandler := handler.HttpHandler{
 		GithubService: ghService,
 	}

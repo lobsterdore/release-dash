@@ -2,20 +2,40 @@ package service
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
 	"os"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"gopkg.in/yaml.v2"
 )
 
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
-	GetDashboardRepos(ctx context.Context, user string) error
+	GetDashboardRepos(ctx context.Context) error
 }
 
 type githubService struct {
 	Client *github.Client
+}
+
+type DashboardRepo struct {
+	Repository *github.Repository
+}
+
+type dashboardRepoConfig struct {
+	Name            string `yaml:"name"`
+	GocdEnvironment string `yaml:"gocd_environment"`
+	Pipeline        struct {
+		Service []struct {
+			CronEnvs  []string `yaml:"cron_envs"`
+			CronTimer string   `yaml:"cron_timer"`
+			Name      string   `yaml:"name"`
+			RepoUrl   string   `yaml:"repo_url"`
+			Whitelist []string `yaml:"whitelist"`
+		} `yaml:"service"`
+	} `yaml:"pipeline"`
 }
 
 func NewGithubService(ctx context.Context) GithubService {
@@ -56,7 +76,7 @@ func (c *githubService) GetChangelog(ctx context.Context, owner string, repo str
 	return comparison, nil
 }
 
-func (c *githubService) GetDashboardRepos(ctx context.Context, user string) error {
+func (c *githubService) GetDashboardRepos(ctx context.Context) error {
 	opts := &github.RepositoryListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
@@ -95,24 +115,20 @@ func (c *githubService) GetDashboardRepos(ctx context.Context, user string) erro
 
 		log.Println(*content.Content)
 
-		// raw, err := base64.StdEncoding.DecodeString(*content.Content)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	continue
-		// }
-		// log.Println(raw)
+		raw, err := base64.StdEncoding.DecodeString(*content.Content)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		log.Println(string(raw))
 
-		// repoTree, _, err := c.Client.Git.GetTree(ctx, *repo.Owner.Login, *repo.Name, *branch.Commit.SHA, true)
-		// if err != nil {
-		// 	log.Println(err)
-		// 	continue
-		// }
+		repoConfig := dashboardRepoConfig{}
 
-		// for _, treeEntry := range repoTree.Entries {
-		// 	if *treeEntry.Path == "deployment/smartshop.yml" {
-		// 		fmt.Println(repo)
-		// 	}
-		// }
+		err = yaml.Unmarshal([]byte(string(raw)), &repoConfig)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		log.Println(repoConfig.Pipeline)
 	}
 
 	return nil

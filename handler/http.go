@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/google/go-github/github"
 	"github.com/lobsterdore/ops-dash/service"
@@ -28,10 +27,6 @@ func (h *HttpHandler) Homepage(respWriter http.ResponseWriter, request *http.Req
 
 	org := "JSainsburyPLC"
 	repo := "smartshop-api-go-canary"
-
-	// fmt.Println(os.Getenv("GH_USER"))
-
-	_ = h.GithubService.GetDashboardRepos(ctx, os.Getenv("GH_USER"))
 
 	comparisonStg, err := h.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-dev")
 	if err == nil {
