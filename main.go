@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,12 @@ func NewRouter(ctx context.Context) *http.ServeMux {
 
 	ghService := service.NewGithubService(ctx)
 
-	_ = ghService.GetDashboardRepos(ctx)
+	dashboardRepos, err := ghService.GetDashboardRepos(ctx)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	fmt.Println(dashboardRepos)
 
 	httpHandler := handler.HttpHandler{
 		GithubService: ghService,

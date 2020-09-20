@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"os"
 
@@ -14,7 +13,7 @@ import (
 
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
-	GetDashboardRepos(ctx context.Context) error
+	GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error)
 	GetRepoBranch(ctx context.Context, repo *github.Repository, branchName string) (*github.Branch, error)
 	GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*dashboardRepoConfig, error)
 	GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error)
@@ -81,11 +80,11 @@ func (c *githubService) GetChangelog(ctx context.Context, owner string, repo str
 	return comparison, nil
 }
 
-func (c *githubService) GetDashboardRepos(ctx context.Context) error {
+func (c *githubService) GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error) {
 	allRepos, err := c.GetUserRepos(ctx, "")
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
 	var dashboardRepos []DashboardRepo
@@ -117,9 +116,7 @@ func (c *githubService) GetDashboardRepos(ctx context.Context) error {
 		dashboardRepos = append(dashboardRepos, dashboardRepo)
 	}
 
-	fmt.Println(dashboardRepos)
-
-	return nil
+	return &dashboardRepos, nil
 }
 
 func (c *githubService) GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error) {
