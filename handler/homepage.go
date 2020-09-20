@@ -5,23 +5,16 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/google/go-github/github"
 	"github.com/lobsterdore/ops-dash/service"
 )
 
 type homepageData struct {
-	RepoChangelogs []homepageRepoChangelog
-}
-
-type homepageRepoChangelog struct {
-	CommitsStg []github.RepositoryCommit
-	CommitsPrd []github.RepositoryCommit
-	Repository github.Repository
+	RepoChangelogs []service.DashboardRepoChangelog
 }
 
 type HomepageHandler struct {
-	DashboardRepos *[]service.DashboardRepo
-	GithubService  service.GithubService
+	DashboardRepos   *[]service.DashboardRepo
+	DashboardService service.DashboardService
 }
 
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {
@@ -29,29 +22,8 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 	tmpl := template.Must(template.ParseFiles("templates/html/homepage.html"))
 
-	var repoChangelogs []homepageRepoChangelog
-
-	for _, dashboardRepo := range *h.DashboardRepos {
-		org := *dashboardRepo.Repository.Owner.Login
-		repo := *dashboardRepo.Repository.Name
-
-		repoChangelog := homepageRepoChangelog{
-			Repository: *dashboardRepo.Repository,
-		}
-
-		comparisonStg, err := h.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-dev")
-		if err == nil {
-			repoChangelog.CommitsStg = comparisonStg.Commits
-		}
-		comparisonPrd, err := h.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-prd")
-		if err == nil {
-			repoChangelog.CommitsPrd = comparisonPrd.Commits
-		}
-		repoChangelogs = append(repoChangelogs, repoChangelog)
-	}
-
 	var data = homepageData{
-		RepoChangelogs: repoChangelogs,
+		RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
 	}
 
 	err := tmpl.Execute(respWriter, data)

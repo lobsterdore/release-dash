@@ -17,16 +17,16 @@ import (
 func NewRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
 
-	ghService := service.NewGithubService(ctx)
-	dashboardRepos, err := ghService.GetDashboardRepos(ctx)
+	dashboardService := service.NewDashboardService(ctx)
+	dashboardRepos, err := dashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 
 	homepageHandler := handler.HomepageHandler{
-		DashboardRepos: dashboardRepos,
-		GithubService:  ghService,
+		DashboardRepos:   dashboardRepos,
+		DashboardService: dashboardService,
 	}
 
 	router.HandleFunc("/", homepageHandler.Http)
