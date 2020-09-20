@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/google/go-github/github"
+	"github.com/lobsterdore/ops-dash/config"
 	"gopkg.in/yaml.v2"
 )
 
@@ -44,8 +45,8 @@ type DashboardRepoChangelog struct {
 	Repository github.Repository
 }
 
-func NewDashboardService(ctx context.Context) DashboardService {
-	githubService := NewGithubService(ctx)
+func NewDashboardService(ctx context.Context, config config.Config) DashboardService {
+	githubService := NewGithubService(ctx, config.Github.Pat)
 
 	service := dashboardService{
 		GithubService: githubService,

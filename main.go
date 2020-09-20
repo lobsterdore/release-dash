@@ -14,10 +14,10 @@ import (
 	"github.com/lobsterdore/ops-dash/service"
 )
 
-func NewRouter(ctx context.Context) *http.ServeMux {
+func NewRouter(ctx context.Context, config config.Config) *http.ServeMux {
 	router := http.NewServeMux()
 
-	dashboardService := service.NewDashboardService(ctx)
+	dashboardService := service.NewDashboardService(ctx, config)
 	dashboardRepos, err := dashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Println(err)
@@ -36,7 +36,7 @@ func NewRouter(ctx context.Context) *http.ServeMux {
 
 func main() {
 	log.Printf("Configuring server\n")
-	cfg, err := config.NewConfig("./config.yaml")
+	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("unable to retrieve configuration %s", err)
 	}
@@ -44,16 +44,18 @@ func main() {
 	var runChan = make(chan os.Signal, 1)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		cfg.Server.Timeout.Server*time.Second,
+		time.Duration(cfg.Server.Timeout.Server)*time.Second,
 	)
 	defer cancel()
 
+	router := NewRouter(ctx, cfg)
+
 	server := &http.Server{
 		Addr:         cfg.Server.Host + ":" + cfg.Server.Port,
-		Handler:      NewRouter(ctx),
-		ReadTimeout:  cfg.Server.Timeout.Read * time.Second,
-		WriteTimeout: cfg.Server.Timeout.Write * time.Second,
-		IdleTimeout:  cfg.Server.Timeout.Idle * time.Second,
+		Handler:      router,
+		ReadTimeout:  time.Duration(cfg.Server.Timeout.Read) * time.Second,
+		WriteTimeout: time.Duration(cfg.Server.Timeout.Write) * time.Second,
+		IdleTimeout:  time.Duration(cfg.Server.Timeout.Idle) * time.Second,
 	}
 
 	signal.Notify(runChan, os.Interrupt, syscall.SIGTSTP)

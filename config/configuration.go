@@ -1,37 +1,39 @@
 package config
 
 import (
-	"os"
-	"time"
-
-	"gopkg.in/yaml.v2"
+	"github.com/caarlos0/env/v6"
 )
 
 type Config struct {
-	Server struct {
-		Host    string `yaml:"host"`
-		Port    string `yaml:"port"`
-		Timeout struct {
-			Server time.Duration `yaml:"server"`
-			Write  time.Duration `yaml:"write"`
-			Read   time.Duration `yaml:"read"`
-			Idle   time.Duration `yaml:"idle"`
-		} `yaml:"timeout"`
-	} `yaml:"server"`
+	Github github
+	Server server
 }
 
-func NewConfig(configPath string) (*Config, error) {
-	config := &Config{}
-	file, err := os.Open(configPath)
+type github struct {
+	Pat string `env:"GITHUB_PAT" envDefault:""`
+}
+
+type server struct {
+	Host    string `env:"SERVER_HOST" envDefault:"127.0.0.1"`
+	Port    string `env:"SERVER_PORT" envDefault:"8080"`
+	Timeout serverTimeout
+}
+
+type serverTimeout struct {
+	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"180"`
+	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"180"`
+	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"180"`
+	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"180"`
+}
+
+func NewConfig() (Config, error) {
+
+	cfg := &Config{}
+	err := env.Parse(cfg)
+
 	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	d := yaml.NewDecoder(file)
-	if err := d.Decode(&config); err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
-	return config, nil
+	return *cfg, nil
 }

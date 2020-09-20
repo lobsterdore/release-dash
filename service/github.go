@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -20,11 +19,9 @@ type githubService struct {
 	Client *github.Client
 }
 
-func NewGithubService(ctx context.Context) GithubService {
-	ghPat := os.Getenv("GH_PAT")
-
+func NewGithubService(ctx context.Context, pat string) GithubService {
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: ghPat},
+		&oauth2.Token{AccessToken: pat},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
