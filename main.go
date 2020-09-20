@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,24 +18,24 @@ func NewRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
 
 	ghService := service.NewGithubService(ctx)
-
 	dashboardRepos, err := ghService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	fmt.Println(dashboardRepos)
 
-	httpHandler := handler.HttpHandler{
-		GithubService: ghService,
+	homepageHandler := handler.HomepageHandler{
+		DashboardRepos: dashboardRepos,
+		GithubService:  ghService,
 	}
 
-	router.HandleFunc("/", httpHandler.Homepage)
+	router.HandleFunc("/", homepageHandler.Http)
 
 	return router
 }
 
 func main() {
+	log.Printf("Configuring server\n")
 	cfg, err := config.NewConfig("./config.yaml")
 	if err != nil {
 		log.Fatalf("unable to retrieve configuration %s", err)
