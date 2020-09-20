@@ -14,7 +14,7 @@ type github struct {
 }
 
 type server struct {
-	Host    string `env:"SERVER_HOST" envDefault:"127.0.0.1"`
+	Host    string `env:"SERVER_HOST" envDefault:"0.0.0.0"`
 	Port    string `env:"SERVER_PORT" envDefault:"8080"`
 	Timeout serverTimeout
 }
