@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"log"
 
+	"github.com/creasty/defaults"
 	"github.com/google/go-github/github"
 	"github.com/lobsterdore/ops-dash/config"
 	"gopkg.in/yaml.v2"
@@ -21,22 +22,14 @@ type dashboardService struct {
 }
 
 type DashboardRepo struct {
-	Repository *github.Repository
 	Config     *dashboardRepoConfig
+	Repository *github.Repository
 }
 
 type dashboardRepoConfig struct {
-	Name            string `yaml:"name"`
-	GocdEnvironment string `yaml:"gocd_environment"`
-	Pipeline        struct {
-		Service []struct {
-			CronEnvs  []string `yaml:"cron_envs"`
-			CronTimer string   `yaml:"cron_timer"`
-			Name      string   `yaml:"name"`
-			RepoUrl   string   `yaml:"repo_url"`
-			Whitelist []string `yaml:"whitelist"`
-		} `yaml:"service"`
-	} `yaml:"pipeline"`
+	Name                 string `yaml:"name"`
+	GocdEnvironment      string `yaml:"gocd_environment"`
+	EnvironmentTagPrefix string `default:"container" yaml:"environment_tag_prefix"`
 }
 
 type DashboardRepoChangelog struct {
@@ -62,15 +55,19 @@ func NewDashboardRepoConfig(content *github.RepositoryContent) (*dashboardRepoCo
 		return nil, err
 	}
 
-	repoConfig := dashboardRepoConfig{}
+	repoConfig := &dashboardRepoConfig{}
+	if err := defaults.Set(repoConfig); err != nil {
+		log.Fatalf("error: %v", err)
+		return nil, err
+	}
 
-	err = yaml.Unmarshal([]byte(string(raw)), &repoConfig)
+	err = yaml.Unmarshal([]byte(string(raw)), repoConfig)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 		return nil, err
 	}
 
-	return &repoConfig, nil
+	return repoConfig, nil
 }
 
 func (d *dashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error) {
@@ -141,11 +138,13 @@ func (d *dashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 			Repository: *dashboardRepo.Repository,
 		}
 
-		comparisonStg, err := d.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-dev")
+		tagPrefix := dashboardRepo.Config.EnvironmentTagPrefix
+
+		comparisonStg, err := d.GithubService.GetChangelog(ctx, org, repo, tagPrefix+"-stg", tagPrefix+"-dev")
 		if err == nil {
 			repoChangelog.CommitsStg = comparisonStg.Commits
 		}
-		comparisonPrd, err := d.GithubService.GetChangelog(ctx, org, repo, "container-stg", "container-prd")
+		comparisonPrd, err := d.GithubService.GetChangelog(ctx, org, repo, tagPrefix+"-prd", tagPrefix+"-stg")
 		if err == nil {
 			repoChangelog.CommitsPrd = comparisonPrd.Commits
 		}
