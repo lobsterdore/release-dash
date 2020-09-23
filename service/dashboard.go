@@ -27,28 +27,19 @@ type DashboardRepo struct {
 }
 
 type dashboardRepoConfig struct {
-	Name                 string   `yaml:"name"`
-	GocdEnvironment      string   `yaml:"gocd_environment"`
-	EnvironmentTagPrefix string   `default:"container" yaml:"environment_tag_prefix"`
-	Pipeline             pipeline `yaml:"pipeline"`
-}
-
-type pipeline struct {
-	Service service `yaml:"service"`
-}
-
-type service struct {
-	CronEnvs  []string `yaml:"cron_envs"`
-	CronTimer string   `yaml:"cron_timer"`
-	Name      string   `yaml:"name"`
-	RepoUrl   string   `yaml:"repo_url"`
-	Whitelist []string `yaml:"whitelist"`
+	EnvironmentTags []string `yaml:"environment_tags"`
+	Name            string   `yaml:"name"`
 }
 
 type DashboardRepoChangelog struct {
-	CommitsStg []github.RepositoryCommit
-	CommitsPrd []github.RepositoryCommit
-	Repository github.Repository
+	ChangelogCommits []dashboardChangelogCommits
+	Repository       github.Repository
+}
+
+type dashboardChangelogCommits struct {
+	Commits []github.RepositoryCommit
+	FromTag string
+	ToTag   string
 }
 
 func NewDashboardService(ctx context.Context, config config.Config) DashboardService {
@@ -123,7 +114,7 @@ func (d *dashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardR
 }
 
 func (d *dashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*dashboardRepoConfig, error) {
-	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, sha, "deployment/smartshop.yml")
+	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, sha, ".releasedash.yml")
 	if err != nil {
 		return nil, err
 	}
@@ -142,24 +133,32 @@ func (d *dashboardService) GetDashboardRepoConfig(ctx context.Context, owner str
 func (d *dashboardService) GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog {
 
 	var repoChangelogs []DashboardRepoChangelog
-
 	for _, dashboardRepo := range *dashboardRepos {
 		org := *dashboardRepo.Repository.Owner.Login
 		repo := *dashboardRepo.Repository.Name
 
 		repoChangelog := DashboardRepoChangelog{
-			Repository: *dashboardRepo.Repository,
+			ChangelogCommits: []dashboardChangelogCommits{},
+			Repository:       *dashboardRepo.Repository,
 		}
 
-		tagPrefix := dashboardRepo.Config.EnvironmentTagPrefix
+		environmentTags := dashboardRepo.Config.EnvironmentTags
 
-		comparisonStg, err := d.GithubService.GetChangelog(ctx, org, repo, tagPrefix+"-stg", tagPrefix+"-dev")
-		if err == nil {
-			repoChangelog.CommitsStg = comparisonStg.Commits
-		}
-		comparisonPrd, err := d.GithubService.GetChangelog(ctx, org, repo, tagPrefix+"-prd", tagPrefix+"-stg")
-		if err == nil {
-			repoChangelog.CommitsPrd = comparisonPrd.Commits
+		for index, toTag := range environmentTags {
+			nextIndex := index + 1
+			if nextIndex < len(environmentTags) {
+				fromTag := environmentTags[nextIndex]
+				changelog, err := d.GithubService.GetChangelog(ctx, org, repo, fromTag, toTag)
+				if err == nil {
+					changelogCommits := dashboardChangelogCommits{
+						Commits: changelog.Commits,
+						FromTag: fromTag,
+						ToTag:   toTag,
+					}
+					repoChangelog.ChangelogCommits = append(repoChangelog.ChangelogCommits, changelogCommits)
+
+				}
+			}
 		}
 		repoChangelogs = append(repoChangelogs, repoChangelog)
 	}

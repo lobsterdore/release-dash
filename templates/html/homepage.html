@@ -5,8 +5,9 @@
 {{range .RepoChangelogs }}
     <h2>{{ .Repository.Name }}</h2>
     <div>
-      <h3>Dev > Stg</h3>
-  {{range .CommitsStg }}
+  {{range .ChangelogCommits }}
+      <h3>{{ .ToTag }} > {{ .FromTag }}</h3>
+    {{range .Commits }}
       <div>
         <p>
           <img src="{{ .Author.AvatarURL }}" width="60px" />
@@ -14,16 +15,7 @@
           <a href="{{ .HTMLURL }}">View Commit</a>
         </p>
       </div>
-  {{ end }}
-      <h3>Stg > Prd</h3>
-  {{range .CommitsPrd }}
-      <div>
-        <p>
-          <img src="{{ .Author.AvatarURL }}" width="60px" />
-          {{ .Commit.Message }}
-          <a href="{{ .HTMLURL }}">View Commit</a>
-        </p>
-      </div>
+    {{ end }}
   {{ end }}
     </div>
 {{ end }}
