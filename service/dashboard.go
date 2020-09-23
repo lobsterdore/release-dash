@@ -27,9 +27,22 @@ type DashboardRepo struct {
 }
 
 type dashboardRepoConfig struct {
-	Name                 string `yaml:"name"`
-	GocdEnvironment      string `yaml:"gocd_environment"`
-	EnvironmentTagPrefix string `default:"container" yaml:"environment_tag_prefix"`
+	Name                 string   `yaml:"name"`
+	GocdEnvironment      string   `yaml:"gocd_environment"`
+	EnvironmentTagPrefix string   `default:"container" yaml:"environment_tag_prefix"`
+	Pipeline             pipeline `yaml:"pipeline"`
+}
+
+type pipeline struct {
+	Service service `yaml:"service"`
+}
+
+type service struct {
+	CronEnvs  []string `yaml:"cron_envs"`
+	CronTimer string   `yaml:"cron_timer"`
+	Name      string   `yaml:"name"`
+	RepoUrl   string   `yaml:"repo_url"`
+	Whitelist []string `yaml:"whitelist"`
 }
 
 type DashboardRepoChangelog struct {
