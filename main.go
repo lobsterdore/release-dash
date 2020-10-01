@@ -12,6 +12,8 @@ import (
 	"github.com/lobsterdore/ops-dash/config"
 	"github.com/lobsterdore/ops-dash/handler"
 	"github.com/lobsterdore/ops-dash/service"
+
+	"github.com/markbates/pkger"
 )
 
 func NewRouter(ctx context.Context, config config.Config) *http.ServeMux {
@@ -35,6 +37,8 @@ func NewRouter(ctx context.Context, config config.Config) *http.ServeMux {
 }
 
 func main() {
+	pkger.Include("/templates")
+
 	log.Printf("Configuring server\n")
 	cfg, err := config.NewConfig()
 	if err != nil {

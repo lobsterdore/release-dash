@@ -10,8 +10,12 @@ export PATH
 SHELL:=env PATH=$(PATH) /bin/bash
 
 build_app:
+	pkger
 	go build -o $(GOPATH)/bin/release-dash $(GOFILES)
 
+clean:
+	@rm -rf vendor
+
 deps:
-	go mod tidy
-	go mod download
+	go mod vendor
+	go get github.com/markbates/pkger/cmd/pkger
