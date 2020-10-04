@@ -16,13 +16,13 @@ WORKDIR /app/code
 RUN make deps
 
 COPY . /app/code
-RUN make build_app
+RUN make build
 
 
 #
 # BASE STAGE - Stage for building base runtime
 #
-FROM ubuntu:18.04 as base
+FROM ubuntu:20.04 as base
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt update -yq && \

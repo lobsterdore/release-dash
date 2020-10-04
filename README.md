@@ -20,7 +20,7 @@ For a full list of available environment vars see [config/configuration.go](conf
 # Assuming direnv is installed
 echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
-go run main.go
+make run
 ```
 
 ### Docker
@@ -32,8 +32,7 @@ the binary.
 # Assuming direnv is installed
 echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
-docker build . -t release_dash
-docker run -itd  -e GITHUB_PAT -p 8080:8080 release_dash
+make docker_run
 ```
 
 ## Todo
