@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/lobsterdore/ops-dash/service"
+	"github.com/lobsterdore/release-dash/service"
 )
 
 type homepageData struct {

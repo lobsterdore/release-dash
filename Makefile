@@ -1,13 +1,18 @@
+export GO111MODULE=on
+
 PWD=$(shell pwd)
 
 GOFILES= $$(go list -f '{{join .GoFiles " "}}')
 
-SHELL:=env /bin/bash
+PATH:=$(PWD)/bin:${PATH}
+export PATH
+
+SHELL:=env PATH=$(PATH) /bin/bash
 
 .PHONY: build
 build:
 	pkger
-	go build -o $(GOPATH)/bin/release-dash $(GOFILES)
+	go install -v .
 
 .PHONY: clean
 clean:
@@ -32,5 +37,9 @@ docker_run: docker_build
 		release-dash
 
 .PHONY: run
-run: deps
+run: build
+	release-dash
+
+.PHONY: run_src
+run_src: deps
 	go run main.go

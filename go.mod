@@ -1,4 +1,4 @@
-module github.com/lobsterdore/ops-dash
+module github.com/lobsterdore/release-dash
 
 go 1.15
 

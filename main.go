@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lobsterdore/ops-dash/config"
-	"github.com/lobsterdore/ops-dash/handler"
-	"github.com/lobsterdore/ops-dash/service"
+	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/handler"
+	"github.com/lobsterdore/release-dash/service"
 
 	"github.com/markbates/pkger"
 )

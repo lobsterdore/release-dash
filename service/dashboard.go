@@ -7,7 +7,7 @@ import (
 
 	"github.com/creasty/defaults"
 	"github.com/google/go-github/github"
-	"github.com/lobsterdore/ops-dash/config"
+	"github.com/lobsterdore/release-dash/config"
 	"gopkg.in/yaml.v2"
 )
 
