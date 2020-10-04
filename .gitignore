@@ -2,3 +2,4 @@
 .vscode/
 vendor/
 pkged.go
+mocks/

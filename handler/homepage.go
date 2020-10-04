@@ -14,7 +14,7 @@ type homepageData struct {
 
 type HomepageHandler struct {
 	DashboardRepos   *[]service.DashboardRepo
-	DashboardService service.DashboardService
+	DashboardService service.DashboardProvider
 }
 
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {

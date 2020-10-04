@@ -8,6 +8,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+//go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=github.go --destination=../mocks/service/github.go
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
 	GetRepoBranch(ctx context.Context, repo *github.Repository, branchName string) (*github.Branch, error)

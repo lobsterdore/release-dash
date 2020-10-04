@@ -11,22 +11,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type DashboardService interface {
+//go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=dashboard.go --destination=../mocks/service/dashboard.go
+type DashboardProvider interface {
 	GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog
 	GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error)
-	GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*dashboardRepoConfig, error)
+	GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*DashboardRepoConfig, error)
 }
 
-type dashboardService struct {
+type DashboardService struct {
 	GithubService GithubService
 }
 
 type DashboardRepo struct {
-	Config     *dashboardRepoConfig
+	Config     *DashboardRepoConfig
 	Repository *github.Repository
 }
 
-type dashboardRepoConfig struct {
+type DashboardRepoConfig struct {
 	EnvironmentTags []string `yaml:"environment_tags"`
 	Name            string   `yaml:"name"`
 }
@@ -42,24 +43,24 @@ type dashboardChangelogCommits struct {
 	ToTag   string
 }
 
-func NewDashboardService(ctx context.Context, config config.Config) DashboardService {
+func NewDashboardService(ctx context.Context, config config.Config) DashboardProvider {
 	githubService := NewGithubService(ctx, config.Github.Pat)
 
-	service := dashboardService{
+	service := DashboardService{
 		GithubService: githubService,
 	}
 
 	return &service
 }
 
-func NewDashboardRepoConfig(content *github.RepositoryContent) (*dashboardRepoConfig, error) {
+func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoConfig, error) {
 	raw, err := base64.StdEncoding.DecodeString(*content.Content)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	repoConfig := &dashboardRepoConfig{}
+	repoConfig := &DashboardRepoConfig{}
 	if err := defaults.Set(repoConfig); err != nil {
 		log.Fatalf("error: %v", err)
 		return nil, err
@@ -74,7 +75,7 @@ func NewDashboardRepoConfig(content *github.RepositoryContent) (*dashboardRepoCo
 	return repoConfig, nil
 }
 
-func (d *dashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error) {
+func (d *DashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error) {
 	allRepos, err := d.GithubService.GetUserRepos(ctx, "")
 	if err != nil {
 		log.Println(err)
@@ -113,7 +114,7 @@ func (d *dashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardR
 	return &dashboardRepos, nil
 }
 
-func (d *dashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*dashboardRepoConfig, error) {
+func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*DashboardRepoConfig, error) {
 	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, sha, ".releasedash.yml")
 	if err != nil {
 		return nil, err
@@ -130,7 +131,7 @@ func (d *dashboardService) GetDashboardRepoConfig(ctx context.Context, owner str
 	return repoConfig, nil
 }
 
-func (d *dashboardService) GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog {
+func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog {
 
 	var repoChangelogs []DashboardRepoChangelog
 	for _, dashboardRepo := range *dashboardRepos {

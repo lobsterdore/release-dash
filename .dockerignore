@@ -5,3 +5,4 @@ vendor
 docker-compose.yml
 Dockerfile
 README.md
+mocks/

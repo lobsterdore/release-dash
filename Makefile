@@ -7,6 +7,9 @@ GOFILES= $$(go list -f '{{join .GoFiles " "}}')
 PATH:=$(PWD)/bin:${PATH}
 export PATH
 
+export BUILDKIT_PROGRESS=plain
+export DOCKER_BUILDKIT=1
+
 SHELL:=env PATH=$(PATH) /bin/bash
 
 .PHONY: build
@@ -36,6 +39,11 @@ docker_run: docker_build
 		-p 8080:8080 \
 		release-dash
 
+.PHONY: mocks
+mocks:
+	rm -rf mocks
+	go generate -v ./...
+
 .PHONY: run
 run: build
 	release-dash
@@ -43,3 +51,6 @@ run: build
 .PHONY: run_src
 run_src: deps
 	go run main.go
+
+test: mocks
+	go test -v ./...
