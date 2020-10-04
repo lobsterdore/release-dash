@@ -2,12 +2,10 @@ package handler
 
 import (
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/lobsterdore/ops-dash/service"
-	"github.com/markbates/pkger"
 )
 
 type homepageData struct {
@@ -19,25 +17,10 @@ type HomepageHandler struct {
 	DashboardService service.DashboardService
 }
 
-func readTemplateFile(name string) string {
-	templateHandle, pkgerError := pkger.Open("/templates/" + name)
-	if pkgerError != nil {
-		panic(pkgerError)
-	}
-	defer templateHandle.Close()
-
-	bytes, readError := ioutil.ReadAll(templateHandle)
-	if readError != nil {
-		panic(readError)
-	}
-
-	return string(bytes)
-}
-
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {
 	log.Printf("Requested - '/' ")
 	ctx := request.Context()
-	tmpl, err := template.New("homepage").Parse(readTemplateFile("html/homepage.html"))
+	tmpl, err := template.New("homepage").Parse(service.ReadTemplateFile("html/homepage.html"))
 	if err != nil {
 		log.Println(err)
 		return
