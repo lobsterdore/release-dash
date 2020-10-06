@@ -11,7 +11,7 @@ import (
 //go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=github.go --destination=../mocks/service/github.go
 type GithubService interface {
 	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
-	GetRepoBranch(ctx context.Context, repo *github.Repository, branchName string) (*github.Branch, error)
+	GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*github.Branch, error)
 	GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) (*github.RepositoryContent, error)
 	GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error)
 }
@@ -76,8 +76,8 @@ func (c *githubService) GetUserRepos(ctx context.Context, user string) ([]*githu
 	return allRepos, nil
 }
 
-func (c *githubService) GetRepoBranch(ctx context.Context, repo *github.Repository, branchName string) (*github.Branch, error) {
-	branches, _, err := c.Client.Repositories.ListBranches(ctx, *repo.Owner.Login, *repo.Name, nil)
+func (c *githubService) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*github.Branch, error) {
+	branches, _, err := c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, err

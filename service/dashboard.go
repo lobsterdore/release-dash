@@ -15,7 +15,7 @@ import (
 type DashboardProvider interface {
 	GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog
 	GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error)
-	GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*DashboardRepoConfig, error)
+	GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error)
 }
 
 type DashboardService struct {
@@ -85,16 +85,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardR
 	var dashboardRepos []DashboardRepo
 
 	for _, repo := range allRepos {
-		branch, err := d.GithubService.GetRepoBranch(ctx, repo, "master")
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		if branch == nil {
-			continue
-		}
-
-		repoConfig, err := d.GetDashboardRepoConfig(ctx, *repo.Owner.Login, *repo.Name, *branch.Commit.SHA)
+		repoConfig, err := d.GetDashboardRepoConfig(ctx, *repo.Owner.Login, *repo.Name)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -114,8 +105,17 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardR
 	return &dashboardRepos, nil
 }
 
-func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string, sha string) (*DashboardRepoConfig, error) {
-	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, sha, ".releasedash.yml")
+func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error) {
+	branch, err := d.GithubService.GetRepoBranch(ctx, owner, repo, "master")
+	if err != nil {
+		log.Println(err)
+		return nil, nil
+	}
+	if branch == nil {
+		return nil, nil
+	}
+
+	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, *branch.Commit.SHA, ".releasedash.yml")
 	if err != nil {
 		return nil, err
 	}

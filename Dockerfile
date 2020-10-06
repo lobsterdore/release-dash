@@ -4,7 +4,7 @@
 # BUILD STAGE - Stage for building the app
 #
 
-FROM golang:1.14 as build_app
+FROM golang:1.15.2 as build_app
 
 RUN mkdir -p /app/code
 
