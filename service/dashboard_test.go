@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	mock_service "github.com/lobsterdore/release-dash/mocks/service"
-	service "github.com/lobsterdore/release-dash/service"
+	"github.com/lobsterdore/release-dash/service"
 )
 
 func TestGetDashboardReposNoRepos(t *testing.T) {
@@ -207,9 +207,9 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 		Repository: &mockRepo,
 	}
 
-	mockSha := "s"
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
+	mockSha := "s"
 	mockCommit := github.RepositoryCommit{SHA: &mockSha}
 	mockCommitsCompare := github.CommitsComparison{
 		Commits: []github.RepositoryCommit{mockCommit},
