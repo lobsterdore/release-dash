@@ -33,11 +33,11 @@ type DashboardRepoConfig struct {
 }
 
 type DashboardRepoChangelog struct {
-	ChangelogCommits []dashboardChangelogCommits
+	ChangelogCommits []DashboardChangelogCommits
 	Repository       github.Repository
 }
 
-type dashboardChangelogCommits struct {
+type DashboardChangelogCommits struct {
 	Commits []github.RepositoryCommit
 	FromTag string
 	ToTag   string
@@ -139,7 +139,7 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 		repo := *dashboardRepo.Repository.Name
 
 		repoChangelog := DashboardRepoChangelog{
-			ChangelogCommits: []dashboardChangelogCommits{},
+			ChangelogCommits: []DashboardChangelogCommits{},
 			Repository:       *dashboardRepo.Repository,
 		}
 
@@ -151,7 +151,7 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 				fromTag := environmentTags[nextIndex]
 				changelog, err := d.GithubService.GetChangelog(ctx, org, repo, fromTag, toTag)
 				if err == nil {
-					changelogCommits := dashboardChangelogCommits{
+					changelogCommits := DashboardChangelogCommits{
 						Commits: changelog.Commits,
 						FromTag: fromTag,
 						ToTag:   toTag,

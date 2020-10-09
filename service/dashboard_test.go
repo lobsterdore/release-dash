@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -176,4 +177,104 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	config, err := dashboard.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo)
 	assert.NoError(t, err)
 	assert.Nil(t, config)
+}
+
+func TestGetDashboardChangelogsHasChanges(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	dashboard := service.DashboardService{GithubService: mockGithubService}
+
+	mockOwner := "o"
+	mockRepoName := "r"
+
+	mockUser := github.User{
+		Login: &mockOwner,
+	}
+	mockRepo := github.Repository{
+		Owner: &mockUser,
+		Name:  &mockRepoName,
+	}
+
+	var mockDashboardRepos []service.DashboardRepo
+	mockConfig := service.DashboardRepoConfig{
+		EnvironmentTags: []string{"dev", "stg"},
+		Name:            "app",
+	}
+
+	mockDashboardRepo := service.DashboardRepo{
+		Config:     &mockConfig,
+		Repository: &mockRepo,
+	}
+
+	mockSha := "s"
+	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
+
+	mockCommit := github.RepositoryCommit{SHA: &mockSha}
+	mockCommitsCompare := github.CommitsComparison{
+		Commits: []github.RepositoryCommit{mockCommit},
+	}
+
+	mockCtx := context.Background()
+	mockGithubService.
+		EXPECT().
+		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
+		Times(1).
+		Return(&mockCommitsCompare, nil)
+
+	expectedChangelogCommits := service.DashboardChangelogCommits{
+		Commits: mockCommitsCompare.Commits,
+		FromTag: "stg",
+		ToTag:   "dev",
+	}
+	expectedRepoChangelog := service.DashboardRepoChangelog{
+		ChangelogCommits: []service.DashboardChangelogCommits{expectedChangelogCommits},
+		Repository:       mockRepo,
+	}
+
+	expectedRepoChangelogs := []service.DashboardRepoChangelog{expectedRepoChangelog}
+
+	repoChangelogs := dashboard.GetDashboardChangelogs(mockCtx, &mockDashboardRepos)
+
+	assert.Equal(t, expectedRepoChangelogs, repoChangelogs)
+}
+
+func TestGetDashboardChangelogsNoChanges(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	dashboard := service.DashboardService{GithubService: mockGithubService}
+
+	mockCtx := context.Background()
+	mockOwner := "o"
+	mockRepoName := "r"
+
+	mockUser := github.User{
+		Login: &mockOwner,
+	}
+	mockRepo := github.Repository{
+		Owner: &mockUser,
+		Name:  &mockRepoName,
+	}
+
+	var mockDashboardRepos []service.DashboardRepo
+	mockConfig := service.DashboardRepoConfig{
+		EnvironmentTags: []string{"dev", "stg"},
+		Name:            "app",
+	}
+
+	mockDashboardRepo := service.DashboardRepo{
+		Config:     &mockConfig,
+		Repository: &mockRepo,
+	}
+
+	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
+
+	mockGithubService.
+		EXPECT().
+		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
+		Times(1).
+		Return(nil, errors.New(""))
+
+	dashboard.GetDashboardChangelogs(mockCtx, &mockDashboardRepos)
 }
