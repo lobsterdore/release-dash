@@ -19,7 +19,7 @@ type DashboardProvider interface {
 }
 
 type DashboardService struct {
-	GithubService GithubService
+	GithubService GithubProvider
 }
 
 type DashboardRepo struct {

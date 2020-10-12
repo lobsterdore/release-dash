@@ -16,7 +16,7 @@ import (
 func TestGetDashboardReposNoRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
@@ -38,7 +38,7 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
@@ -92,7 +92,7 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 func TestGetDashboardReposHasRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
@@ -161,7 +161,7 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
@@ -182,7 +182,7 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockOwner := "o"
@@ -242,7 +242,7 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubService(ctrl)
+	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
 	dashboard := service.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
