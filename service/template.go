@@ -7,7 +7,7 @@ import (
 )
 
 func ReadTemplateFile(name string) string {
-	templateHandle, pkgerError := pkger.Open("/templates/" + name)
+	templateHandle, pkgerError := pkger.Open("/web/templates/" + name)
 	if pkgerError != nil {
 		panic(pkgerError)
 	}

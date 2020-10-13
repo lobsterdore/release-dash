@@ -37,6 +37,6 @@ make docker_run
 
 ## Todo
 
-* Tests of any kind
+* Integration tests
+* Tests for github service
 * Proper UI
-* Binary + Templates shipped together

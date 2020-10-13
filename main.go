@@ -37,7 +37,7 @@ func NewRouter(ctx context.Context, config config.Config) *http.ServeMux {
 }
 
 func main() {
-	pkger.Include("/templates")
+	pkger.Include("/web/templates")
 
 	log.Printf("Configuring server\n")
 	cfg, err := config.NewConfig()
