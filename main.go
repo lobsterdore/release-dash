@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/markbates/pkger"
 
 	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web"
 )
 
@@ -18,5 +21,13 @@ func main() {
 		log.Fatalf("unable to retrieve configuration %s", err)
 	}
 
-	web.NewWeb(cfg).Run()
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(cfg.Server.Timeout.Server)*time.Second,
+	)
+	defer cancel()
+
+	dashboardService := service.NewDashboardService(ctx, cfg)
+
+	web.NewWeb(cfg, dashboardService).Run(ctx)
 }

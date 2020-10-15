@@ -15,28 +15,25 @@ import (
 )
 
 type WebProvider interface {
-	Run()
+	Run(ctx context.Context)
 	SetupRouter(ctx context.Context) *http.ServeMux
 }
 
 type web struct {
-	Config config.Config
+	Config           config.Config
+	DashboardService service.DashboardProvider
 }
 
-func NewWeb(cfg config.Config) WebProvider {
+func NewWeb(cfg config.Config, dashboardService service.DashboardProvider) WebProvider {
 	web := web{
-		Config: cfg,
+		Config:           cfg,
+		DashboardService: dashboardService,
 	}
 	return web
 }
 
-func (w web) Run() {
+func (w web) Run(ctx context.Context) {
 	var runChan = make(chan os.Signal, 1)
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		time.Duration(w.Config.Server.Timeout.Server)*time.Second,
-	)
-	defer cancel()
 
 	router := w.SetupRouter(ctx)
 
@@ -71,8 +68,7 @@ func (w web) Run() {
 func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
 
-	dashboardService := service.NewDashboardService(ctx, w.Config)
-	dashboardRepos, err := dashboardService.GetDashboardRepos(ctx)
+	dashboardRepos, err := w.DashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -80,7 +76,7 @@ func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 
 	homepageHandler := handler.HomepageHandler{
 		DashboardRepos:   dashboardRepos,
-		DashboardService: dashboardService,
+		DashboardService: w.DashboardService,
 	}
 
 	router.HandleFunc("/", homepageHandler.Http)
