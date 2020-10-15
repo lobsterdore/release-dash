@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/lobsterdore/release-dash/config"
-	"github.com/lobsterdore/release-dash/handler"
 	"github.com/lobsterdore/release-dash/service"
+	"github.com/lobsterdore/release-dash/web/handler"
 )
 
 type WebProvider interface {

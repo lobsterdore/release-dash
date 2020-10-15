@@ -11,9 +11,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-github/github"
 
-	"github.com/lobsterdore/release-dash/handler"
 	mock_service "github.com/lobsterdore/release-dash/mocks/service"
 	"github.com/lobsterdore/release-dash/service"
+	"github.com/lobsterdore/release-dash/web/handler"
 )
 
 func TestHomepageHasRepoHasChanges(t *testing.T) {
