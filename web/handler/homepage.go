@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"html/template"
 	"log"
 	"net/http"
@@ -15,6 +16,16 @@ type homepageData struct {
 type HomepageHandler struct {
 	DashboardRepos   []service.DashboardRepo
 	DashboardService service.DashboardProvider
+}
+
+func (h *HomepageHandler) Initialise(ctx context.Context) {
+	dashboardRepos, err := h.DashboardService.GetDashboardRepos(ctx)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	h.DashboardRepos = dashboardRepos
+	log.Printf("Homepage - Dashboard data refreshed")
 }
 
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {

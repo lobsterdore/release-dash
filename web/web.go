@@ -22,12 +22,21 @@ type WebProvider interface {
 type web struct {
 	Config           config.Config
 	DashboardService service.DashboardProvider
+	HomepageHandler  *handler.HomepageHandler
 }
 
 func NewWeb(cfg config.Config, dashboardService service.DashboardProvider) WebProvider {
+	var placeholderRepos []service.DashboardRepo
+
+	homepageHandler := handler.HomepageHandler{
+		DashboardRepos:   placeholderRepos,
+		DashboardService: dashboardService,
+	}
+
 	web := web{
 		Config:           cfg,
 		DashboardService: dashboardService,
+		HomepageHandler:  &homepageHandler,
 	}
 	return web
 }
@@ -58,6 +67,8 @@ func (w web) Run(ctx context.Context) {
 		}
 	}()
 
+	w.HomepageHandler.Initialise(ctx)
+
 	interrupt := <-runChan
 	log.Printf("Server is shutting down due to %+v\n", interrupt)
 	if err := server.Shutdown(ctx); err != nil {
@@ -68,18 +79,7 @@ func (w web) Run(ctx context.Context) {
 func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
 
-	dashboardRepos, err := w.DashboardService.GetDashboardRepos(ctx)
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-
-	homepageHandler := handler.HomepageHandler{
-		DashboardRepos:   dashboardRepos,
-		DashboardService: w.DashboardService,
-	}
-
-	router.HandleFunc("/", homepageHandler.Http)
+	router.HandleFunc("/", w.HomepageHandler.Http)
 
 	return router
 }
