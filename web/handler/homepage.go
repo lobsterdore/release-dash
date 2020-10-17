@@ -13,7 +13,7 @@ type homepageData struct {
 }
 
 type HomepageHandler struct {
-	DashboardRepos   *[]service.DashboardRepo
+	DashboardRepos   []service.DashboardRepo
 	DashboardService service.DashboardProvider
 }
 

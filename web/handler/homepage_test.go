@@ -82,12 +82,12 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 
 	mockDashboardService.
 		EXPECT().
-		GetDashboardChangelogs(mockCtx, &mockDashboardRepos).
+		GetDashboardChangelogs(mockCtx, mockDashboardRepos).
 		Times(1).
 		Return(mockRepoChangelogs)
 
 	homepageHandler := handler.HomepageHandler{
-		DashboardRepos:   &mockDashboardRepos,
+		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
 	}
 
@@ -144,12 +144,12 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 
 	mockDashboardService.
 		EXPECT().
-		GetDashboardChangelogs(mockCtx, &mockDashboardRepos).
+		GetDashboardChangelogs(mockCtx, mockDashboardRepos).
 		Times(1).
 		Return(mockRepoChangelogs)
 
 	homepageHandler := handler.HomepageHandler{
-		DashboardRepos:   &mockDashboardRepos,
+		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
 	}
 

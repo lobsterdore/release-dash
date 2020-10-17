@@ -32,7 +32,7 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 	var expectedRepos []service.DashboardRepo
 
 	assert.NoError(t, err)
-	assert.Equal(t, &expectedRepos, repos)
+	assert.Equal(t, expectedRepos, repos)
 }
 
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
@@ -86,7 +86,7 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	var expectedRepos []service.DashboardRepo
 
 	assert.NoError(t, err)
-	assert.Equal(t, &expectedRepos, repos)
+	assert.Equal(t, expectedRepos, repos)
 }
 
 func TestGetDashboardReposHasRepos(t *testing.T) {
@@ -155,7 +155,7 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 	expectedRepos = append(expectedRepos, expectedRepo)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &expectedRepos, repos)
+	assert.Equal(t, expectedRepos, repos)
 }
 
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
@@ -234,7 +234,7 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 
 	expectedRepoChangelogs := []service.DashboardRepoChangelog{expectedRepoChangelog}
 
-	repoChangelogs := dashboard.GetDashboardChangelogs(mockCtx, &mockDashboardRepos)
+	repoChangelogs := dashboard.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
 
 	assert.Equal(t, expectedRepoChangelogs, repoChangelogs)
 }
@@ -276,5 +276,5 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 		Times(1).
 		Return(nil, errors.New(""))
 
-	dashboard.GetDashboardChangelogs(mockCtx, &mockDashboardRepos)
+	dashboard.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
 }

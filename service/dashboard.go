@@ -13,8 +13,8 @@ import (
 
 //go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=dashboard.go --destination=../mocks/service/dashboard.go
 type DashboardProvider interface {
-	GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog
-	GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error)
+	GetDashboardChangelogs(ctx context.Context, dashboardRepos []DashboardRepo) []DashboardRepoChangelog
+	GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error)
 	GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error)
 }
 
@@ -75,7 +75,7 @@ func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoCo
 	return repoConfig, nil
 }
 
-func (d *DashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardRepo, error) {
+func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error) {
 	allRepos, err := d.GithubService.GetUserRepos(ctx, "")
 	if err != nil {
 		log.Println(err)
@@ -102,7 +102,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) (*[]DashboardR
 		dashboardRepos = append(dashboardRepos, dashboardRepo)
 	}
 
-	return &dashboardRepos, nil
+	return dashboardRepos, nil
 }
 
 func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error) {
@@ -131,10 +131,10 @@ func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner str
 	return repoConfig, nil
 }
 
-func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboardRepos *[]DashboardRepo) []DashboardRepoChangelog {
+func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboardRepos []DashboardRepo) []DashboardRepoChangelog {
 
 	var repoChangelogs []DashboardRepoChangelog
-	for _, dashboardRepo := range *dashboardRepos {
+	for _, dashboardRepo := range dashboardRepos {
 		org := *dashboardRepo.Repository.Owner.Login
 		repo := *dashboardRepo.Repository.Name
 
