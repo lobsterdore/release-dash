@@ -31,6 +31,7 @@ func NewWeb(cfg config.Config, dashboardService service.DashboardProvider) WebPr
 	homepageHandler := handler.HomepageHandler{
 		DashboardRepos:   placeholderRepos,
 		DashboardService: dashboardService,
+		HasDashboardData: false,
 	}
 
 	web := web{
@@ -67,7 +68,7 @@ func (w web) Run(ctx context.Context) {
 		}
 	}()
 
-	w.HomepageHandler.Initialise(ctx)
+	go w.HomepageHandler.FetchRepos(ctx)
 
 	interrupt := <-runChan
 	log.Printf("Server is shutting down due to %+v\n", interrupt)

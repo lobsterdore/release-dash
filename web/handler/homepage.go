@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/lobsterdore/release-dash/service"
 )
@@ -16,29 +17,56 @@ type homepageData struct {
 type HomepageHandler struct {
 	DashboardRepos   []service.DashboardRepo
 	DashboardService service.DashboardProvider
+	HasDashboardData bool
 }
 
-func (h *HomepageHandler) Initialise(ctx context.Context) {
+func (h *HomepageHandler) FetchReposTicker(ctx context.Context) {
+	h.FetchRepos(ctx)
+	ticker := time.NewTicker(time.Duration(60) * time.Second)
+	for {
+		select {
+		case <-ticker.C:
+			h.FetchRepos(ctx)
+		}
+	}
+}
+
+func (h *HomepageHandler) FetchRepos(ctx context.Context) {
+	log.Printf("Homepage - Dashboard data fetching")
 	dashboardRepos, err := h.DashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	h.DashboardRepos = dashboardRepos
+	h.HasDashboardData = true
 	log.Printf("Homepage - Dashboard data refreshed")
 }
 
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {
 	log.Printf("Requested - '/' ")
 	ctx := request.Context()
-	tmpl, err := template.New("homepage").Parse(service.ReadTemplateFile("html/homepage.html"))
-	if err != nil {
-		log.Println(err)
-		return
-	}
 
-	var data = homepageData{
-		RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
+	var tmpl *template.Template
+	var data homepageData
+	var err error
+
+	if h.HasDashboardData {
+		tmpl, err = template.New("homepage").Parse(service.ReadTemplateFile("html/homepage.html"))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		data = homepageData{
+			RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
+		}
+	} else {
+		tmpl, err = template.New("homepage_loading").Parse(service.ReadTemplateFile("html/homepage_loading.html"))
+		if err != nil {
+			log.Println(err)
+			return
+		}
 	}
 
 	err = tmpl.Execute(respWriter, data)
