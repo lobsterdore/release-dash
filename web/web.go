@@ -68,7 +68,7 @@ func (w web) Run(ctx context.Context) {
 		}
 	}()
 
-	go w.HomepageHandler.FetchRepos(ctx)
+	w.HomepageHandler.FetchReposTicker(w.Config.Github.FetchTimerSeconds)
 
 	interrupt := <-runChan
 	log.Printf("Server is shutting down due to %+v\n", interrupt)

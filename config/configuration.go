@@ -10,7 +10,8 @@ type Config struct {
 }
 
 type github struct {
-	Pat string `env:"GITHUB_PAT" envDefault:""`
+	FetchTimerSeconds int    `env:"GITHUB_FETCH_TIMER_SECONDS" envDefault:"900"`
+	Pat               string `env:"GITHUB_PAT" envDefault:""`
 }
 
 type server struct {
@@ -20,10 +21,10 @@ type server struct {
 }
 
 type serverTimeout struct {
+	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"180"`
+	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"180"`
 	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"180"`
 	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"180"`
-	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"180"`
-	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"180"`
 }
 
 func NewConfig() (Config, error) {

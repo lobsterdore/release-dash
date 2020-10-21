@@ -20,15 +20,14 @@ type HomepageHandler struct {
 	HasDashboardData bool
 }
 
-func (h *HomepageHandler) FetchReposTicker(ctx context.Context) {
-	h.FetchRepos(ctx)
-	ticker := time.NewTicker(time.Duration(60) * time.Second)
-	for {
-		select {
-		case <-ticker.C:
+func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
+	go func() {
+		ctx := context.Background()
+		ticker := time.NewTicker(time.Duration(timerSeconds) * time.Second)
+		for ; true; <-ticker.C {
 			h.FetchRepos(ctx)
 		}
-	}
+	}()
 }
 
 func (h *HomepageHandler) FetchRepos(ctx context.Context) {
