@@ -23,7 +23,6 @@ clean:
 
 .PHONY: deps
 deps:
-	go mod tidy
 	go mod download
 	go get github.com/markbates/pkger/cmd/pkger
 

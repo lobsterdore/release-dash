@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/lobsterdore/release-dash/service"
@@ -21,11 +22,14 @@ type HomepageHandler struct {
 }
 
 func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
+	mux := &sync.Mutex{}
 	go func() {
 		ctx := context.Background()
 		ticker := time.NewTicker(time.Duration(timerSeconds) * time.Second)
 		for ; true; <-ticker.C {
+			mux.Lock()
 			h.FetchRepos(ctx)
+			mux.Unlock()
 		}
 	}()
 }

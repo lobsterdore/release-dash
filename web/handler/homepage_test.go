@@ -89,6 +89,7 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	homepageHandler := handler.HomepageHandler{
 		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
+		HasDashboardData: true,
 	}
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -151,6 +152,7 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 	homepageHandler := handler.HomepageHandler{
 		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
+		HasDashboardData: true,
 	}
 
 	req, err := http.NewRequest("GET", "/", nil)
