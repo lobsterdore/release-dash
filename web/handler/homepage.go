@@ -27,9 +27,11 @@ func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
 		ctx := context.Background()
 		ticker := time.NewTicker(time.Duration(timerSeconds) * time.Second)
 		for ; true; <-ticker.C {
-			mux.Lock()
-			h.FetchRepos(ctx)
-			mux.Unlock()
+			func() {
+				mux.Lock()
+				defer mux.Unlock()
+				h.FetchRepos(ctx)
+			}()
 		}
 	}()
 }
