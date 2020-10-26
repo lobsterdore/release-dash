@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
@@ -25,10 +26,17 @@ type web struct {
 	HomepageHandler  *handler.HomepageHandler
 }
 
-func NewWeb(cfg config.Config, dashboardService service.DashboardProvider) WebProvider {
+func NewWeb(cfg config.Config, ctx context.Context) WebProvider {
 	var placeholderRepos []service.DashboardRepo
 
+	cacheService := cache.NewCacheService(
+		cfg.Cache.DefaultExpirationMinutes,
+		cfg.Cache.CleanupIntervalMinutes,
+	)
+	dashboardService := service.NewDashboardService(ctx, cfg)
+
 	homepageHandler := handler.HomepageHandler{
+		CacheService:     cacheService,
 		DashboardRepos:   placeholderRepos,
 		DashboardService: dashboardService,
 		HasDashboardData: false,

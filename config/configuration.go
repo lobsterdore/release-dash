@@ -5,8 +5,14 @@ import (
 )
 
 type Config struct {
+	Cache  cache
 	Github github
 	Server server
+}
+
+type cache struct {
+	CleanupIntervalMinutes   int `env:"CACHE_CLEANUP_INTERVAL_MINUTES" envDefault:"5"`
+	DefaultExpirationMinutes int `env:"CACHE_DEFAULT_EXPIRATION_MINUTES" envDefault:"10"`
 }
 
 type github struct {

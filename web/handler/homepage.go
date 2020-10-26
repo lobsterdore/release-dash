@@ -8,14 +8,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/service"
 )
 
-type homepageData struct {
+type HomepageData struct {
 	RepoChangelogs []service.DashboardRepoChangelog
 }
 
 type HomepageHandler struct {
+	CacheService     cache.CacheProvider
 	DashboardRepos   []service.DashboardRepo
 	DashboardService service.DashboardProvider
 	HasDashboardData bool
@@ -53,7 +55,7 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	ctx := request.Context()
 
 	var tmpl *template.Template
-	var data homepageData
+	var data HomepageData
 	var err error
 
 	if h.HasDashboardData {
@@ -62,9 +64,14 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 			log.Println(err)
 			return
 		}
-
-		data = homepageData{
-			RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
+		cachedData, found := h.CacheService.Get("homepage_data")
+		if found {
+			data = cachedData.(HomepageData)
+		} else {
+			data = HomepageData{
+				RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
+			}
+			h.CacheService.Set("homepage_data", data)
 		}
 	} else {
 		tmpl, err = template.New("homepage_loading").Parse(service.ReadTemplateFile("html/homepage_loading.html"))

@@ -11,6 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-github/github"
 
+	mock_cache "github.com/lobsterdore/release-dash/mocks/cache"
 	mock_service "github.com/lobsterdore/release-dash/mocks/service"
 	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
@@ -19,6 +20,7 @@ import (
 func TestHomepageHasRepoHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
+	mockCacheService := mock_cache.NewMockCacheProvider(ctrl)
 	mockDashboardService := mock_service.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
@@ -80,13 +82,29 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	var mockRepoChangelogs []service.DashboardRepoChangelog
 	mockRepoChangelogs = append(mockRepoChangelogs, mockRepoChangelog)
 
+	mockHomepageData := handler.HomepageData{
+		RepoChangelogs: mockRepoChangelogs,
+	}
+
+	mockCacheService.
+		EXPECT().
+		Get("homepage_data").
+		Times(1).
+		Return(nil, false)
+
 	mockDashboardService.
 		EXPECT().
 		GetDashboardChangelogs(mockCtx, mockDashboardRepos).
 		Times(1).
 		Return(mockRepoChangelogs)
 
+	mockCacheService.
+		EXPECT().
+		Set("homepage_data", mockHomepageData).
+		Times(1)
+
 	homepageHandler := handler.HomepageHandler{
+		CacheService:     mockCacheService,
 		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
 		HasDashboardData: true,
@@ -114,6 +132,7 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 func TestHomepageHasRepoNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
+	mockCacheService := mock_cache.NewMockCacheProvider(ctrl)
 	mockDashboardService := mock_service.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
@@ -143,13 +162,29 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 	mockCtx := context.Background()
 	var mockRepoChangelogs []service.DashboardRepoChangelog
 
+	mockHomepageData := handler.HomepageData{
+		RepoChangelogs: mockRepoChangelogs,
+	}
+
+	mockCacheService.
+		EXPECT().
+		Get("homepage_data").
+		Times(1).
+		Return(nil, false)
+
 	mockDashboardService.
 		EXPECT().
 		GetDashboardChangelogs(mockCtx, mockDashboardRepos).
 		Times(1).
 		Return(mockRepoChangelogs)
 
+	mockCacheService.
+		EXPECT().
+		Set("homepage_data", mockHomepageData).
+		Times(1)
+
 	homepageHandler := handler.HomepageHandler{
+		CacheService:     mockCacheService,
 		DashboardRepos:   mockDashboardRepos,
 		DashboardService: mockDashboardService,
 		HasDashboardData: true,

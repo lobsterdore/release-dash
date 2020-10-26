@@ -8,7 +8,6 @@ import (
 	"github.com/markbates/pkger"
 
 	"github.com/lobsterdore/release-dash/config"
-	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web"
 )
 
@@ -27,7 +26,5 @@ func main() {
 	)
 	defer cancel()
 
-	dashboardService := service.NewDashboardService(ctx, cfg)
-
-	web.NewWeb(cfg, dashboardService).Run(ctx)
+	web.NewWeb(cfg, ctx).Run(ctx)
 }
