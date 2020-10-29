@@ -13,6 +13,7 @@ import (
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
+	"github.com/markbates/pkger"
 )
 
 type WebProvider interface {
@@ -87,6 +88,9 @@ func (w web) Run(ctx context.Context) {
 
 func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
+
+	fs := http.FileServer(pkger.Dir("/web/static"))
+	router.Handle("/static/", http.StripPrefix("/static", fs))
 
 	router.HandleFunc("/", w.HomepageHandler.Http)
 

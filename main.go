@@ -13,6 +13,7 @@ import (
 
 func main() {
 	_ = pkger.Include("/web/templates")
+	_ = pkger.Include("/web/static")
 
 	log.Printf("Configuring server\n")
 	cfg, err := config.NewConfig()
