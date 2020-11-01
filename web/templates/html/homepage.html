@@ -3,30 +3,42 @@
     <title>Ops Dash</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="/static/materialize/css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="/static/materialize/css/admin-materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="/static/css/main.css"  media="screen,projection"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
-  <body class="grey">
+  <body>
+
+    <header>
+      <div class="navbar-fixed">
+        <nav class="navbar white">
+          <div class="nav-wrapper"><a href="#!" class="brand-logo grey-text text-darken-4">What's in the pipes?</a></div>
+        </nav>
+      </div>      
+    </header>
+
+    <main>
     <div class="container">
-      <h1>What's in the pipes</h1>
+
 {{range .RepoChangelogs }}      
-        <div class="row teal lighten-1 z-depth-1">
+        <div class="row">
           <div class="col s12"><h2>{{ .Repository.Name }}</h2></div>
   {{range .ChangelogCommits }}
-          <div class="col s3">
-            <div class="card purple darken-2 white-text z-depth-1">
+          <div class="col s3 {{ .ToTag }}-{{ .FromTag }}">
+            <div class="card admin-yellow z-depth-1">
+              <div class="card-toolbar">
+                <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToTag }} > {{ .FromTag }}</div>
+              </div>
               <div class="card-content">
-                <span class="card-title">{{ .ToTag }} > {{ .FromTag }}</span>
     {{range .Commits }}
                 <div class="row">
                   <div class="col s3"><img src="{{ .Author.AvatarURL }}" class="circle responsive-img" /></div>
                   <div class="col s9">
-                    <p class="white-text">
+                    <span class="black-text">
                       {{ .Commit.Message }}
-                    </p>
-                    <p class="white-text">
-                      <a href="{{ .HTMLURL }}">View Commit</a>
-                    </p>
+                    </span>
                   </div>
+                  <div class="col s12 card-link"><span><a class="white-text" href="{{ .HTMLURL }}" target="_blank"><i class="material-icons left">link</i>View Commit</a></span></div>
                 </div>
     {{ end }}
               </div>
@@ -36,6 +48,7 @@
         </div>
 {{ end }}
     </div>
+  </main>
     <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
   </body>
 </html>

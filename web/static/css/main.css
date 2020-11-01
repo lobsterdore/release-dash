@@ -1,0 +1,27 @@
+body {
+    background-color: #f4f4f4;    
+}
+
+h1 {
+    font-size: 3.4em;
+}
+
+h2 {
+    font-size: 1.7em;
+}
+
+.card .card-toolbar {
+    padding: 24px 24px 0px 24px;
+}
+
+.card .card-content {
+    padding-bottom: 6px;
+}
+
+.card .card-link {
+    padding-top: 10px;
+}
+
+.grey-text {
+    color: #424242;
+}
