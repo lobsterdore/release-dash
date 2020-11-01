@@ -10,6 +10,15 @@ h2 {
     font-size: 1.7em;
 }
 
+.card {
+    background-color: #ffc400;
+}
+
+
+.container-stg-container-prd .card {
+    background-color: #ff4081;
+}
+
 .card .card-toolbar {
     padding: 24px 24px 0px 24px;
 }

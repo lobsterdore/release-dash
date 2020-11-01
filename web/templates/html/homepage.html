@@ -8,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
   <body>
-
     <header>
       <div class="navbar-fixed">
         <nav class="navbar white">
@@ -16,16 +15,14 @@
         </nav>
       </div>      
     </header>
-
     <main>
-    <div class="container">
-
+      <div class="container">
 {{range .RepoChangelogs }}      
         <div class="row">
           <div class="col s12"><h2>{{ .Repository.Name }}</h2></div>
   {{range .ChangelogCommits }}
           <div class="col s3 {{ .ToTag }}-{{ .FromTag }}">
-            <div class="card admin-yellow z-depth-1">
+            <div class="card z-depth-1">
               <div class="card-toolbar">
                 <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToTag }} > {{ .FromTag }}</div>
               </div>
@@ -47,8 +44,8 @@
   {{ end }}
         </div>
 {{ end }}
-    </div>
-  </main>
+      </div>
+    </main>
     <script type="text/javascript" src="/static/materialize/js/materialize.min.js"></script>
   </body>
 </html>
