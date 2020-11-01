@@ -6,6 +6,16 @@ import (
 	"github.com/markbates/pkger"
 )
 
+func GetTemplateFilePath(name string) string {
+	templateHandle, pkgerError := pkger.Open("/web/templates/" + name)
+	if pkgerError != nil {
+		panic(pkgerError)
+	}
+	defer templateHandle.Close()
+
+	return templateHandle.Path().Name
+}
+
 func ReadTemplateFile(name string) string {
 	templateHandle, pkgerError := pkger.Open("/web/templates/" + name)
 	if pkgerError != nil {

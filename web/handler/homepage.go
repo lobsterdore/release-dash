@@ -58,12 +58,27 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	var data HomepageData
 	var err error
 
+	// fmt.Println(service.GetTemplateFilePath("html/homepage.html"))
+
+	// tmpl["index.html"].Must(template.ParseFiles("index.tmpl", sidebar_index.tmpl" "sidebar_base.tmpl", "listings_table.tmpl", "base.tmpl")
+
+	// , service.GetTemplateFilePath("html/base.html")
+
+	// fmt.Println(service.ReadTemplateFile("html/base.html") + service.ReadTemplateFile("html/homepage.html"))
+
 	if h.HasDashboardData {
-		tmpl, err = template.New("homepage").Parse(service.ReadTemplateFile("html/homepage.html"))
+		tmpl, err = template.New("homepage").Parse(service.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Println(err)
 			return
 		}
+
+		tmpl, err = tmpl.Parse(service.ReadTemplateFile("html/homepage.html"))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
 		cachedData, found := h.CacheService.Get("homepage_data")
 		if found {
 			data = cachedData.(HomepageData)
@@ -74,7 +89,13 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 			h.CacheService.Set("homepage_data", data)
 		}
 	} else {
-		tmpl, err = template.New("homepage_loading").Parse(service.ReadTemplateFile("html/homepage_loading.html"))
+		tmpl, err = template.New("homepage_loading").Parse(service.ReadTemplateFile("html/base.html"))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		tmpl, err = tmpl.Parse(service.ReadTemplateFile("html/homepage_loading.html"))
 		if err != nil {
 			log.Println(err)
 			return
