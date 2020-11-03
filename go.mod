@@ -10,9 +10,11 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/markbates/pkger v0.17.1
+	github.com/mash/go-accesslog v1.2.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.5.1
-	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
-	google.golang.org/appengine v1.1.0 // indirect
+	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
+	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	gopkg.in/yaml.v2 v2.3.0
 )

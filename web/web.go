@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,8 +12,19 @@ import (
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
+
 	"github.com/markbates/pkger"
+	"github.com/rs/zerolog/log"
+
+	accesslog "github.com/mash/go-accesslog"
 )
+
+type logger struct {
+}
+
+func (l logger) Log(record accesslog.LogRecord) {
+	log.Print(record.Method + " " + record.Uri)
+}
 
 type WebProvider interface {
 	Run(ctx context.Context)
@@ -55,10 +65,11 @@ func (w web) Run(ctx context.Context) {
 	var runChan = make(chan os.Signal, 1)
 
 	router := w.SetupRouter(ctx)
+	l := logger{}
 
 	server := &http.Server{
 		Addr:         w.Config.Server.Host + ":" + w.Config.Server.Port,
-		Handler:      router,
+		Handler:      accesslog.NewLoggingHandler(router, l),
 		ReadTimeout:  time.Duration(w.Config.Server.Timeout.Read) * time.Second,
 		WriteTimeout: time.Duration(w.Config.Server.Timeout.Write) * time.Second,
 		IdleTimeout:  time.Duration(w.Config.Server.Timeout.Idle) * time.Second,
@@ -66,13 +77,13 @@ func (w web) Run(ctx context.Context) {
 
 	signal.Notify(runChan, os.Interrupt, syscall.SIGTSTP)
 
-	log.Printf("Server is starting on %s\n", server.Addr)
+	log.Printf("Server is starting on %s", server.Addr)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
 			} else {
-				log.Fatalf("Server failed to start due to err: %v", err)
+				log.Fatal().Err(err).Msg("Server failed to start")
 			}
 		}
 	}()
@@ -80,18 +91,17 @@ func (w web) Run(ctx context.Context) {
 	w.HomepageHandler.FetchReposTicker(w.Config.Github.FetchTimerSeconds)
 
 	interrupt := <-runChan
-	log.Printf("Server is shutting down due to %+v\n", interrupt)
+	log.Printf("Server is shutting down due to %+v", interrupt)
 	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalf("Server was unable to gracefully shutdown due to err: %+v", err)
+		log.Fatal().Err(err).Msg("Server was unable to gracefully shutdown")
 	}
 }
 
 func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 	router := http.NewServeMux()
-
 	fs := http.FileServer(pkger.Dir("/web/static"))
-	router.Handle("/static/", http.StripPrefix("/static", fs))
 
+	router.Handle("/static/", http.StripPrefix("/static", fs))
 	router.HandleFunc("/", w.HomepageHandler.Http)
 
 	return router

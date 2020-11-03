@@ -3,11 +3,12 @@ package service
 import (
 	"context"
 	"encoding/base64"
-	"log"
 
 	"github.com/creasty/defaults"
 	"github.com/google/go-github/github"
 	"github.com/lobsterdore/release-dash/config"
+
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,19 +57,19 @@ func NewDashboardService(ctx context.Context, config config.Config) DashboardPro
 func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoConfig, error) {
 	raw, err := base64.StdEncoding.DecodeString(*content.Content)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not decode repo config")
 		return nil, err
 	}
 
 	repoConfig := &DashboardRepoConfig{}
 	if err := defaults.Set(repoConfig); err != nil {
-		log.Fatalf("error: %v", err)
+		log.Error().Err(err).Msg("Could not set repo config defaults")
 		return nil, err
 	}
 
 	err = yaml.Unmarshal([]byte(string(raw)), repoConfig)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Error().Err(err).Msg("Could not set unmarshal repo config")
 		return nil, err
 	}
 
@@ -78,7 +79,7 @@ func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoCo
 func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error) {
 	allRepos, err := d.GithubService.GetUserRepos(ctx, "")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get dashboard repos")
 		return nil, err
 	}
 
@@ -87,7 +88,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 	for _, repo := range allRepos {
 		repoConfig, err := d.GetDashboardRepoConfig(ctx, *repo.Owner.Login, *repo.Name)
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("Could not get repo config file")
 			continue
 		}
 		if repoConfig == nil {
@@ -108,7 +109,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error) {
 	branch, err := d.GithubService.GetRepoBranch(ctx, owner, repo, "master")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo branch")
 		return nil, nil
 	}
 	if branch == nil {
@@ -125,7 +126,7 @@ func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner str
 
 	repoConfig, err := NewDashboardRepoConfig(repoConfigContent)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not create repo config")
 		return nil, err
 	}
 	return repoConfig, nil

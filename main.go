@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
+	"os"
 	"time"
 
 	"github.com/markbates/pkger"
+	"github.com/rs/zerolog/log"
 
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/web"
@@ -15,10 +16,11 @@ func main() {
 	_ = pkger.Include("/web/templates")
 	_ = pkger.Include("/web/static")
 
-	log.Printf("Configuring server\n")
+	log.Print("Configuring server")
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("unable to retrieve configuration %s", err)
+		log.Fatal().Err(err).Msg("Unable to retrieve configuration")
+		os.Exit(3)
 	}
 
 	ctx, cancel := context.WithTimeout(

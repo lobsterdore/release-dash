@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/google/go-github/github"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
 
@@ -37,19 +37,19 @@ func NewGithubService(ctx context.Context, pat string) GithubProvider {
 func (c *GithubService) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error) {
 	refFrom, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo from tag")
 		return nil, err
 	}
 
 	refTo, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo to tag")
 		return nil, err
 	}
 
 	comparison, _, err := c.Client.Repositories.CompareCommits(ctx, owner, repo, *refFrom.Object.SHA, *refTo.Object.SHA)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo tag compare")
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func (c *GithubService) GetUserRepos(ctx context.Context, user string) ([]*githu
 	for {
 		repos, resp, err := c.Client.Repositories.List(ctx, "", opts)
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err).Msg("Could not get user repos")
 			return nil, err
 		}
 		allRepos = append(allRepos, repos...)
@@ -79,7 +79,7 @@ func (c *GithubService) GetUserRepos(ctx context.Context, user string) ([]*githu
 func (c *GithubService) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*github.Branch, error) {
 	branches, _, err := c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo branches")
 		return nil, err
 	}
 
@@ -95,7 +95,7 @@ func (c *GithubService) GetRepoBranch(ctx context.Context, owner string, repo st
 func (c *GithubService) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) (*github.RepositoryContent, error) {
 	repoTree, _, err := c.Client.Git.GetTree(ctx, owner, repo, sha, true)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Could not get repo tree")
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func (c *GithubService) GetRepoFile(ctx context.Context, owner string, repo stri
 		if *treeEntry.Path == filePath {
 			content, _, _, err := c.Client.Repositories.GetContents(ctx, owner, repo, filePath, nil)
 			if err != nil {
-				log.Println(err)
+				log.Error().Err(err).Msg("Could not get repo file contents")
 				return nil, err
 			}
 			return content, nil
