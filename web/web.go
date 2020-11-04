@@ -10,6 +10,7 @@ import (
 
 	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/logging"
 	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
 
@@ -18,13 +19,6 @@ import (
 
 	accesslog "github.com/mash/go-accesslog"
 )
-
-type logger struct {
-}
-
-func (l logger) Log(record accesslog.LogRecord) {
-	log.Print(record.Method + " " + record.Uri)
-}
 
 type WebProvider interface {
 	Run(ctx context.Context)
@@ -65,11 +59,11 @@ func (w web) Run(ctx context.Context) {
 	var runChan = make(chan os.Signal, 1)
 
 	router := w.SetupRouter(ctx)
-	l := logger{}
+	httpLogger := logging.HttpLogger{}
 
 	server := &http.Server{
 		Addr:         w.Config.Server.Host + ":" + w.Config.Server.Port,
-		Handler:      accesslog.NewLoggingHandler(router, l),
+		Handler:      accesslog.NewLoggingHandler(router, httpLogger),
 		ReadTimeout:  time.Duration(w.Config.Server.Timeout.Read) * time.Second,
 		WriteTimeout: time.Duration(w.Config.Server.Timeout.Write) * time.Second,
 		IdleTimeout:  time.Duration(w.Config.Server.Timeout.Idle) * time.Second,
