@@ -1,4 +1,4 @@
-package service
+package dashboard
 
 import (
 	"context"
@@ -7,12 +7,13 @@ import (
 	"github.com/creasty/defaults"
 	"github.com/google/go-github/github"
 	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/scm"
 
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
-//go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=dashboard.go --destination=../mocks/service/dashboard.go
+//go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=dashboard.go --destination=../mocks/dashboard/dashboard.go
 type DashboardProvider interface {
 	GetDashboardChangelogs(ctx context.Context, dashboardRepos []DashboardRepo) []DashboardRepoChangelog
 	GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error)
@@ -20,7 +21,7 @@ type DashboardProvider interface {
 }
 
 type DashboardService struct {
-	GithubService GithubProvider
+	GithubService scm.GithubProvider
 }
 
 type DashboardRepo struct {
@@ -45,7 +46,7 @@ type DashboardChangelogCommits struct {
 }
 
 func NewDashboardService(ctx context.Context, config config.Config) DashboardProvider {
-	githubService := NewGithubService(ctx, config.Github.Pat)
+	githubService := scm.NewGithubService(ctx, config.Github.Pat)
 
 	service := DashboardService{
 		GithubService: githubService,

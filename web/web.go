@@ -10,8 +10,8 @@ import (
 
 	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/logging"
-	"github.com/lobsterdore/release-dash/service"
 	"github.com/lobsterdore/release-dash/web/handler"
 
 	"github.com/markbates/pkger"
@@ -27,18 +27,18 @@ type WebProvider interface {
 
 type web struct {
 	Config           config.Config
-	DashboardService service.DashboardProvider
+	DashboardService dashboard.DashboardProvider
 	HomepageHandler  *handler.HomepageHandler
 }
 
 func NewWeb(cfg config.Config, ctx context.Context) WebProvider {
-	var placeholderRepos []service.DashboardRepo
+	var placeholderRepos []dashboard.DashboardRepo
 
 	cacheService := cache.NewCacheService(
 		cfg.Cache.DefaultExpirationMinutes,
 		cfg.Cache.CleanupIntervalMinutes,
 	)
-	dashboardService := service.NewDashboardService(ctx, cfg)
+	dashboardService := dashboard.NewDashboardService(ctx, cfg)
 
 	homepageHandler := handler.HomepageHandler{
 		CacheService:     cacheService,

@@ -11,17 +11,18 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-github/github"
 
-	mock_cache "github.com/lobsterdore/release-dash/mocks/cache"
-	mock_service "github.com/lobsterdore/release-dash/mocks/service"
-	"github.com/lobsterdore/release-dash/service"
+	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/web/handler"
+
+	mock_cache "github.com/lobsterdore/release-dash/mocks/cache"
+	mock_dashboard "github.com/lobsterdore/release-dash/mocks/dashboard"
 )
 
 func TestHomepageHasRepoHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	mockCacheService := mock_cache.NewMockCacheProvider(ctrl)
-	mockDashboardService := mock_service.NewMockDashboardProvider(ctrl)
+	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
 	mockRepoName := "r"
@@ -36,13 +37,13 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 		Name:  &mockRepoName,
 	}
 
-	var mockDashboardRepos []service.DashboardRepo
-	mockConfig := service.DashboardRepoConfig{
+	var mockDashboardRepos []dashboard.DashboardRepo
+	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := service.DashboardRepo{
+	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
 		Repository: &mockRepo,
 	}
@@ -69,17 +70,17 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 		Commits: []github.RepositoryCommit{mockRepoCommit},
 	}
 
-	mockChangelogCommits := service.DashboardChangelogCommits{
+	mockChangelogCommits := dashboard.DashboardChangelogCommits{
 		Commits: mockCommitsCompare.Commits,
 		FromTag: "stg",
 		ToTag:   "dev",
 	}
-	mockRepoChangelog := service.DashboardRepoChangelog{
-		ChangelogCommits: []service.DashboardChangelogCommits{mockChangelogCommits},
+	mockRepoChangelog := dashboard.DashboardRepoChangelog{
+		ChangelogCommits: []dashboard.DashboardChangelogCommits{mockChangelogCommits},
 		Repository:       mockRepo,
 	}
 
-	var mockRepoChangelogs []service.DashboardRepoChangelog
+	var mockRepoChangelogs []dashboard.DashboardRepoChangelog
 	mockRepoChangelogs = append(mockRepoChangelogs, mockRepoChangelog)
 
 	mockHomepageData := handler.HomepageData{
@@ -133,7 +134,7 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	mockCacheService := mock_cache.NewMockCacheProvider(ctrl)
-	mockDashboardService := mock_service.NewMockDashboardProvider(ctrl)
+	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
 	mockRepoName := "r"
@@ -146,13 +147,13 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 		Name:  &mockRepoName,
 	}
 
-	var mockDashboardRepos []service.DashboardRepo
-	mockConfig := service.DashboardRepoConfig{
+	var mockDashboardRepos []dashboard.DashboardRepo
+	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := service.DashboardRepo{
+	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
 		Repository: &mockRepo,
 	}
@@ -160,7 +161,7 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
 	mockCtx := context.Background()
-	var mockRepoChangelogs []service.DashboardRepoChangelog
+	var mockRepoChangelogs []dashboard.DashboardRepoChangelog
 
 	mockHomepageData := handler.HomepageData{
 		RepoChangelogs: mockRepoChangelogs,

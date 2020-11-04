@@ -1,4 +1,4 @@
-package service_test
+package dashboard_test
 
 import (
 	"context"
@@ -9,15 +9,15 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/stretchr/testify/assert"
 
-	mock_service "github.com/lobsterdore/release-dash/mocks/service"
-	"github.com/lobsterdore/release-dash/service"
+	dashboard "github.com/lobsterdore/release-dash/dashboard"
+	mock_scm "github.com/lobsterdore/release-dash/mocks/scm"
 )
 
 func TestGetDashboardReposNoRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
 
@@ -27,9 +27,9 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 		Times(1).
 		Return(nil, nil)
 
-	repos, err := dashboard.GetDashboardRepos(mockCtx)
+	repos, err := dashboardService.GetDashboardRepos(mockCtx)
 
-	var expectedRepos []service.DashboardRepo
+	var expectedRepos []dashboard.DashboardRepo
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedRepos, repos)
@@ -38,8 +38,8 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
@@ -81,9 +81,9 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 		Times(1).
 		Return(nil, nil)
 
-	repos, err := dashboard.GetDashboardRepos(mockCtx)
+	repos, err := dashboardService.GetDashboardRepos(mockCtx)
 
-	var expectedRepos []service.DashboardRepo
+	var expectedRepos []dashboard.DashboardRepo
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedRepos, repos)
@@ -92,8 +92,8 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 func TestGetDashboardReposHasRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
@@ -139,15 +139,15 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 		Times(1).
 		Return(&mockRepoContent, nil)
 
-	repos, err := dashboard.GetDashboardRepos(mockCtx)
+	repos, err := dashboardService.GetDashboardRepos(mockCtx)
 
-	var expectedRepos []service.DashboardRepo
-	mockConfig := service.DashboardRepoConfig{
+	var expectedRepos []dashboard.DashboardRepo
+	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev"},
 		Name:            "app",
 	}
 
-	expectedRepo := service.DashboardRepo{
+	expectedRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
 		Repository: &mockRepo,
 	}
@@ -161,8 +161,8 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
@@ -174,7 +174,7 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 		Times(1).
 		Return(nil, nil)
 
-	config, err := dashboard.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo)
+	config, err := dashboardService.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo)
 	assert.NoError(t, err)
 	assert.Nil(t, config)
 }
@@ -182,8 +182,8 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockOwner := "o"
 	mockRepoName := "r"
@@ -196,13 +196,13 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 		Name:  &mockRepoName,
 	}
 
-	var mockDashboardRepos []service.DashboardRepo
-	mockConfig := service.DashboardRepoConfig{
+	var mockDashboardRepos []dashboard.DashboardRepo
+	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := service.DashboardRepo{
+	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
 		Repository: &mockRepo,
 	}
@@ -222,19 +222,19 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 		Times(1).
 		Return(&mockCommitsCompare, nil)
 
-	expectedChangelogCommits := service.DashboardChangelogCommits{
+	expectedChangelogCommits := dashboard.DashboardChangelogCommits{
 		Commits: mockCommitsCompare.Commits,
 		FromTag: "stg",
 		ToTag:   "dev",
 	}
-	expectedRepoChangelog := service.DashboardRepoChangelog{
-		ChangelogCommits: []service.DashboardChangelogCommits{expectedChangelogCommits},
+	expectedRepoChangelog := dashboard.DashboardRepoChangelog{
+		ChangelogCommits: []dashboard.DashboardChangelogCommits{expectedChangelogCommits},
 		Repository:       mockRepo,
 	}
 
-	expectedRepoChangelogs := []service.DashboardRepoChangelog{expectedRepoChangelog}
+	expectedRepoChangelogs := []dashboard.DashboardRepoChangelog{expectedRepoChangelog}
 
-	repoChangelogs := dashboard.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
+	repoChangelogs := dashboardService.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
 
 	assert.Equal(t, expectedRepoChangelogs, repoChangelogs)
 }
@@ -242,8 +242,8 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_service.NewMockGithubProvider(ctrl)
-	dashboard := service.DashboardService{GithubService: mockGithubService}
+	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
+	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
@@ -257,13 +257,13 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 		Name:  &mockRepoName,
 	}
 
-	var mockDashboardRepos []service.DashboardRepo
-	mockConfig := service.DashboardRepoConfig{
+	var mockDashboardRepos []dashboard.DashboardRepo
+	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := service.DashboardRepo{
+	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
 		Repository: &mockRepo,
 	}
@@ -276,5 +276,5 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 		Times(1).
 		Return(nil, errors.New(""))
 
-	dashboard.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
+	dashboardService.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
 }

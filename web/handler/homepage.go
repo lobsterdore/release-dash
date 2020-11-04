@@ -9,18 +9,19 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/lobsterdore/release-dash/asset"
 	"github.com/lobsterdore/release-dash/cache"
-	"github.com/lobsterdore/release-dash/service"
+	"github.com/lobsterdore/release-dash/dashboard"
 )
 
 type HomepageData struct {
-	RepoChangelogs []service.DashboardRepoChangelog
+	RepoChangelogs []dashboard.DashboardRepoChangelog
 }
 
 type HomepageHandler struct {
 	CacheService     cache.CacheProvider
-	DashboardRepos   []service.DashboardRepo
-	DashboardService service.DashboardProvider
+	DashboardRepos   []dashboard.DashboardRepo
+	DashboardService dashboard.DashboardProvider
 	HasDashboardData bool
 }
 
@@ -59,13 +60,13 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	var err error
 
 	if h.HasDashboardData {
-		tmpl, err = template.New("homepage").Parse(service.ReadTemplateFile("html/base.html"))
+		tmpl, err = template.New("homepage").Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Print(err)
 			return
 		}
 
-		tmpl, err = tmpl.Parse(service.ReadTemplateFile("html/homepage.html"))
+		tmpl, err = tmpl.Parse(asset.ReadTemplateFile("html/homepage.html"))
 		if err != nil {
 			log.Print(err)
 			return
@@ -81,13 +82,13 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 			h.CacheService.Set("homepage_data", data)
 		}
 	} else {
-		tmpl, err = template.New("homepage_loading").Parse(service.ReadTemplateFile("html/base.html"))
+		tmpl, err = template.New("homepage_loading").Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Print(err)
 			return
 		}
 
-		tmpl, err = tmpl.Parse(service.ReadTemplateFile("html/homepage_loading.html"))
+		tmpl, err = tmpl.Parse(asset.ReadTemplateFile("html/homepage_loading.html"))
 		if err != nil {
 			log.Print(err)
 			return
