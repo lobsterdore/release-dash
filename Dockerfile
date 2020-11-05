@@ -40,7 +40,7 @@ RUN apt update -yq && \
 #
 # RUNTIME STAGE - Stage for running the service
 #
-FROM base as runtime
+FROM base as run
 
 USER release_dash
 

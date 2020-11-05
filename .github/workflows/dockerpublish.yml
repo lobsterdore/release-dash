@@ -1,0 +1,57 @@
+---
+
+name: Docker
+
+on:
+  push:
+    branches:
+      - main
+      
+env:
+  APP_NAME: release-dash
+  DOCKER_BUILD_TARGET: run
+  DOCKER_REPO_URL: ghcr.io
+  DOCKER_REPOSITORY: lobsterdore
+
+jobs:
+
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout out repo
+        uses: actions/checkout@v2
+        with:
+          path: release-dash
+
+      - name: Build image
+        run: |
+          cd $GITHUB_WORKSPACE/$APP_NAME
+          docker build . --file Dockerfile --tag $APP_NAME --target $DOCKER_BUILD_TARGET
+
+      - name: Log into registry
+        run: docker login $DOCKER_REPO_URL -u ${{ secrets.DOCKERHUB_USERNAME }} --password "${{ secrets.DOCKERHUB_PASSWORD }}"
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.17.2
+        id: tag_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE: release-dash
+          WITH_V: true
+
+      - name: Push image
+        run: |
+          IMAGE_ID=$DOCKER_REPO_URL/$DOCKER_REPOSITORY/$APP_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip "v" prefix from tag name
+          VERSION=$(echo ${{ steps.tag_release.outputs.new_tag }} | sed -e 's/^v//')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          docker tag $APP_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
