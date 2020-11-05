@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - main
-      
+
 env:
   APP_NAME: release-dash
   DOCKER_BUILD_TARGET: run
@@ -33,10 +33,11 @@ jobs:
         run: docker login $DOCKER_REPO_URL -u ${{ secrets.DOCKERHUB_USERNAME }} --password "${{ secrets.DOCKERHUB_PASSWORD }}"
 
       - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.17.2
+        uses: anothrNick/github-tag-action@1.33.0
         id: tag_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCHES: main
           SOURCE: release-dash
           WITH_V: true
 
