@@ -35,7 +35,7 @@ type web struct {
 func NewWeb(cfg config.Config, ctx context.Context) WebProvider {
 	var placeholderRepos []dashboard.DashboardRepo
 
-	cacheService := cache.NewCacheService(
+	cacheService := cache.NewLocalCacheService(
 		cfg.Cache.DefaultExpirationMinutes,
 		cfg.Cache.CleanupIntervalMinutes,
 	)

@@ -19,7 +19,7 @@ type HomepageData struct {
 }
 
 type HomepageHandler struct {
-	CacheService     cache.CacheProvider
+	CacheService     cache.CacheAdaptor
 	DashboardRepos   []dashboard.DashboardRepo
 	DashboardService dashboard.DashboardProvider
 	HasDashboardData bool
