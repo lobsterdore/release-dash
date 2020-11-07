@@ -12,7 +12,7 @@ env:
   DOCKER_BUILD_TARGET: run
   DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
   DOCKER_REPO_URL: docker.pkg.github.com
-  DOCKER_REPOSITORY: lobsterdore
+  DOCKER_REPOSITORY: lobsterdore/release-dash
   DOCKER_USER: "${{ github.actor }}"
 
 jobs:
