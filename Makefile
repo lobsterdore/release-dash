@@ -48,10 +48,8 @@ docker_test: docker_build
 	docker build \
 		--cache-from release-dash \
 		-t release-dash-test \
-		--target test \
-		.
+		--target test .
 	docker run \
-		-it \
 		release-dash-test
 
 .PHONY: mocks
