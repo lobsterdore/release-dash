@@ -32,16 +32,9 @@ type web struct {
 	HomepageHandler  *handler.HomepageHandler
 }
 
-func NewWeb(cfg config.Config, ctx context.Context) WebProvider {
+func NewWeb(cfg config.Config, ctx context.Context, cacheService cache.CacheAdaptor, scmService scm.ScmAdaptor) WebProvider {
 	var placeholderRepos []dashboard.DashboardRepo
-
-	cacheService := cache.NewLocalCacheService(
-		cfg.Cache.DefaultExpirationMinutes,
-		cfg.Cache.CleanupIntervalMinutes,
-	)
-
-	githubService := scm.NewGithubService(ctx, cfg.Github.Pat)
-	dashboardService := dashboard.NewDashboardService(ctx, cfg, githubService)
+	dashboardService := dashboard.NewDashboardService(ctx, cfg, scmService)
 
 	homepageHandler := handler.HomepageHandler{
 		CacheService:     cacheService,

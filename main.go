@@ -8,7 +8,9 @@ import (
 	"github.com/markbates/pkger"
 	"github.com/rs/zerolog/log"
 
+	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
+	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web"
 )
 
@@ -29,5 +31,12 @@ func main() {
 	)
 	defer cancel()
 
-	web.NewWeb(cfg, ctx).Run(ctx)
+	cacheService := cache.NewLocalCacheService(
+		cfg.Cache.DefaultExpirationMinutes,
+		cfg.Cache.CleanupIntervalMinutes,
+	)
+
+	githubService := scm.NewGithubService(ctx, cfg.Github.Pat)
+
+	web.NewWeb(cfg, ctx, cacheService, githubService).Run(ctx)
 }
