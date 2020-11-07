@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
-	"github.com/google/go-github/github"
 
 	"github.com/lobsterdore/release-dash/dashboard"
+	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web/handler"
 
 	mock_cache "github.com/lobsterdore/release-dash/mocks/cache"
@@ -28,13 +28,9 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	mockRepoName := "r"
 	mockAvatarURL := "au"
 
-	mockUser := github.User{
-		AvatarURL: &mockAvatarURL,
-		Login:     &mockOwner,
-	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
+	mockRepo := scm.ScmRepository{
+		OwnerName: mockOwner,
+		Name:      mockRepoName,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
@@ -45,33 +41,24 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 
 	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: &mockRepo,
+		Repository: mockRepo,
 	}
 
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
 	mockCtx := context.Background()
 
-	mockSha := "s"
 	mockMessage := "mock message"
-	mockCommit := github.Commit{
-		SHA:     &mockSha,
-		Message: &mockMessage,
-	}
-
 	mockUrl := "u"
-	mockRepoCommit := github.RepositoryCommit{
-		SHA:     &mockSha,
-		Commit:  &mockCommit,
-		HTMLURL: &mockUrl,
-		Author:  &mockUser,
+	mockCommit := scm.ScmCommit{
+		AuthorAvatarUrl: mockAvatarURL,
+		Message:         mockMessage,
+		HtmlUrl:         mockUrl,
 	}
-	mockCommitsCompare := github.CommitsComparison{
-		Commits: []github.RepositoryCommit{mockRepoCommit},
-	}
+	mockCommitsCompare := []scm.ScmCommit{mockCommit}
 
 	mockChangelogCommits := dashboard.DashboardChangelogCommits{
-		Commits: mockCommitsCompare.Commits,
+		Commits: mockCommitsCompare,
 		FromTag: "stg",
 		ToTag:   "dev",
 	}
@@ -139,12 +126,9 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 	mockOwner := "o"
 	mockRepoName := "r"
 
-	mockUser := github.User{
-		Login: &mockOwner,
-	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
+	mockRepo := scm.ScmRepository{
+		Name:      mockRepoName,
+		OwnerName: mockOwner,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
@@ -155,7 +139,7 @@ func TestHomepageHasRepoNoChanges(t *testing.T) {
 
 	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: &mockRepo,
+		Repository: mockRepo,
 	}
 
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)

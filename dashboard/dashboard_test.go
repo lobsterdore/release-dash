@@ -2,26 +2,27 @@ package dashboard_test
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/google/go-github/github"
 	"github.com/stretchr/testify/assert"
 
 	dashboard "github.com/lobsterdore/release-dash/dashboard"
 	mock_scm "github.com/lobsterdore/release-dash/mocks/scm"
+	"github.com/lobsterdore/release-dash/scm"
 )
 
 func TestGetDashboardReposNoRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetUserRepos(mockCtx, "").
 		Times(1).
@@ -38,44 +39,39 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
 	mockRepoName := "r"
 	mockSha := "s"
 
-	var mockRepos []*github.Repository
+	var mockRepos []scm.ScmRepository
 
-	mockUser := github.User{
-		Login: &mockOwner,
+	mockRepo := scm.ScmRepository{
+		Name:      mockRepoName,
+		OwnerName: mockOwner,
 	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
-	}
-	mockRepos = append(mockRepos, &mockRepo)
+	mockRepos = append(mockRepos, mockRepo)
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetUserRepos(mockCtx, "").
 		Times(1).
 		Return(mockRepos, nil)
 
-	mockCommit := github.RepositoryCommit{
-		SHA: &mockSha,
+	mockRepoBranch := scm.ScmBranch{
+		CurrentHash: mockSha,
+		Name:        "master",
 	}
-	mockRepoBranch := github.Branch{
-		Commit: &mockCommit,
-	}
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "master").
 		Times(1).
 		Return(&mockRepoBranch, nil)
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetRepoFile(mockCtx, mockOwner, mockRepoName, mockSha, ".releasedash.yml").
 		Times(1).
@@ -92,52 +88,45 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 func TestGetDashboardReposHasRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
 	mockRepoName := "r"
 	mockSha := "s"
 
-	var mockRepos []*github.Repository
+	var mockRepos []scm.ScmRepository
 
-	mockUser := github.User{
-		Login: &mockOwner,
+	mockRepo := scm.ScmRepository{
+		Name:      mockRepoName,
+		OwnerName: mockOwner,
 	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
-	}
-	mockRepos = append(mockRepos, &mockRepo)
+	mockRepos = append(mockRepos, mockRepo)
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetUserRepos(mockCtx, "").
 		Times(1).
 		Return(mockRepos, nil)
 
-	mockCommit := github.RepositoryCommit{
-		SHA: &mockSha,
+	mockRepoBranch := scm.ScmBranch{
+		CurrentHash: mockSha,
+		Name:        "master",
 	}
-	mockRepoBranch := github.Branch{
-		Commit: &mockCommit,
-	}
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "master").
 		Times(1).
 		Return(&mockRepoBranch, nil)
 
 	mockConfigB64 := "LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZGV2Cm5hbWU6IGFwcAo="
-	mockRepoContent := github.RepositoryContent{
-		Content: &mockConfigB64,
-	}
-	mockGithubService.
+	mockRepoContent, _ := base64.StdEncoding.DecodeString(mockConfigB64)
+	mockScm.
 		EXPECT().
 		GetRepoFile(mockCtx, mockOwner, mockRepoName, mockSha, ".releasedash.yml").
 		Times(1).
-		Return(&mockRepoContent, nil)
+		Return(mockRepoContent, nil)
 
 	repos, err := dashboardService.GetDashboardRepos(mockCtx)
 
@@ -149,7 +138,7 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 
 	expectedRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: &mockRepo,
+		Repository: mockRepo,
 	}
 
 	expectedRepos = append(expectedRepos, expectedRepo)
@@ -161,14 +150,14 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
 	mockRepo := "r"
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetRepoBranch(mockCtx, mockOwner, mockRepo, "master").
 		Times(1).
@@ -182,18 +171,15 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockOwner := "o"
 	mockRepoName := "r"
 
-	mockUser := github.User{
-		Login: &mockOwner,
-	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
+	mockRepo := scm.ScmRepository{
+		Name:      mockRepoName,
+		OwnerName: mockOwner,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
@@ -204,26 +190,23 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 
 	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: &mockRepo,
+		Repository: mockRepo,
 	}
 
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
-	mockSha := "s"
-	mockCommit := github.RepositoryCommit{SHA: &mockSha}
-	mockCommitsCompare := github.CommitsComparison{
-		Commits: []github.RepositoryCommit{mockCommit},
-	}
+	mockCommit := scm.ScmCommit{Message: "m"}
+	mockCommitsCompare := []scm.ScmCommit{mockCommit}
 
 	mockCtx := context.Background()
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
 		Times(1).
 		Return(&mockCommitsCompare, nil)
 
 	expectedChangelogCommits := dashboard.DashboardChangelogCommits{
-		Commits: mockCommitsCompare.Commits,
+		Commits: mockCommitsCompare,
 		FromTag: "stg",
 		ToTag:   "dev",
 	}
@@ -242,19 +225,16 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockGithubService := mock_scm.NewMockGithubProvider(ctrl)
-	dashboardService := dashboard.DashboardService{GithubService: mockGithubService}
+	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
 	mockOwner := "o"
 	mockRepoName := "r"
 
-	mockUser := github.User{
-		Login: &mockOwner,
-	}
-	mockRepo := github.Repository{
-		Owner: &mockUser,
-		Name:  &mockRepoName,
+	mockRepo := scm.ScmRepository{
+		Name:      mockRepoName,
+		OwnerName: mockOwner,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
@@ -265,12 +245,12 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 
 	mockDashboardRepo := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: &mockRepo,
+		Repository: mockRepo,
 	}
 
 	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
-	mockGithubService.
+	mockScm.
 		EXPECT().
 		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
 		Times(1).

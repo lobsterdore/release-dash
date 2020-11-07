@@ -2,25 +2,18 @@ package scm
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/google/go-github/github"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
 
-//go:generate go run -mod=mod github.com/golang/mock/mockgen --build_flags=-mod=mod --source=github.go --destination=../mocks/scm/github.go
-type GithubProvider interface {
-	GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error)
-	GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*github.Branch, error)
-	GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) (*github.RepositoryContent, error)
-	GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error)
-}
-
 type GithubService struct {
 	Client *github.Client
 }
 
-func NewGithubService(ctx context.Context, pat string) GithubProvider {
+func NewGithubService(ctx context.Context, pat string) ScmAdaptor {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: pat},
 	)
@@ -34,7 +27,7 @@ func NewGithubService(ctx context.Context, pat string) GithubProvider {
 	return &service
 }
 
-func (c *GithubService) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*github.CommitsComparison, error) {
+func (c *GithubService) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
 	refFrom, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo from tag")
@@ -53,10 +46,20 @@ func (c *GithubService) GetChangelog(ctx context.Context, owner string, repo str
 		return nil, err
 	}
 
-	return comparison, nil
+	var allScmCommits []ScmCommit
+	for _, commit := range comparison.Commits {
+		scmCommit := ScmCommit{
+			AuthorAvatarUrl: *commit.Author.AvatarURL,
+			Message:         *commit.Commit.Message,
+			HtmlUrl:         *commit.HTMLURL,
+		}
+		allScmCommits = append(allScmCommits, scmCommit)
+	}
+
+	return &allScmCommits, nil
 }
 
-func (c *GithubService) GetUserRepos(ctx context.Context, user string) ([]*github.Repository, error) {
+func (c *GithubService) GetUserRepos(ctx context.Context, user string) ([]ScmRepository, error) {
 	opts := &github.RepositoryListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
@@ -73,10 +76,20 @@ func (c *GithubService) GetUserRepos(ctx context.Context, user string) ([]*githu
 		}
 		opts.Page = resp.NextPage
 	}
-	return allRepos, nil
+	var allScmRepos []ScmRepository
+
+	for _, repo := range allRepos {
+		scmRepo := ScmRepository{
+			Name:      *repo.Name,
+			OwnerName: *repo.Owner.Login,
+		}
+		allScmRepos = append(allScmRepos, scmRepo)
+	}
+
+	return allScmRepos, nil
 }
 
-func (c *GithubService) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*github.Branch, error) {
+func (c *GithubService) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmBranch, error) {
 	branches, _, err := c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo branches")
@@ -85,14 +98,18 @@ func (c *GithubService) GetRepoBranch(ctx context.Context, owner string, repo st
 
 	for _, branch := range branches {
 		if *branch.Name == branchName {
-			return branch, nil
+			scmBranch := ScmBranch{
+				CurrentHash: *branch.Commit.SHA,
+				Name:        *branch.Name,
+			}
+			return &scmBranch, nil
 		}
 	}
 
 	return nil, nil
 }
 
-func (c *GithubService) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) (*github.RepositoryContent, error) {
+func (c *GithubService) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
 	repoTree, _, err := c.Client.Git.GetTree(ctx, owner, repo, sha, true)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo tree")
@@ -106,7 +123,14 @@ func (c *GithubService) GetRepoFile(ctx context.Context, owner string, repo stri
 				log.Error().Err(err).Msg("Could not get repo file contents")
 				return nil, err
 			}
-			return content, nil
+
+			raw, err := base64.StdEncoding.DecodeString(*content.Content)
+			if err != nil {
+				log.Error().Err(err).Msg("Could not decode repo file")
+				return nil, err
+			}
+
+			return raw, nil
 		}
 	}
 

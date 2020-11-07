@@ -12,6 +12,7 @@ import (
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/logging"
+	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web/handler"
 
 	"github.com/markbates/pkger"
@@ -38,7 +39,9 @@ func NewWeb(cfg config.Config, ctx context.Context) WebProvider {
 		cfg.Cache.DefaultExpirationMinutes,
 		cfg.Cache.CleanupIntervalMinutes,
 	)
-	dashboardService := dashboard.NewDashboardService(ctx, cfg)
+
+	githubService := scm.NewGithubService(ctx, cfg.Github.Pat)
+	dashboardService := dashboard.NewDashboardService(ctx, cfg, githubService)
 
 	homepageHandler := handler.HomepageHandler{
 		CacheService:     cacheService,

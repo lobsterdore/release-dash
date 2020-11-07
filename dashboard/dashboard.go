@@ -2,10 +2,8 @@ package dashboard
 
 import (
 	"context"
-	"encoding/base64"
 
 	"github.com/creasty/defaults"
-	"github.com/google/go-github/github"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/scm"
 
@@ -21,12 +19,12 @@ type DashboardProvider interface {
 }
 
 type DashboardService struct {
-	GithubService scm.GithubProvider
+	ScmService scm.ScmAdaptor
 }
 
 type DashboardRepo struct {
 	Config     *DashboardRepoConfig
-	Repository *github.Repository
+	Repository scm.ScmRepository
 }
 
 type DashboardRepoConfig struct {
@@ -36,39 +34,31 @@ type DashboardRepoConfig struct {
 
 type DashboardRepoChangelog struct {
 	ChangelogCommits []DashboardChangelogCommits
-	Repository       github.Repository
+	Repository       scm.ScmRepository
 }
 
 type DashboardChangelogCommits struct {
-	Commits []github.RepositoryCommit
+	Commits []scm.ScmCommit
 	FromTag string
 	ToTag   string
 }
 
-func NewDashboardService(ctx context.Context, config config.Config) DashboardProvider {
-	githubService := scm.NewGithubService(ctx, config.Github.Pat)
-
+func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdaptor) DashboardProvider {
 	service := DashboardService{
-		GithubService: githubService,
+		ScmService: scmService,
 	}
 
 	return &service
 }
 
-func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoConfig, error) {
-	raw, err := base64.StdEncoding.DecodeString(*content.Content)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not decode repo config")
-		return nil, err
-	}
-
+func NewDashboardRepoConfig(content []byte) (*DashboardRepoConfig, error) {
 	repoConfig := &DashboardRepoConfig{}
 	if err := defaults.Set(repoConfig); err != nil {
 		log.Error().Err(err).Msg("Could not set repo config defaults")
 		return nil, err
 	}
 
-	err = yaml.Unmarshal([]byte(string(raw)), repoConfig)
+	err := yaml.Unmarshal([]byte(string(content)), repoConfig)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not set unmarshal repo config")
 		return nil, err
@@ -78,7 +68,7 @@ func NewDashboardRepoConfig(content *github.RepositoryContent) (*DashboardRepoCo
 }
 
 func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error) {
-	allRepos, err := d.GithubService.GetUserRepos(ctx, "")
+	allRepos, err := d.ScmService.GetUserRepos(ctx, "")
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get dashboard repos")
 		return nil, err
@@ -87,7 +77,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 	var dashboardRepos []DashboardRepo
 
 	for _, repo := range allRepos {
-		repoConfig, err := d.GetDashboardRepoConfig(ctx, *repo.Owner.Login, *repo.Name)
+		repoConfig, err := d.GetDashboardRepoConfig(ctx, repo.OwnerName, repo.Name)
 		if err != nil {
 			log.Error().Err(err).Msg("Could not get repo config file")
 			continue
@@ -108,7 +98,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 }
 
 func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error) {
-	branch, err := d.GithubService.GetRepoBranch(ctx, owner, repo, "master")
+	branch, err := d.ScmService.GetRepoBranch(ctx, owner, repo, "master")
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo branch")
 		return nil, nil
@@ -117,7 +107,7 @@ func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner str
 		return nil, nil
 	}
 
-	repoConfigContent, err := d.GithubService.GetRepoFile(ctx, owner, repo, *branch.Commit.SHA, ".releasedash.yml")
+	repoConfigContent, err := d.ScmService.GetRepoFile(ctx, owner, repo, branch.CurrentHash, ".releasedash.yml")
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +127,12 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 
 	var repoChangelogs []DashboardRepoChangelog
 	for _, dashboardRepo := range dashboardRepos {
-		org := *dashboardRepo.Repository.Owner.Login
-		repo := *dashboardRepo.Repository.Name
+		org := dashboardRepo.Repository.OwnerName
+		repo := dashboardRepo.Repository.Name
 
 		repoChangelog := DashboardRepoChangelog{
 			ChangelogCommits: []DashboardChangelogCommits{},
-			Repository:       *dashboardRepo.Repository,
+			Repository:       dashboardRepo.Repository,
 		}
 
 		environmentTags := dashboardRepo.Config.EnvironmentTags
@@ -151,10 +141,10 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 			nextIndex := index + 1
 			if nextIndex < len(environmentTags) {
 				fromTag := environmentTags[nextIndex]
-				changelog, err := d.GithubService.GetChangelog(ctx, org, repo, fromTag, toTag)
+				changelog, err := d.ScmService.GetChangelog(ctx, org, repo, fromTag, toTag)
 				if err == nil {
 					changelogCommits := DashboardChangelogCommits{
-						Commits: changelog.Commits,
+						Commits: *changelog,
 						FromTag: fromTag,
 						ToTag:   toTag,
 					}
