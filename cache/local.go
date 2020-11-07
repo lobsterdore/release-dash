@@ -6,16 +6,16 @@ import (
 	"github.com/patrickmn/go-cache"
 )
 
-type LocalCacheService struct {
+type LocalCacheAdaptor struct {
 	Client            *cache.Cache
 	DefaultExpiration time.Duration
 }
 
-func NewLocalCacheService(defaultExpirationMinutes int, cleanupIntervalMinutes int) CacheAdaptor {
+func NewLocalCacheAdaptor(defaultExpirationMinutes int, cleanupIntervalMinutes int) CacheAdaptor {
 	defaultExpiration := time.Duration(defaultExpirationMinutes) * time.Minute
 	c := cache.New(defaultExpiration, time.Duration(cleanupIntervalMinutes)*time.Minute)
 
-	service := LocalCacheService{
+	service := LocalCacheAdaptor{
 		Client:            c,
 		DefaultExpiration: defaultExpiration,
 	}
@@ -23,11 +23,11 @@ func NewLocalCacheService(defaultExpirationMinutes int, cleanupIntervalMinutes i
 	return &service
 }
 
-func (c LocalCacheService) Get(key string) (interface{}, bool) {
+func (c LocalCacheAdaptor) Get(key string) (interface{}, bool) {
 	value, found := c.Client.Get(key)
 	return value, found
 }
 
-func (c LocalCacheService) Set(key string, value interface{}) {
+func (c LocalCacheAdaptor) Set(key string, value interface{}) {
 	c.Client.Set(key, value, c.DefaultExpiration)
 }

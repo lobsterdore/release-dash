@@ -60,9 +60,9 @@ func (w web) Run(ctx context.Context) {
 	server := &http.Server{
 		Addr:         w.Config.Server.Host + ":" + w.Config.Server.Port,
 		Handler:      accesslog.NewLoggingHandler(router, httpLogger),
+		IdleTimeout:  time.Duration(w.Config.Server.Timeout.Idle) * time.Second,
 		ReadTimeout:  time.Duration(w.Config.Server.Timeout.Read) * time.Second,
 		WriteTimeout: time.Duration(w.Config.Server.Timeout.Write) * time.Second,
-		IdleTimeout:  time.Duration(w.Config.Server.Timeout.Idle) * time.Second,
 	}
 
 	signal.Notify(runChan, os.Interrupt, syscall.SIGTSTP)
