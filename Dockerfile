@@ -4,7 +4,7 @@
 # BUILD STAGE - Stage for building the app
 #
 
-FROM golang:1.15.2 as build_app
+FROM golang:1.15.4-buster as build_app
 
 RUN mkdir -p /app/code
 
@@ -48,3 +48,13 @@ COPY --chown=release_dash:release_dash --from=build_app /go/bin/release-dash /ap
 EXPOSE 8080
 
 CMD /app/bin/release-dash
+
+
+#
+# TEST STAGE - Stage for testing the service
+#
+FROM build_app as test
+
+RUN make mocks
+
+CMD ["/usr/bin/make", "test"]

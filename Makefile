@@ -23,12 +23,16 @@ clean:
 
 .PHONY: deps
 deps:
+	go mod tidy
 	go mod download
 	go get github.com/markbates/pkger/cmd/pkger
 
 .PHONY: docker_build
 docker_build:
-	docker build -t release-dash .
+	docker build \
+		-t release-dash \
+		--target run \
+		.
 
 .PHONY: docker_run
 docker_run: docker_build
@@ -38,10 +42,22 @@ docker_run: docker_build
 		-p 8080:8080 \
 		release-dash
 
+
+.PHONY: docker_test
+docker_test: docker_build
+	docker build \
+		--cache-from release-dash \
+		-t release-dash-test \
+		--target test \
+		.
+	docker run \
+		-it \
+		release-dash-test
+
 .PHONY: mocks
 mocks:
 	rm -rf mocks
-	go generate -v ./...
+	go generate -v "-mod=mod" ./...
 
 .PHONY: run
 run: build

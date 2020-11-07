@@ -10,8 +10,10 @@ on:
 env:
   APP_NAME: release-dash
   DOCKER_BUILD_TARGET: run
-  DOCKER_REPO_URL: ghcr.io
+  DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
+  DOCKER_REPO_URL: docker.pkg.github.com
   DOCKER_REPOSITORY: lobsterdore
+  DOCKER_USER: "${{ github.actor }}"
 
 jobs:
 
@@ -24,13 +26,13 @@ jobs:
         with:
           path: release-dash
 
-      - name: Build image
+      - name: Build  and test image
         run: |
           cd $GITHUB_WORKSPACE/$APP_NAME
-          docker build . --file Dockerfile --tag $APP_NAME --target $DOCKER_BUILD_TARGET
+          make docker_test
 
       - name: Log into registry
-        run: docker login $DOCKER_REPO_URL -u ${{ secrets.DOCKERHUB_USERNAME }} --password "${{ secrets.DOCKERHUB_PASSWORD }}"
+        run: docker login $DOCKER_REPO_URL -u $DOCKER_USER --password $DOCKER_PASSWORD
 
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.33.0
