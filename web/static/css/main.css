@@ -10,12 +10,12 @@ h2 {
     font-size: 1.7em;
 }
 
-.card {
+.changelong-even .card {
     background-color: #ffc400;
 }
 
-.container-stg-container-prd .card {
-    background-color: #ff4081;
+.changelong-odd .card {
+    background-color: #7c4dff;
 }
 
 .card .card-toolbar {

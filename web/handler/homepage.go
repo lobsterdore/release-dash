@@ -12,6 +12,7 @@ import (
 	"github.com/lobsterdore/release-dash/asset"
 	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/dashboard"
+	"github.com/lobsterdore/release-dash/web/templatefns"
 )
 
 type HomepageData struct {
@@ -60,7 +61,7 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	var err error
 
 	if h.HasDashboardData {
-		tmpl, err = template.New("homepage").Parse(asset.ReadTemplateFile("html/base.html"))
+		tmpl, err = template.New("homepage").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Print(err)
 			return
@@ -82,7 +83,7 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 			h.CacheService.Set("homepage_data", data)
 		}
 	} else {
-		tmpl, err = template.New("homepage_loading").Parse(asset.ReadTemplateFile("html/base.html"))
+		tmpl, err = template.New("homepage_loading").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Print(err)
 			return
