@@ -15,7 +15,7 @@ import (
 type DashboardProvider interface {
 	GetDashboardChangelogs(ctx context.Context, dashboardRepos []DashboardRepo) []DashboardRepoChangelog
 	GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error)
-	GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error)
+	GetDashboardRepoConfig(ctx context.Context, owner string, repo string, defaultBranch string) (*DashboardRepoConfig, error)
 }
 
 type DashboardService struct {
@@ -77,7 +77,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 	var dashboardRepos []DashboardRepo
 
 	for _, repo := range allRepos {
-		repoConfig, err := d.GetDashboardRepoConfig(ctx, repo.OwnerName, repo.Name)
+		repoConfig, err := d.GetDashboardRepoConfig(ctx, repo.OwnerName, repo.Name, repo.DefaultBranch)
 		if err != nil {
 			log.Error().Err(err).Msg("Could not get repo config file")
 			continue
@@ -97,8 +97,8 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 	return dashboardRepos, nil
 }
 
-func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string) (*DashboardRepoConfig, error) {
-	branch, err := d.ScmService.GetRepoBranch(ctx, owner, repo, "master")
+func (d *DashboardService) GetDashboardRepoConfig(ctx context.Context, owner string, repo string, defaultBranch string) (*DashboardRepoConfig, error) {
+	branch, err := d.ScmService.GetRepoBranch(ctx, owner, repo, defaultBranch)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo branch")
 		return nil, nil

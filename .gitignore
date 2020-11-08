@@ -1,4 +1,4 @@
-.envrc
+.envrc*
 .vscode/
 vendor/
 pkged.go

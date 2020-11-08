@@ -76,12 +76,14 @@ func (c *GithubAdaptor) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 		}
 		opts.Page = resp.NextPage
 	}
+
 	var allScmRepos []ScmRepository
 
 	for _, repo := range allRepos {
 		scmRepo := ScmRepository{
-			Name:      *repo.Name,
-			OwnerName: *repo.Owner.Login,
+			DefaultBranch: *repo.DefaultBranch,
+			Name:          *repo.Name,
+			OwnerName:     *repo.Owner.Login,
 		}
 		allScmRepos = append(allScmRepos, scmRepo)
 	}

@@ -50,8 +50,9 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	var mockRepos []scm.ScmRepository
 
 	mockRepo := scm.ScmRepository{
-		Name:      mockRepoName,
-		OwnerName: mockOwner,
+		DefaultBranch: "main",
+		Name:          mockRepoName,
+		OwnerName:     mockOwner,
 	}
 	mockRepos = append(mockRepos, mockRepo)
 
@@ -63,11 +64,11 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 
 	mockRepoBranch := scm.ScmBranch{
 		CurrentHash: mockSha,
-		Name:        "master",
+		Name:        "main",
 	}
 	mockScm.
 		EXPECT().
-		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "master").
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "main").
 		Times(1).
 		Return(&mockRepoBranch, nil)
 
@@ -99,8 +100,9 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 	var mockRepos []scm.ScmRepository
 
 	mockRepo := scm.ScmRepository{
-		Name:      mockRepoName,
-		OwnerName: mockOwner,
+		DefaultBranch: "main",
+		Name:          mockRepoName,
+		OwnerName:     mockOwner,
 	}
 	mockRepos = append(mockRepos, mockRepo)
 
@@ -112,11 +114,11 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 
 	mockRepoBranch := scm.ScmBranch{
 		CurrentHash: mockSha,
-		Name:        "master",
+		Name:        "main",
 	}
 	mockScm.
 		EXPECT().
-		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "master").
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "main").
 		Times(1).
 		Return(&mockRepoBranch, nil)
 
@@ -156,14 +158,15 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	mockCtx := context.Background()
 	mockOwner := "o"
 	mockRepo := "r"
+	mockDefaultBranch := "main"
 
 	mockScm.
 		EXPECT().
-		GetRepoBranch(mockCtx, mockOwner, mockRepo, "master").
+		GetRepoBranch(mockCtx, mockOwner, mockRepo, mockDefaultBranch).
 		Times(1).
 		Return(nil, nil)
 
-	config, err := dashboardService.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo)
+	config, err := dashboardService.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo, mockDefaultBranch)
 	assert.NoError(t, err)
 	assert.Nil(t, config)
 }
@@ -178,8 +181,9 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	mockRepoName := "r"
 
 	mockRepo := scm.ScmRepository{
-		Name:      mockRepoName,
-		OwnerName: mockOwner,
+		DefaultBranch: "main",
+		Name:          mockRepoName,
+		OwnerName:     mockOwner,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
@@ -233,8 +237,9 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	mockRepoName := "r"
 
 	mockRepo := scm.ScmRepository{
-		Name:      mockRepoName,
-		OwnerName: mockOwner,
+		DefaultBranch: "main",
+		Name:          mockRepoName,
+		OwnerName:     mockOwner,
 	}
 
 	var mockDashboardRepos []dashboard.DashboardRepo
