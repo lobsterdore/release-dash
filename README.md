@@ -38,5 +38,4 @@ make docker_run
 ## Todo
 
 * Integration tests
-* Tests for github service
-* Proper UI
+* Tests for github adaptor
