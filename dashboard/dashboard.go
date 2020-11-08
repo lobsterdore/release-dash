@@ -2,6 +2,8 @@ package dashboard
 
 import (
 	"context"
+	"sort"
+	"strings"
 
 	"github.com/creasty/defaults"
 	"github.com/lobsterdore/release-dash/config"
@@ -93,6 +95,11 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 
 		dashboardRepos = append(dashboardRepos, dashboardRepo)
 	}
+
+	sort.Slice(dashboardRepos, func(i, j int) bool {
+		comparison := strings.Compare(dashboardRepos[i].Repository.Name, dashboardRepos[j].Repository.Name)
+		return comparison != 1
+	})
 
 	return dashboardRepos, nil
 }

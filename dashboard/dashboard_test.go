@@ -97,14 +97,17 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 	mockRepoName := "r"
 	mockSha := "s"
 
-	var mockRepos []scm.ScmRepository
-
-	mockRepo := scm.ScmRepository{
+	mockRepoA := scm.ScmRepository{
 		DefaultBranch: "main",
-		Name:          mockRepoName,
+		Name:          mockRepoName + "a",
 		OwnerName:     mockOwner,
 	}
-	mockRepos = append(mockRepos, mockRepo)
+	mockRepoB := scm.ScmRepository{
+		DefaultBranch: "main",
+		Name:          mockRepoName + "b",
+		OwnerName:     mockOwner,
+	}
+	mockRepos := []scm.ScmRepository{mockRepoB, mockRepoA}
 
 	mockScm.
 		EXPECT().
@@ -118,7 +121,12 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 	}
 	mockScm.
 		EXPECT().
-		GetRepoBranch(mockCtx, mockOwner, mockRepoName, "main").
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName+"a", "main").
+		Times(1).
+		Return(&mockRepoBranch, nil)
+	mockScm.
+		EXPECT().
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName+"b", "main").
 		Times(1).
 		Return(&mockRepoBranch, nil)
 
@@ -126,24 +134,31 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 	mockRepoContent, _ := base64.StdEncoding.DecodeString(mockConfigB64)
 	mockScm.
 		EXPECT().
-		GetRepoFile(mockCtx, mockOwner, mockRepoName, mockSha, ".releasedash.yml").
+		GetRepoFile(mockCtx, mockOwner, mockRepoName+"a", mockSha, ".releasedash.yml").
+		Times(1).
+		Return(mockRepoContent, nil)
+	mockScm.
+		EXPECT().
+		GetRepoFile(mockCtx, mockOwner, mockRepoName+"b", mockSha, ".releasedash.yml").
 		Times(1).
 		Return(mockRepoContent, nil)
 
 	repos, err := dashboardService.GetDashboardRepos(mockCtx)
 
-	var expectedRepos []dashboard.DashboardRepo
 	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev"},
 		Name:            "app",
 	}
 
-	expectedRepo := dashboard.DashboardRepo{
+	expectedRepoA := dashboard.DashboardRepo{
 		Config:     &mockConfig,
-		Repository: mockRepo,
+		Repository: mockRepoA,
 	}
-
-	expectedRepos = append(expectedRepos, expectedRepo)
+	expectedRepoB := dashboard.DashboardRepo{
+		Config:     &mockConfig,
+		Repository: mockRepoB,
+	}
+	expectedRepos := []dashboard.DashboardRepo{expectedRepoA, expectedRepoB}
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedRepos, repos)
