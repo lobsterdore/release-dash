@@ -31,11 +31,11 @@ func main() {
 	)
 	defer cancel()
 
-	localCacheAdaptor := cache.NewLocalCacheAdaptor(
+	localCacheAdapter := cache.NewLocalCacheAdapter(
 		cfg.Cache.DefaultExpirationMinutes,
 		cfg.Cache.CleanupIntervalMinutes,
 	)
-	githubAdaptor := scm.NewGithubAdaptor(ctx, cfg.Github.Pat)
+	githubAdapter := scm.NewGithubAdapter(ctx, cfg.Github.Pat)
 
-	web.NewWeb(cfg, ctx, localCacheAdaptor, githubAdaptor).Run(ctx)
+	web.NewWeb(cfg, ctx, localCacheAdapter, githubAdapter).Run(ctx)
 }

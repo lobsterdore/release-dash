@@ -21,7 +21,7 @@ import (
 func TestHomepageHasRepoHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockCacheService := mock_cache.NewMockCacheAdaptor(ctrl)
+	mockCacheService := mock_cache.NewMockCacheAdapter(ctrl)
 	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
@@ -120,7 +120,7 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 func TestHomepageHasRepoNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockCacheService := mock_cache.NewMockCacheAdaptor(ctrl)
+	mockCacheService := mock_cache.NewMockCacheAdapter(ctrl)
 	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"

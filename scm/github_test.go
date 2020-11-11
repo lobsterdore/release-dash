@@ -112,13 +112,13 @@ func TestChangelogHasChanges(t *testing.T) {
 		}`)
 	})
 
-	githubAdaptor := scm.GithubAdaptor{
+	githubAdapter := scm.GithubAdapter{
 		Client: client,
 	}
 
 	ctx := context.Background()
 
-	changelog, err := githubAdaptor.GetChangelog(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
 
 	mockCommit := scm.ScmCommit{
 		AuthorAvatarUrl: "a",

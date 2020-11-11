@@ -9,25 +9,25 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type GithubAdaptor struct {
+type GithubAdapter struct {
 	Client *github.Client
 }
 
-func NewGithubAdaptor(ctx context.Context, pat string) ScmAdaptor {
+func NewGithubAdapter(ctx context.Context, pat string) *GithubAdapter {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: pat},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	service := GithubAdaptor{
+	service := GithubAdapter{
 		Client: client,
 	}
 
 	return &service
 }
 
-func (c *GithubAdaptor) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
+func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
 	refFrom, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo from tag")
@@ -59,7 +59,7 @@ func (c *GithubAdaptor) GetChangelog(ctx context.Context, owner string, repo str
 	return &allScmCommits, nil
 }
 
-func (c *GithubAdaptor) GetUserRepos(ctx context.Context, user string) ([]ScmRepository, error) {
+func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRepository, error) {
 	opts := &github.RepositoryListOptions{
 		ListOptions: github.ListOptions{PerPage: 100},
 	}
@@ -91,7 +91,7 @@ func (c *GithubAdaptor) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 	return allScmRepos, nil
 }
 
-func (c *GithubAdaptor) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmBranch, error) {
+func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmBranch, error) {
 	branches, _, err := c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo branches")
@@ -111,7 +111,7 @@ func (c *GithubAdaptor) GetRepoBranch(ctx context.Context, owner string, repo st
 	return nil, nil
 }
 
-func (c *GithubAdaptor) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
+func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
 	repoTree, _, err := c.Client.Git.GetTree(ctx, owner, repo, sha, true)
 	if err != nil {
 		log.Error().Err(err).Msg("Could not get repo tree")

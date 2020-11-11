@@ -34,8 +34,3 @@ echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
 make docker_run
 ```
-
-## Todo
-
-* Integration tests
-* Tests for github adaptor

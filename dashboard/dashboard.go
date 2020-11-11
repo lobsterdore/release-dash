@@ -21,7 +21,7 @@ type DashboardProvider interface {
 }
 
 type DashboardService struct {
-	ScmService scm.ScmAdaptor
+	ScmService scm.ScmAdapter
 }
 
 type DashboardRepo struct {
@@ -45,7 +45,7 @@ type DashboardChangelogCommits struct {
 	ToTag   string
 }
 
-func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdaptor) DashboardProvider {
+func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdapter) DashboardProvider {
 	service := DashboardService{
 		ScmService: scmService,
 	}

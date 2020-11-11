@@ -17,7 +17,7 @@ import (
 func TestGetDashboardReposNoRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
@@ -39,7 +39,7 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
@@ -89,7 +89,7 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 func TestGetDashboardReposHasRepos(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
@@ -167,7 +167,7 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()
@@ -189,7 +189,7 @@ func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockOwner := "o"
@@ -244,7 +244,7 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
-	mockScm := mock_scm.NewMockScmAdaptor(ctrl)
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockCtx := context.Background()

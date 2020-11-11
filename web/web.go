@@ -32,7 +32,7 @@ type web struct {
 	HomepageHandler  *handler.HomepageHandler
 }
 
-func NewWeb(cfg config.Config, ctx context.Context, cacheService cache.CacheAdaptor, scmService scm.ScmAdaptor) WebProvider {
+func NewWeb(cfg config.Config, ctx context.Context, cacheService cache.CacheAdapter, scmService scm.ScmAdapter) WebProvider {
 	var placeholderRepos []dashboard.DashboardRepo
 	dashboardService := dashboard.NewDashboardService(ctx, cfg, scmService)
 
