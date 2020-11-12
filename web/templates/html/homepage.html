@@ -10,7 +10,8 @@
                 <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToTag }} > {{ .FromTag }}</div>
               </div>
               <div class="card-content">
-      {{range .Commits }}
+      {{if .Commits }}
+        {{range .Commits }}
                 <div class="row">
                   <div class="col s2"><img src="{{ .AuthorAvatarUrl }}" class="circle responsive-img" /></div>
                   <div class="col s10">
@@ -19,6 +20,16 @@
                     </span>
                     <div class="card-link"><span><a class="white-text" href="{{ .HtmlUrl }}" target="_blank"><i class="material-icons left">link</i>View Commit</a></span></div>
 
+                  </div>
+                </div>
+        {{ end }}
+      {{ else }}
+                <div class="row">
+                  <div class="col s2">
+                    <i class="material-icons dp48 left">broken_image</i>
+                  </div>
+                  <div class="col s10">
+                    <span class="black-text">Repo doesn't have any enviroment tags</span>
                   </div>
                 </div>
       {{ end }}

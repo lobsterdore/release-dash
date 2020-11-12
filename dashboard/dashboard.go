@@ -151,12 +151,13 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 				changelog, err := d.ScmService.GetChangelog(ctx, org, repo, fromTag, toTag)
 				if err == nil {
 					changelogCommits := DashboardChangelogCommits{
-						Commits: *changelog,
 						FromTag: fromTag,
 						ToTag:   toTag,
 					}
+					if changelog != nil {
+						changelogCommits.Commits = *changelog
+					}
 					repoChangelog.ChangelogCommits = append(repoChangelog.ChangelogCommits, changelogCommits)
-
 				}
 			}
 		}

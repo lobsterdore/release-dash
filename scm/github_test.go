@@ -101,6 +101,107 @@ func TestChangelogHasChanges(t *testing.T) {
 		      "author": { "login": "l", "avatar_url": "a" },
 		      "committer": { "login": "l" },
 		      "parents": [ { "sha": "s" } ]
+			},
+		    {
+				"sha": "s",
+				"html_url": "h",
+				"commit": { "author": { "name": "n" }, "message": "m" },
+				"author": { "login": "l", "avatar_url": "a" },
+				"committer": { "login": "l" },
+				"parents": [ { "sha": "s" } ]
+			}
+		  ],
+		  "files": [ { "filename": "f" } ],
+		  "html_url":      "https://github.com/o/r/compare/b...h",
+		  "permalink_url": "https://github.com/o/r/compare/o:bbcd538c8e72b8c175046e27cc8f907076331401...o:0328041d1152db8ae77652d1618a02e57f745f17",
+		  "diff_url":      "https://github.com/o/r/compare/b...h.diff",
+		  "patch_url":     "https://github.com/o/r/compare/b...h.patch",
+		  "url":           "https://api.github.com/repos/o/r/compare/b...h"
+		}`)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
+
+	expectedChangelog := []scm.ScmCommit{
+		scm.ScmCommit{
+			AuthorAvatarUrl: "a",
+			Message:         "m",
+			HtmlUrl:         "h",
+		},
+		scm.ScmCommit{
+			AuthorAvatarUrl: "a",
+			Message:         "m",
+			HtmlUrl:         "h",
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedChangelog, changelog)
+}
+
+func TestChangelogHasChangesMissingFromTag(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	owner := "o"
+	repo := "r"
+	fromTag := "from-tag"
+	baseSha := "812b303948b570247b727aeb8c1b187336ad4256"
+	toTag := "to-tag"
+	toSha := "3e0f3d8c432ca2a03a3222fb55de63934338022f"
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/git/refs/tags/"+fromTag, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/git/refs/tags/"+toTag, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `
+		  {
+		    "ref": "tags`+toTag+`",
+		    "url": "https://api.github.com/repos/`+owner+`/`+repo+`/git/refs/tags/`+toTag+`",
+		    "object": {
+		      "type": "commit",
+		      "sha": "`+toSha+`",
+		      "url": "https://api.github.com/repos/o/r/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f"
+		    }
+		  }`)
+	})
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/compare/"+baseSha+"..."+toSha, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprintf(w, `{
+		  "base_commit": {
+		    "sha": "s",
+		    "commit": {
+		      "author": { "name": "n" },
+		      "committer": { "name": "n" },
+			  "message": "m",
+		      "tree": { "sha": "t" }
+		    },
+		    "author": { "login": "l" },
+		    "committer": { "login": "l" },
+		    "parents": [ { "sha": "s" } ]
+		  },
+		  "status": "s",
+		  "ahead_by": 1,
+		  "behind_by": 2,
+		  "total_commits": 1,
+		  "commits": [
+		    {
+			  "sha": "s",
+			  "html_url": "h",
+		      "commit": { "author": { "name": "n" }, "message": "m" },
+		      "author": { "login": "l", "avatar_url": "a" },
+		      "committer": { "login": "l" },
+		      "parents": [ { "sha": "s" } ]
 		    }
 		  ],
 		  "files": [ { "filename": "f" } ],

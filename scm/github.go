@@ -28,22 +28,43 @@ func NewGithubAdapter(ctx context.Context, pat string) *GithubAdapter {
 }
 
 func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
-	refFrom, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
+	refFrom, resp, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not get repo from tag")
-		return nil, err
+		if resp.StatusCode != 404 {
+			log.Error().Err(err).Msg("Could not get repo from tag")
+			return nil, err
+		}
 	}
 
-	refTo, _, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
+	refTo, resp, err := c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
 	if err != nil {
-		log.Error().Err(err).Msg("Could not get repo to tag")
-		return nil, err
+		if resp.StatusCode != 404 {
+			log.Error().Err(err).Msg("Could not get repo to tag")
+			return nil, err
+		}
 	}
 
-	comparison, _, err := c.Client.Repositories.CompareCommits(ctx, owner, repo, *refFrom.Object.SHA, *refTo.Object.SHA)
-	if err != nil {
-		log.Error().Err(err).Msg("Could not get repo tag compare")
-		return nil, err
+	if refTo == nil {
+		return nil, nil
+	}
+
+	comparison := &github.CommitsComparison{}
+	if refFrom == nil {
+		opt := &github.CommitsListOptions{
+			SHA: toTag,
+		}
+		commits, _, _ := c.Client.Repositories.ListCommits(ctx, owner, repo, opt)
+		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *commits[len(commits)-1].SHA, *refTo.Object.SHA)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not get repo tag compare")
+			return nil, err
+		}
+	} else {
+		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *refFrom.Object.SHA, *refTo.Object.SHA)
+		if err != nil {
+			log.Error().Err(err).Msg("Could not get repo tag compare")
+			return nil, err
+		}
 	}
 
 	var allScmCommits []ScmCommit
