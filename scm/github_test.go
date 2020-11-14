@@ -31,13 +31,6 @@ func setupClient() (client *github.Client, mux *http.ServeMux, serverURL string,
 	return client, mux, server.URL, server.Close
 }
 
-func testMethod(t *testing.T, r *http.Request, want string) {
-	t.Helper()
-	if got := r.Method; got != want {
-		t.Errorf("Request method: %v, want %v", got, want)
-	}
-}
-
 func testFormValues(t *testing.T, r *http.Request, values values) {
 	t.Helper()
 	want := url.Values{}
@@ -48,6 +41,20 @@ func testFormValues(t *testing.T, r *http.Request, values values) {
 	_ = r.ParseForm()
 	if got := r.Form; !reflect.DeepEqual(got, want) {
 		t.Errorf("Request parameters: %v, want %v", got, want)
+	}
+}
+
+func testHeader(t *testing.T, r *http.Request, header string, want string) {
+	t.Helper()
+	if got := r.Header.Get(header); got != want {
+		t.Errorf("Header.Get(%q) returned %q, want %q", header, got, want)
+	}
+}
+
+func testMethod(t *testing.T, r *http.Request, want string) {
+	t.Helper()
+	if got := r.Method; got != want {
+		t.Errorf("Request method: %v, want %v", got, want)
 	}
 }
 
@@ -286,4 +293,38 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Nil(t, changelog)
+}
+
+func TestUserReposHasRepos(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	defaultBranch := "main"
+	repo := "r"
+	owner := "l"
+
+	mux.HandleFunc("/user/repos", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"per_page": "100",
+		})
+		fmt.Fprint(w, `[{"id":1,"name":"`+repo+`","default_branch":"`+defaultBranch+`","owner":{"login":"`+owner+`"}}]`)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	expectedScmRepos := []scm.ScmRepository{scm.ScmRepository{
+		DefaultBranch: defaultBranch,
+		Name:          repo,
+		OwnerName:     owner,
+	}}
+
+	scmRepos, err := githubAdapter.GetUserRepos(ctx, "u")
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedScmRepos, scmRepos)
 }
