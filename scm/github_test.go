@@ -328,3 +328,27 @@ func TestUserReposHasRepos(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, expectedScmRepos, scmRepos)
 }
+
+func TestUserReposListError(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	mux.HandleFunc("/user/repos", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"per_page": "100",
+		})
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	scmRepos, err := githubAdapter.GetUserRepos(ctx, "u")
+
+	assert.Error(t, err)
+	assert.Nil(t, scmRepos)
+}
