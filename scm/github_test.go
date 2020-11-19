@@ -352,3 +352,58 @@ func TestUserReposListError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, scmRepos)
 }
+
+func TestGetRepoBranchHasBranch(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	branch := "main"
+	repo := "r"
+	owner := "l"
+	sha := "s"
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/branches", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `[{"name":"`+branch+`", "commit" : {"sha" : "`+sha+`"}}]`)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	expectedScmBranch := scm.ScmBranch{
+		CurrentHash: sha,
+		Name:        branch,
+	}
+
+	scmBranch, err := githubAdapter.GetRepoBranch(ctx, owner, repo, branch)
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedScmBranch, scmBranch)
+}
+
+func TestGetRepoBranchError(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	branch := "main"
+	repo := "r"
+	owner := "l"
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/branches", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	_, err := githubAdapter.GetRepoBranch(ctx, owner, repo, branch)
+
+	assert.Error(t, err)
+}
