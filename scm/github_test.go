@@ -2,6 +2,7 @@ package scm_test
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -406,4 +407,75 @@ func TestGetRepoBranchError(t *testing.T) {
 	_, err := githubAdapter.GetRepoBranch(ctx, owner, repo, branch)
 
 	assert.Error(t, err)
+}
+
+func TestGetRepoFileHasFile(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	repo := "r"
+	owner := "l"
+	sha := "s"
+	path := ".releasedash.yml"
+	content := "LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZGV2CiAgLSBzdGcKICAtIHByZApuYW1lOiByZWxlYXNlLWRhc2gtdGVzdC1yZXBvLTEKCg=="
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/git/trees/"+sha, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{
+			"sha": "`+sha+`",
+			"tree": [ { "Path": "`+path+`" } ],
+			"truncated": true
+		}`)
+	})
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/contents/"+path, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{
+			"type": "file",
+			"content": "`+content+`"
+		}`)
+	})
+
+	expectedRepoFile, _ := base64.StdEncoding.DecodeString(content)
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	repoFile, err := githubAdapter.GetRepoFile(ctx, owner, repo, sha, path)
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedRepoFile, repoFile)
+}
+
+func TestGetRepoFileMissingFile(t *testing.T) {
+	client, mux, _, teardown := setupClient()
+	defer teardown()
+
+	repo := "r"
+	owner := "l"
+	sha := "s"
+	path := ".releasedash.yml"
+
+	mux.HandleFunc("/repos/"+owner+"/"+repo+"/git/trees/"+sha, func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprint(w, `{
+			"sha": "`+sha+`",
+			"tree": [ { "Path": "wrong/path" } ],
+			"truncated": true
+		}`)
+	})
+
+	githubAdapter := scm.GithubAdapter{
+		Client: client,
+	}
+
+	ctx := context.Background()
+
+	repoFile, err := githubAdapter.GetRepoFile(ctx, owner, repo, sha, path)
+
+	assert.NoError(t, err)
+	assert.Nil(t, repoFile)
 }
