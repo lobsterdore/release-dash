@@ -1,9 +1,11 @@
 # release-dash
 
-Very much a WIP.
+![docker](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
 
-Will be a dashboard for visualising commits in pipelines so developers know what will go out.
+A dashboard for visualising commits in pipelines so developers know what will go out.
 Useful for pipelines that have non-prd environments with a manual gate.
+
+![release-dash homepage](/docs/screenshot.png)
 
 ## How to run
 
@@ -16,7 +18,7 @@ For a full list of available environment vars see [config/configuration.go](conf
 
 ### Native
 
-```
+```BASH
 # Assuming direnv is installed
 echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
@@ -25,10 +27,7 @@ make run
 
 ### Docker
 
-This method is not fully working yet, I need to figure out what to do with the HTML templates and
-the binary.
-
-```
+```BASH
 # Assuming direnv is installed
 echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
