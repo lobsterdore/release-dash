@@ -8,7 +8,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/logging"
@@ -32,21 +31,13 @@ type web struct {
 	HomepageHandler  *handler.HomepageHandler
 }
 
-func NewWeb(cfg config.Config, ctx context.Context, cacheService cache.CacheAdapter, scmService scm.ScmAdapter) WebProvider {
-	var placeholderRepos []dashboard.DashboardRepo
+func NewWeb(cfg config.Config, ctx context.Context, scmService scm.ScmAdapter) WebProvider {
 	dashboardService := dashboard.NewDashboardService(ctx, cfg, scmService)
-
-	homepageHandler := handler.HomepageHandler{
-		CacheService:     cacheService,
-		DashboardRepos:   placeholderRepos,
-		DashboardService: dashboardService,
-		HasDashboardData: false,
-	}
-
+	homepageHandler := handler.NewHomepage(dashboardService)
 	web := web{
 		Config:           cfg,
 		DashboardService: dashboardService,
-		HomepageHandler:  &homepageHandler,
+		HomepageHandler:  homepageHandler,
 	}
 	return web
 }
@@ -78,7 +69,8 @@ func (w web) Run(ctx context.Context) {
 		}
 	}()
 
-	w.HomepageHandler.FetchReposTicker(w.Config.Github.FetchTimerSeconds)
+	w.HomepageHandler.FetchReposTicker(w.Config.Github.RepoFetchTimerSeconds)
+	w.HomepageHandler.FetchChangelogsTicker(w.Config.Github.ChangelogFetchTimerSeconds)
 
 	interrupt := <-runChan
 	log.Printf("Server is shutting down due to %+v", interrupt)

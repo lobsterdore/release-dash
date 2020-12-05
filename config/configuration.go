@@ -5,19 +5,14 @@ import (
 )
 
 type Config struct {
-	Cache  cache
 	Github github
 	Server server
 }
 
-type cache struct {
-	CleanupIntervalMinutes   int `env:"CACHE_CLEANUP_INTERVAL_MINUTES" envDefault:"2"`
-	DefaultExpirationMinutes int `env:"CACHE_DEFAULT_EXPIRATION_MINUTES" envDefault:"1"`
-}
-
 type github struct {
-	FetchTimerSeconds int    `env:"GITHUB_FETCH_TIMER_SECONDS" envDefault:"600"`
-	Pat               string `env:"GITHUB_PAT" envDefault:""`
+	ChangelogFetchTimerSeconds int    `env:"GITHUB_CHANGELOG_FETCH_TIMER_SECONDS" envDefault:"60"`
+	Pat                        string `env:"GITHUB_PAT" envDefault:""`
+	RepoFetchTimerSeconds      int    `env:"GITHUB_REPO_FETCH_TIMER_SECONDS" envDefault:"600"`
 }
 
 type server struct {

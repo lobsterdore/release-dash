@@ -8,7 +8,6 @@ import (
 	"github.com/markbates/pkger"
 	"github.com/rs/zerolog/log"
 
-	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web"
@@ -31,11 +30,7 @@ func main() {
 	)
 	defer cancel()
 
-	localCacheAdapter := cache.NewLocalCacheAdapter(
-		cfg.Cache.DefaultExpirationMinutes,
-		cfg.Cache.CleanupIntervalMinutes,
-	)
 	githubAdapter := scm.NewGithubAdapter(ctx, cfg.Github.Pat)
 
-	web.NewWeb(cfg, ctx, localCacheAdapter, githubAdapter).Run(ctx)
+	web.NewWeb(cfg, ctx, githubAdapter).Run(ctx)
 }

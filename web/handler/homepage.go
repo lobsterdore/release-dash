@@ -10,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/lobsterdore/release-dash/asset"
-	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/web/templatefns"
 )
@@ -20,10 +19,26 @@ type HomepageData struct {
 }
 
 type HomepageHandler struct {
-	CacheService     cache.CacheAdapter
 	DashboardRepos   []dashboard.DashboardRepo
 	DashboardService dashboard.DashboardProvider
+	HasChangelogData bool
 	HasDashboardData bool
+	RepoChangelogs   []dashboard.DashboardRepoChangelog
+}
+
+func NewHomepage(dashboardService *dashboard.DashboardService) *HomepageHandler {
+	var placeholderRepos []dashboard.DashboardRepo
+	var placeholderChangelogs []dashboard.DashboardRepoChangelog
+
+	homepageHandler := HomepageHandler{
+		DashboardRepos:   placeholderRepos,
+		DashboardService: dashboardService,
+		HasChangelogData: false,
+		HasDashboardData: false,
+		RepoChangelogs:   placeholderChangelogs,
+	}
+
+	return &homepageHandler
 }
 
 func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
@@ -42,25 +57,50 @@ func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
 }
 
 func (h *HomepageHandler) FetchRepos(ctx context.Context) {
-	log.Print("Dashboard data fetching")
+	log.Print("Dashboard repo data fetching")
 	dashboardRepos, err := h.DashboardService.GetDashboardRepos(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg("Dashboard data fetch failed")
+		log.Error().Err(err).Msg("Dashboard repo data fetch failed")
 		return
 	}
 	h.DashboardRepos = dashboardRepos
 	h.HasDashboardData = true
-	log.Print("Dashboard data refreshed")
+	log.Print("Dashboard repo data refreshed")
+}
+
+func (h *HomepageHandler) FetchChangelogsTicker(timerSeconds int) {
+	mux := &sync.Mutex{}
+	go func() {
+		ctx := context.Background()
+		ticker := time.NewTicker(time.Duration(timerSeconds) * time.Second)
+		for ; true; <-ticker.C {
+			func() {
+				mux.Lock()
+				defer mux.Unlock()
+				h.FetchChangelogs(ctx)
+			}()
+		}
+	}()
+}
+
+func (h *HomepageHandler) FetchChangelogs(ctx context.Context) {
+	log.Print("Dashboard changelog data fetching")
+	if h.HasDashboardData {
+		dashboardChangelogs := h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos)
+		h.RepoChangelogs = dashboardChangelogs
+		h.HasChangelogData = true
+		log.Print("Dashboard changelog repo data refreshed")
+	} else {
+		log.Print("Dashboard repo data not present yet")
+	}
 }
 
 func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Request) {
-	ctx := request.Context()
-
 	var tmpl *template.Template
 	var data HomepageData
 	var err error
 
-	if h.HasDashboardData {
+	if h.HasDashboardData && h.HasChangelogData {
 		tmpl, err = template.New("homepage").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
 			log.Print(err)
@@ -72,15 +112,8 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 			log.Print(err)
 			return
 		}
-
-		cachedData, found := h.CacheService.Get("homepage_data")
-		if found {
-			data = cachedData.(HomepageData)
-		} else {
-			data = HomepageData{
-				RepoChangelogs: h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos),
-			}
-			h.CacheService.Set("homepage_data", data)
+		data = HomepageData{
+			RepoChangelogs: h.RepoChangelogs,
 		}
 	} else {
 		tmpl, err = template.New("homepage_loading").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))

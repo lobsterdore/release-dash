@@ -45,7 +45,7 @@ type DashboardChangelogCommits struct {
 	ToTag   string
 }
 
-func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdapter) DashboardProvider {
+func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdapter) *DashboardService {
 	service := DashboardService{
 		ScmService: scmService,
 	}
