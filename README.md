@@ -4,16 +4,16 @@
 
 A dashboard for visualising commits in pipelines so developers know what will go out.
 Useful for pipelines that have non-prd environments with a manual gate, developers can
-check the dashboard to see what will go out when then a push a release from one
+check the dashboard to see what will go out when a release is pushed from one
 environment to another.
 
 ![release-dash homepage](/docs/screenshot.png)
 
 ## How to run
 
-WHen started the service will kick off 2 background processes, one to grab a list of
-repos that should appear on the dashboard and another to grap the changelogs for
-all of these repos, whilst these processes fetch data initiallly  a loading screen
+When started the service will kick off two background processes, one to grab a list of
+repos that should appear on the dashboard and another to grab the changelogs for
+all of these repos, whilst these processes fetch data initiallly a loading screen
 is displayed by the app.
 
 ### Requirements
@@ -46,7 +46,7 @@ For a full list of available environment vars see [config/configuration.go](conf
 Some key env vars are:
 
 * ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS``` controls the interval for grabbing
-the changelong for each repository that should appear on the dashboard
+the changelog for each repository that should appear on the dashboard
 * ```GITHUB_REPO_FETCH_TIMER_SECONDS``` controls the interval for looking up repos
 that should appear on the dashboard
 
@@ -67,7 +67,7 @@ controlled via the ```GITHUB_REPO_FETCH_TIMER_SECONDS``` env var in
 
 ### Configuration via releasedash.yml
 
-A .releasedash.yml file needs to exist in the root of a repo, please see
+A ```.releasedash.yml``` file needs to exist in the root of a repo, please see
 the [example file here](https://github.com/lobsterdore/release-dash-test-repo-1/blob/main/.releasedash.yml).
 
 The layout of the file should be like so:
@@ -94,16 +94,18 @@ The ```environment_tags``` list powers the changelog, the release dash will do
 a diff between each tag starting from the first one. In the example above the
 release dash will display the following diffs:
 
+```
 dev -> stg
 stg -> prd
+```
 
 The changelog for all repos is fetched via a background task on a regular tick 
-interval, the interval can be controlled via the ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS```
+interval which can be controlled via the ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS```
 env var in [config/configuration.go](config/configuration.go)).
 
 ### Environment tags
 
-As noted in the [Configuration via .releasedash.yml](#configuration-via-releasedash.yml)
+As noted in the [Configuration via .releasedash.yml](#configuration-via-releasedashyml)
 section, tags are used to perform diffs between different environments, this
 diff is then used to show any changes that are in place between environments for a
 service repo.
