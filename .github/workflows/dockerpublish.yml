@@ -10,10 +10,14 @@ on:
 env:
   APP_NAME: release-dash
   DOCKER_BUILD_TARGET: run
-  DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
-  DOCKER_REPO_URL: docker.pkg.github.com
-  DOCKER_REPOSITORY: lobsterdore/release-dash
-  DOCKER_USER: "${{ github.actor }}"
+  DOCKER_DH_PASSWORD: "${{ secrets.DOCKER_DH_PASSWORD }}"
+  DOCKER_DH_REPO_URL: docker.io
+  DOCKER_DH_REPOSITORY: lobsterdore
+  DOCKER_DH_USER: lobsterdore
+  DOCKER_GH_PASSWORD: "${{ secrets.DOCKER_GH_PASSWORD }}"
+  DOCKER_GH_REPO_URL: docker.pkg.github.com
+  DOCKER_GH_REPOSITORY: lobsterdore/release-dash
+  DOCKER_GH_USER: "${{ github.actor }}"
 
 jobs:
 
@@ -31,9 +35,6 @@ jobs:
           cd $GITHUB_WORKSPACE/$APP_NAME
           make docker_test
 
-      - name: Log into registry
-        run: docker login $DOCKER_REPO_URL -u $DOCKER_USER --password $DOCKER_PASSWORD
-
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.33.0
         id: tag_release
@@ -43,9 +44,31 @@ jobs:
           SOURCE: release-dash
           WITH_V: true
 
+      - name: Log into GH Packages registry
+        run: docker login $DOCKER_GH_REPO_URL -u $DOCKER_GH_USER --password $DOCKER_GH_PASSWORD
+
+      - name: Push image to GH Packages
+        run: |
+          IMAGE_ID=$DOCKER_GH_REPO_URL/$DOCKER_GH_REPOSITORY/$APP_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip "v" prefix from tag name
+          VERSION=$(echo ${{ steps.tag_release.outputs.new_tag }} | sed -e 's/^v//')
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          docker tag $APP_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: Log into Dockerhub registry
+        run: docker login $DOCKER_DH_REPO_URL -u $DOCKER_DH_USER --password $DOCKER_DH_PASSWORD
+
       - name: Push image
         run: |
-          IMAGE_ID=$DOCKER_REPO_URL/$DOCKER_REPOSITORY/$APP_NAME
+          IMAGE_ID=$DOCKER_DH_REPO_URL/$DOCKER_DH_REPOSITORY/$APP_NAME
 
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
