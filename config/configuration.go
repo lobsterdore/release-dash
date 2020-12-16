@@ -22,10 +22,10 @@ type server struct {
 }
 
 type serverTimeout struct {
-	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"90"`
-	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"60"`
-	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"60"`
-	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"60"`
+	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"65"`
+	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"30"`
+	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"30"`
+	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"30"`
 }
 
 func NewConfig() (Config, error) {
