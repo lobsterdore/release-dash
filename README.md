@@ -42,6 +42,11 @@ direnv allow
 make docker_run
 ```
 
+### Kubes
+
+A [basic helm chart](https://github.com/lobsterdore/release-dash-helm) if available
+for running on Kubernetes.
+
 ### Configuration via Environment vars
 
 For a full list of available environment vars see [config/configuration.go](config/configuration.go).
