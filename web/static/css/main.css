@@ -8,18 +8,24 @@ h1 {
 
 h2 {
     font-size: 1.7em;
+    margin: 10px 0;
 }
 
-.changelong-even .card {
+.changelog-even,
+.changelog-odd {
+    margin-bottom: 0;
+} 
+
+.changelog-even .card {
     background-color: #ffc400;
 }
 
-.changelong-odd .card {
+.changelog-odd .card {
     background-color: #7c4dff;
 }
 
 .card .card-toolbar {
-    padding: 24px 24px 0px 24px;
+    padding: 24px 24px 0 24px;
 }
 
 .card .card-content {

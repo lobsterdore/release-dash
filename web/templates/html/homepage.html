@@ -1,7 +1,7 @@
 {{ define "content" }}
       <div class="container">
   {{range $index, $repoChangelog := .RepoChangelogs }}      
-        <div class="row {{ if $index | divisibleby 2 }}changelong-even{{ else }}changelong-odd{{ end }}">
+        <div class="row {{ if $index | divisibleby 2 }}changelog-even{{ else }}changelog-odd{{ end }}">
           <div class="col s12"><h2>{{ .Repository.Name }}</h2></div>
     {{range .ChangelogCommits }}
           <div class="col s4">
