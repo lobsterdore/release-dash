@@ -1,23 +1,17 @@
-# release-dash
+# Release Dash ![build](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
 
-![docker](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
-
-[release-dash demo site](https://dash.techpunch.co.uk/)
+[![release-dash homepage][/docs/screenshot.png]][https://dash.techpunch.co.uk/]
 
 A dashboard for visualising commits in pipelines so developers know what will go out.
 Useful for pipelines that have non-prd environments with a manual gate, developers can
 check the dashboard to see what will go out when a release is pushed from one
 environment to another.
 
-
-![release-dash homepage](/docs/screenshot.png)
+The dashboard requires a Github PAT to run, any repo that the PAT has read access to
+will be inspected, if a ```.releasedash.yml``` file is found in the root of the repo
+then it will appear on the board.
 
 ## How to run
-
-When started the service will kick off two background processes, one to grab a list of
-repos that should appear on the dashboard and another to grab the changelogs for
-all of these repos, whilst these processes fetch data initiallly a loading screen
-is displayed by the app.
 
 ### Requirements
 
@@ -59,6 +53,10 @@ the changelog for each repository that should appear on the dashboard
 that should appear on the dashboard
 
 ## How to register repos
+
+When started the service will kick off two background processes, one to grab a list of
+repos that should appear on the dashboard and another to grab the changelogs for
+all of these repos.
 
 For a repo to appear on the dashboard the following criteria must be met:
 
@@ -107,7 +105,7 @@ dev -> stg
 stg -> prd
 ```
 
-The changelog for all repos is fetched via a background task on a regular tick 
+The changelog for all repos is fetched via a background task on a regular tick
 interval which can be controlled via the ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS```
 env var in [config/configuration.go](config/configuration.go)).
 
