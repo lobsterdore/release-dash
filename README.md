@@ -1,6 +1,6 @@
 # Release Dash ![build](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
 
-[![release-dash homepage][/docs/screenshot.png]][https://dash.techpunch.co.uk/]
+[![release-dash homepage](/docs/screenshot.png)](https://dash.techpunch.co.uk/)
 
 A dashboard for visualising commits in pipelines so developers know what will go out.
 Useful for pipelines that have non-prd environments with a manual gate, developers can
