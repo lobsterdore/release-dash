@@ -1,0 +1,164 @@
+[
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/git/refs/tags/from-tag"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"ref\": \"refs/tags/from-tag\",\"url\": \"https://api.github.com/repos/o/r/git/refs/tags/from-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/r/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/git/refs/tags/to-tag"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"ref\": \"refs/tags/to-tag\",\"url\": \"https://api.github.com/repos/o/r/git/refs/tags/to-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/r/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/compare/812b303948b570247b727aeb8c1b187336ad4256...3e0f3d8c432ca2a03a3222fb55de63934338022f"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"base_commit\":{\"sha\":\"s\",\"commit\":{\"author\":{\"name\":\"n\"},\"committer\":{\"name\":\"n\"},\"message\":\"m\",\"tree\":{\"sha\":\"t\"}},\"author\":{\"login\":\"l\"},\"committer\":{\"login\":\"l\"},\"parents\":[{\"sha\":\"s\"}]},\"status\":\"s\",\"ahead_by\":1,\"behind_by\":2,\"total_commits\":1,\"commits\":[{\"sha\":\"s\",\"html_url\":\"h\",\"commit\":{\"author\":{\"name\":\"n\"},\"message\":\"m\"},\"author\":{\"login\":\"l\",\"avatar_url\":\"a\"},\"committer\":{\"login\":\"l\"},\"parents\":[{\"sha\":\"s\"}]},{\"sha\":\"s\",\"html_url\":\"h\",\"commit\":{\"author\":{\"name\":\"n\"},\"message\":\"m\"},\"author\":{\"login\":\"l\",\"avatar_url\":\"a\"},\"committer\":{\"login\":\"l\"},\"parents\":[{\"sha\":\"s\"}]}],\"files\":[{\"filename\":\"f\"}],\"html_url\":\"https://github.com/o/r/compare/b...h\",\"permalink_url\":\"https://github.com/o/r/compare/o:bbcd538c8e72b8c175046e27cc8f907076331401...o:0328041d1152db8ae77652d1618a02e57f745f17\",\"diff_url\":\"https://github.com/o/r/compare/b...h.diff\",\"patch_url\":\"https://github.com/o/r/compare/b...h.patch\",\"url\":\"https://api.github.com/repos/o/r/compare/b...h\"}"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/git/refs/tags/missing-tag"
+    },
+    "response":{
+      "status":404,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/commits",
+      "params":{
+        "sha":"to-tag"
+      }
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"[{\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\"}]"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/user/repos",
+      "params":{
+        "per_page":"100"
+      }
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"[{\"id\":1,\"name\":\"r\",\"default_branch\":\"main\",\"owner\":{\"login\":\"l\"}}]"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/users/500/repos",
+      "params":{
+        "per_page":"100"
+      }
+    },
+    "response":{
+      "status":500,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/branches"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"[{\"name\": \"main\", \"commit\" : {\"sha\": \"s\"}}]"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/500/branches"
+    },
+    "response":{
+      "status":500,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/git/trees/s"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{ \"sha\": \"s\", \"tree\": [ { \"Path\": \".releasedash.yml\" } ], \"truncated\": true }"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/r/contents/.releasedash.yml"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"type\": \"file\", \"content\": \"LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZGV2CiAgLSBzdGcKICAtIHByZApuYW1lOiByZWxlYXNlLWRhc2gtdGVzdC1yZXBvLTEKCg==\" }"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/missingfile/git/trees/s"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"sha\": \"s\", \"tree\": [ { \"Path\": \"wrong/path\" } ], \"truncated\": true }"
+    }
+  }
+]

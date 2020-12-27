@@ -54,7 +54,12 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 			SHA: toTag,
 		}
 		commits, _, _ := c.Client.Repositories.ListCommits(ctx, owner, repo, opt)
+		if len(commits) == 0 {
+			return nil, nil
+		}
+
 		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *commits[len(commits)-1].SHA, *refTo.Object.SHA)
+
 		if err != nil {
 			log.Error().Err(err).Msg("Could not get repo tag compare")
 			return nil, err
@@ -86,7 +91,7 @@ func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 	}
 	var allRepos []*github.Repository
 	for {
-		repos, resp, err := c.Client.Repositories.List(ctx, "", opts)
+		repos, resp, err := c.Client.Repositories.List(ctx, user, opts)
 		if err != nil {
 			log.Error().Err(err).Msg("Could not get user repos")
 			return nil, err

@@ -1,8 +1,10 @@
 export GO111MODULE=on
 
-PWD=$(shell pwd)
+GINKGO_VERSION?=v1.14.2
+KILLGRAVE_VERSION?=v0.4.0
+PKGER_VERSION?=v0.17.1
 
-GOFILES= $$(go list -f '{{join .GoFiles " "}}')
+PWD=$(shell pwd)
 
 PATH:=$(PWD)/bin:${PATH}
 export PATH
@@ -25,7 +27,11 @@ clean:
 deps:
 	go mod tidy
 	go mod download
-	go get github.com/markbates/pkger/cmd/pkger
+	go get github.com/markbates/pkger/cmd/pkger@$(PKGER_VERSION)
+
+deps_test:
+	go get github.com/friendsofgo/killgrave/cmd/killgrave@$(KILLGRAVE_VERSION)
+	go get github.com/onsi/ginkgo/ginkgo@$(GINKGO_VERSION)
 
 .PHONY: docker_build
 docker_build:
@@ -66,4 +72,4 @@ run_src: deps
 	go run main.go
 
 test: mocks
-	go test -v ./...
+	go test -count 1 -v $(shell go list ./... | grep -v /e2e)

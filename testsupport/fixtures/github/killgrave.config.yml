@@ -1,0 +1,5 @@
+---
+
+host: "localhost"
+imposters_path: "imposters"
+port: 3000

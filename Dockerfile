@@ -55,6 +55,6 @@ CMD /app/bin/release-dash
 #
 FROM build_app as test
 
-RUN make mocks
+RUN make deps_test mocks
 
 CMD ["/usr/bin/make", "test"]
