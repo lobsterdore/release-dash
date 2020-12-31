@@ -5,11 +5,10 @@ go 1.15
 require (
 	github.com/caarlos0/env/v6 v6.3.0
 	github.com/creasty/defaults v1.5.1
-	github.com/friendsofgo/killgrave v0.4.0 // indirect
 	github.com/golang/mock v1.4.4
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/lib/pq v1.9.0
+	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/markbates/pkger v0.17.1
 	github.com/mash/go-accesslog v1.2.0
 	github.com/onsi/ginkgo v1.14.2
@@ -21,5 +20,4 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.3.0
-	gotest.tools v0.0.0-20181223230014-1083505acf35
 )

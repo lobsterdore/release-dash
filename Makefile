@@ -25,17 +25,19 @@ clean:
 	@rm -rf vendor
 
 .PHONY: deps
-deps:
-	git config --global url."git@github.com:".insteadOf "https://github.com/"
+deps: deps_tools mocks
 	go mod tidy
 	go mod download
-	go get github.com/markbates/pkger/cmd/pkger@$(PKGER_VERSION)
 
 .PHONY: deps_test
 deps_test:
-	go get github.com/golang/mock/mockgen@$(GOMOCK_VERSION)
 	go get github.com/friendsofgo/killgrave/cmd/killgrave@$(KILLGRAVE_VERSION)
 	go get github.com/onsi/ginkgo/ginkgo@$(GINKGO_VERSION)
+
+.PHONY: deps_tools
+deps_tools:
+	go get github.com/golang/mock/mockgen@$(GOMOCK_VERSION)
+	go get github.com/markbates/pkger/cmd/pkger@$(PKGER_VERSION)
 
 .PHONY: docker_build
 docker_build:
@@ -68,10 +70,10 @@ run_src: deps
 .PHONY: test_all
 test_all: deps deps_test mocks test_unit test_integration
 
-.PHONY: test_unit
-test_unit: mocks
-	go test -count 1 -v $(shell go list ./... | grep -v /testintegration)
-
 .PHONY: test_integration
 test_integration:
 	ginkgo -r --progress integration ./testintegration
+
+.PHONY: test_unit
+test_unit: mocks
+	go test -count 1 -v $(shell go list ./... | grep -v /testintegration)
