@@ -57,7 +57,7 @@ func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
 }
 
 func (h *HomepageHandler) FetchRepos(ctx context.Context) {
-	log.Print("Dashboard repo data fetching")
+	log.Info().Msg("Dashboard repo data fetching")
 	dashboardRepos, err := h.DashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("Dashboard repo data fetch failed")
@@ -65,7 +65,7 @@ func (h *HomepageHandler) FetchRepos(ctx context.Context) {
 	}
 	h.DashboardRepos = dashboardRepos
 	h.HasDashboardData = true
-	log.Print("Dashboard repo data refreshed")
+	log.Info().Msg("Dashboard repo data refreshed")
 }
 
 func (h *HomepageHandler) FetchChangelogsTicker(timerSeconds int) {
@@ -84,14 +84,14 @@ func (h *HomepageHandler) FetchChangelogsTicker(timerSeconds int) {
 }
 
 func (h *HomepageHandler) FetchChangelogs(ctx context.Context) {
-	log.Print("Dashboard changelog data fetching")
+	log.Info().Msg("Dashboard changelog data fetching")
 	if h.HasDashboardData {
 		dashboardChangelogs := h.DashboardService.GetDashboardChangelogs(ctx, h.DashboardRepos)
 		h.RepoChangelogs = dashboardChangelogs
 		h.HasChangelogData = true
-		log.Print("Dashboard changelog repo data refreshed")
+		log.Info().Msg("Dashboard changelog repo data refreshed")
 	} else {
-		log.Print("Dashboard repo data not present yet")
+		log.Info().Msg("Dashboard repo data not present yet")
 	}
 }
 
@@ -103,13 +103,13 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	if h.HasDashboardData && h.HasChangelogData {
 		tmpl, err = template.New("homepage").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("Could not get html/base.html")
 			return
 		}
 
 		tmpl, err = tmpl.Parse(asset.ReadTemplateFile("html/homepage.html"))
 		if err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("Could not get html/homepage.html")
 			return
 		}
 		data = HomepageData{
@@ -118,13 +118,13 @@ func (h *HomepageHandler) Http(respWriter http.ResponseWriter, request *http.Req
 	} else {
 		tmpl, err = template.New("homepage_loading").Funcs(templatefns.TemplateFnsMap).Parse(asset.ReadTemplateFile("html/base.html"))
 		if err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("Could not get html/base.html")
 			return
 		}
 
 		tmpl, err = tmpl.Parse(asset.ReadTemplateFile("html/homepage_loading.html"))
 		if err != nil {
-			log.Print(err)
+			log.Error().Err(err).Msg("Could not get html/homepage_loading.html")
 			return
 		}
 	}

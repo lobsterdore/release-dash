@@ -7,9 +7,9 @@ import (
 )
 
 func GetTemplateFilePath(name string) string {
-	templateHandle, pkgerError := pkger.Open("/web/templates/" + name)
-	if pkgerError != nil {
-		panic(pkgerError)
+	templateHandle, err := pkger.Open("/web/templates/" + name)
+	if err != nil {
+		panic(err)
 	}
 	defer templateHandle.Close()
 
@@ -17,15 +17,15 @@ func GetTemplateFilePath(name string) string {
 }
 
 func ReadTemplateFile(name string) string {
-	templateHandle, pkgerError := pkger.Open("/web/templates/" + name)
-	if pkgerError != nil {
-		panic(pkgerError)
+	templateHandle, err := pkger.Open("/web/templates/" + name)
+	if err != nil {
+		panic(err)
 	}
 	defer templateHandle.Close()
 
-	bytes, readError := ioutil.ReadAll(templateHandle)
-	if readError != nil {
-		panic(readError)
+	bytes, err := ioutil.ReadAll(templateHandle)
+	if err != nil {
+		panic(err)
 	}
 
 	return string(bytes)

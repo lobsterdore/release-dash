@@ -15,7 +15,7 @@ then it will appear on the board.
 
 ### Requirements
 
-* GO 1.14
+* GO 1.14>
 * Github PAT
 
 ### Native
@@ -80,6 +80,7 @@ The layout of the file should be like so:
 
 ```YAML
 ---
+
 environment_tags: [ LIST OF ENVIRONMENT TAGS ]
 name: [NAME OF SERVICE ON DASHBOARD]
 ```
@@ -100,7 +101,7 @@ The ```environment_tags``` list powers the changelog, the release dash will do
 a diff between each tag starting from the first one. In the example above the
 release dash will display the following diffs:
 
-```
+```BASH
 dev -> stg
 stg -> prd
 ```

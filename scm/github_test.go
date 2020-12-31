@@ -15,7 +15,7 @@ func TestChangelogHasChanges(t *testing.T) {
 	defer teardown()
 
 	owner := "o"
-	repo := "r"
+	repo := "test-repo"
 	fromTag := "from-tag"
 	toTag := "to-tag"
 
@@ -30,12 +30,12 @@ func TestChangelogHasChanges(t *testing.T) {
 	expectedChangelog := []scm.ScmCommit{
 		scm.ScmCommit{
 			AuthorAvatarUrl: "a",
-			Message:         "m",
+			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
 		scm.ScmCommit{
 			AuthorAvatarUrl: "a",
-			Message:         "m",
+			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
 	}
@@ -49,7 +49,7 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 	defer teardown()
 
 	owner := "o"
-	repo := "r"
+	repo := "test-repo"
 	fromTag := "missing-tag"
 	toTag := "to-tag"
 
@@ -64,12 +64,12 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 	expectedChangelog := []scm.ScmCommit{
 		scm.ScmCommit{
 			AuthorAvatarUrl: "a",
-			Message:         "m",
+			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
 		scm.ScmCommit{
 			AuthorAvatarUrl: "a",
-			Message:         "m",
+			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
 	}
@@ -83,7 +83,7 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 	defer teardown()
 
 	owner := "o"
-	repo := "r"
+	repo := "test-repo"
 	fromTag := "missing-tag"
 	toTag := "missing-tag"
 
@@ -104,8 +104,8 @@ func TestUserReposHasRepos(t *testing.T) {
 	defer teardown()
 
 	defaultBranch := "main"
-	repo := "r"
-	owner := "l"
+	repo := "test-repo"
+	owner := "o"
 
 	githubAdapter := scm.GithubAdapter{
 		Client: client,
@@ -146,7 +146,7 @@ func TestGetRepoBranchHasBranch(t *testing.T) {
 	defer teardown()
 
 	branch := "main"
-	repo := "r"
+	repo := "test-repo"
 	owner := "o"
 	sha := "s"
 
@@ -190,11 +190,11 @@ func TestGetRepoFileHasFile(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
-	repo := "r"
+	repo := "test-repo"
 	owner := "o"
 	sha := "s"
 	path := ".releasedash.yml"
-	content := "LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZGV2CiAgLSBzdGcKICAtIHByZApuYW1lOiByZWxlYXNlLWRhc2gtdGVzdC1yZXBvLTEKCg=="
+	content := "LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZnJvbS10YWcKICAtIHRvLXRhZwpuYW1lOiByCg=="
 
 	expectedRepoFile, _ := base64.StdEncoding.DecodeString(content)
 

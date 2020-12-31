@@ -36,6 +36,26 @@ func TestGetDashboardReposNoRepos(t *testing.T) {
 	assert.Equal(t, expectedRepos, repos)
 }
 
+func TestGetDashboardReposError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
+
+	mockCtx := context.Background()
+
+	mockScm.
+		EXPECT().
+		GetUserRepos(mockCtx, "").
+		Times(1).
+		Return(nil, errors.New("Error"))
+
+	repos, err := dashboardService.GetDashboardRepos(mockCtx)
+
+	assert.Error(t, err)
+	assert.Nil(t, repos)
+}
+
 func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	ctrl := gomock.NewController(t)
 

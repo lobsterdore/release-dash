@@ -30,10 +30,15 @@ jobs:
         with:
           path: release-dash
 
-      - name: Build  and test image
+      - name: Build image
         run: |
           cd $GITHUB_WORKSPACE/$APP_NAME
-          make docker_test
+          make docker_build
+
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/$APP_NAME
+          make test_all
 
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.33.0

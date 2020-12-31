@@ -10,7 +10,7 @@ type HttpLogger struct {
 }
 
 func (l HttpLogger) Log(record accesslog.LogRecord) {
-	log.Log().
+	log.Info().
 		Str("method", record.Method).
 		Str("request", record.Uri).
 		Str("proto", record.Protocol).

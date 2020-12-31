@@ -14,7 +14,15 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func setupGithubApiHttpMock() (*exec.Cmd, error, func()) {
+func GetProjectPath(relativePath string) string {
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	projectPath, _ := filepath.Abs(filepath.Join(basepath, relativePath))
+
+	return projectPath
+}
+
+func setupGithubApiHttpMock() (func(), error) {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 	projectPath, _ := filepath.Abs(filepath.Join(basepath, ".."))
@@ -22,23 +30,23 @@ func setupGithubApiHttpMock() (*exec.Cmd, error, func()) {
 	cmd := exec.Command("killgrave", "-config", projectPath+"/testsupport/fixtures/github/killgrave.config.yml")
 	err := cmd.Start()
 	if err != nil {
-		return nil, err, nil
+		return nil, err
 	}
 
-	success := WaitTcpPort("localhost:3000")
+	success := waitTcpPort("localhost:3000")
 	if !success {
-		return nil, fmt.Errorf("Could not connect on localhost:3000"), nil
+		return nil, fmt.Errorf("Could not connect on localhost:3000")
 	}
 
 	teardown := func() {
 		_ = syscall.Kill(cmd.Process.Pid, 2)
 	}
 
-	return cmd, nil, teardown
+	return teardown, nil
 }
 
 func SetupGithubClientMock() (client *github.Client, teardown func()) {
-	_, err, mockGhApiTeardown := setupGithubApiHttpMock()
+	mockGhApiTeardown, err := setupGithubApiHttpMock()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error starting GH API HTTP Mock: %v\n", err)
 		os.Exit(1)
@@ -56,7 +64,7 @@ func SetupGithubClientMock() (client *github.Client, teardown func()) {
 	return client, teardown
 }
 
-func WaitTcpPort(host string) bool {
+func waitTcpPort(host string) bool {
 	retry := 10
 	for retry > 0 {
 		timeout := time.Duration(1) * time.Second

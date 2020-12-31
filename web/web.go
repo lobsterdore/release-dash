@@ -58,7 +58,7 @@ func (w web) Run(ctx context.Context) {
 
 	signal.Notify(runChan, os.Interrupt, syscall.SIGTSTP)
 
-	log.Printf("Server is starting on %s", server.Addr)
+	log.Info().Msgf("Server is starting on %s", server.Addr)
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
@@ -73,7 +73,7 @@ func (w web) Run(ctx context.Context) {
 	w.HomepageHandler.FetchChangelogsTicker(w.Config.Github.ChangelogFetchTimerSeconds)
 
 	interrupt := <-runChan
-	log.Printf("Server is shutting down due to %+v", interrupt)
+	log.Info().Msgf("Server is shutting down due to %+v", interrupt)
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatal().Err(err).Msg("Server was unable to gracefully shutdown")
 	}

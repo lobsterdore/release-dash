@@ -38,6 +38,16 @@ RUN apt update -yq && \
 
 
 #
+# TEST STAGE - Stage for testing the service
+#
+FROM build_app as test
+
+RUN make deps_test mocks
+
+CMD ["/usr/bin/make", "test_all"]
+
+
+#
 # RUNTIME STAGE - Stage for running the service
 #
 FROM base as run
@@ -48,13 +58,3 @@ COPY --chown=release_dash:release_dash --from=build_app /go/bin/release-dash /ap
 EXPOSE 8080
 
 CMD /app/bin/release-dash
-
-
-#
-# TEST STAGE - Stage for testing the service
-#
-FROM build_app as test
-
-RUN make deps_test mocks
-
-CMD ["/usr/bin/make", "test"]

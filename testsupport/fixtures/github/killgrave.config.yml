@@ -1,5 +1,5 @@
 ---
 
-host: "localhost"
+host: "0.0.0.0"
 imposters_path: "imposters"
 port: 3000

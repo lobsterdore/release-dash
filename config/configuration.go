@@ -5,14 +5,21 @@ import (
 )
 
 type Config struct {
-	Github github
-	Server server
+	Github  github
+	Logging logging
+	Server  server
 }
 
 type github struct {
-	ChangelogFetchTimerSeconds int    `env:"GITHUB_CHANGELOG_FETCH_TIMER_SECONDS" envDefault:"60"` // Time to wait between updating the changelogs on the dashboard
-	Pat                        string `env:"GITHUB_PAT" envDefault:""`                             // Github Personal Access Token used to access repos
-	RepoFetchTimerSeconds      int    `env:"GITHUB_REPO_FETCH_TIMER_SECONDS" envDefault:"600"`     // Time to wait between looking up new repos to add to the dashboard
+	ChangelogFetchTimerSeconds int    `env:"GITHUB_CHANGELOG_FETCH_TIMER_SECONDS" envDefault:"60"`
+	Pat                        string `env:"GITHUB_PAT" envDefault:""`
+	RepoFetchTimerSeconds      int    `env:"GITHUB_REPO_FETCH_TIMER_SECONDS" envDefault:"600"`
+	UrlDefault                 string `env:"GITHUB_URL_DEFAULT" envDefault:""`
+	UrlUpload                  string `env:"GITHUB_URL_UPLOAD" envDefault:""`
+}
+
+type logging struct {
+	Level string `env:"LOGGING_LEVEL" envDefault:"info"`
 }
 
 type server struct {

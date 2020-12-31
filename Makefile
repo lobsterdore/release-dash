@@ -29,6 +29,7 @@ deps:
 	go mod download
 	go get github.com/markbates/pkger/cmd/pkger@$(PKGER_VERSION)
 
+.PHONY: deps_test
 deps_test:
 	go get github.com/friendsofgo/killgrave/cmd/killgrave@$(KILLGRAVE_VERSION)
 	go get github.com/onsi/ginkgo/ginkgo@$(GINKGO_VERSION)
@@ -48,16 +49,6 @@ docker_run: docker_build
 		-p 8080:8080 \
 		release-dash
 
-
-.PHONY: docker_test
-docker_test: docker_build
-	docker build \
-		--cache-from release-dash \
-		-t release-dash-test \
-		--target test .
-	docker run \
-		release-dash-test
-
 .PHONY: mocks
 mocks:
 	rm -rf mocks
@@ -65,11 +56,19 @@ mocks:
 
 .PHONY: run
 run: build
-	release-dash
+	@release-dash
 
 .PHONY: run_src
 run_src: deps
 	go run main.go
 
-test: mocks
-	go test -count 1 -v $(shell go list ./... | grep -v /e2e)
+.PHONY: test_all
+test_all: test_unit test_integration
+
+.PHONY: test_unit
+test_unit: mocks
+	go test -count 1 -v $(shell go list ./... | grep -v /testintegration)
+
+.PHONY: test_integration
+test_integration:
+	ginkgo -r --progress integration ./testintegration
