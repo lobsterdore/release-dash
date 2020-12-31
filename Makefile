@@ -65,7 +65,7 @@ run_src: deps
 	go run main.go
 
 .PHONY: test_all
-test_all: deps_test test_unit test_integration
+test_all: deps deps_test mocks test_unit test_integration
 
 .PHONY: test_unit
 test_unit: mocks
