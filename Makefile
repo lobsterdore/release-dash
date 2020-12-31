@@ -26,8 +26,9 @@ clean:
 
 .PHONY: deps
 deps: deps_tools mocks
-	go mod tidy
-	go mod download
+#	$(MAKE) mocks
+	go mod vendor
+#	go mod download
 
 .PHONY: deps_test
 deps_test:

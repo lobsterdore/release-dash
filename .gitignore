@@ -2,7 +2,7 @@
 .vscode/
 pkged.go
 mocks/
-
+vendor/
 
 # Created by https://www.toptal.com/developers/gitignore/api/backup,emacs,git,intellij+all,macos,python,sublimetext,testinfra,vim,virtualenv,visualstudiocode,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=backup,emacs,git,intellij+all,macos,python,sublimetext,testinfra,vim,virtualenv,visualstudiocode,windows
