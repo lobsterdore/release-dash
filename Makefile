@@ -1,6 +1,7 @@
 export GO111MODULE=on
 
 GINKGO_VERSION?=v1.14.2
+GOMOCK_VERSION?=v1.4.4
 KILLGRAVE_VERSION?=v0.4.0
 PKGER_VERSION?=v0.17.1
 
@@ -31,6 +32,7 @@ deps:
 
 .PHONY: deps_test
 deps_test:
+	go get github.com/golang/mock/mockgen@$(GOMOCK_VERSION)
 	go get github.com/friendsofgo/killgrave/cmd/killgrave@$(KILLGRAVE_VERSION)
 	go get github.com/onsi/ginkgo/ginkgo@$(GINKGO_VERSION)
 
@@ -63,7 +65,7 @@ run_src: deps
 	go run main.go
 
 .PHONY: test_all
-test_all: test_unit test_integration
+test_all: deps_test test_unit test_integration
 
 .PHONY: test_unit
 test_unit: mocks
