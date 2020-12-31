@@ -26,6 +26,7 @@ clean:
 
 .PHONY: deps
 deps:
+	git config --global url."git@github.com:".insteadOf "https://github.com/"
 	go mod tidy
 	go mod download
 	go get github.com/markbates/pkger/cmd/pkger@$(PKGER_VERSION)
