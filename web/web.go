@@ -26,18 +26,23 @@ type WebProvider interface {
 }
 
 type web struct {
-	Config           config.Config
-	DashboardService dashboard.DashboardProvider
-	HomepageHandler  *handler.HomepageHandler
+	Config             config.Config
+	DashboardService   dashboard.DashboardProvider
+	HealthcheckHandler *handler.HealthcheckHandler
+	HomepageHandler    *handler.HomepageHandler
 }
 
 func NewWeb(cfg config.Config, ctx context.Context, scmService scm.ScmAdapter) WebProvider {
 	dashboardService := dashboard.NewDashboardService(ctx, cfg, scmService)
-	homepageHandler := handler.NewHomepage(dashboardService)
+
+	healthcheckHandler := handler.NewHealthcheckHandler()
+	homepageHandler := handler.NewHomepageHandler(dashboardService)
+
 	web := web{
-		Config:           cfg,
-		DashboardService: dashboardService,
-		HomepageHandler:  homepageHandler,
+		Config:             cfg,
+		DashboardService:   dashboardService,
+		HealthcheckHandler: healthcheckHandler,
+		HomepageHandler:    homepageHandler,
 	}
 	return web
 }
@@ -85,6 +90,7 @@ func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 
 	router.Handle("/static/", http.StripPrefix("/static", fs))
 	router.HandleFunc("/", w.HomepageHandler.Http)
+	router.HandleFunc("/healthcheck", w.HealthcheckHandler.Http)
 
 	return router
 }

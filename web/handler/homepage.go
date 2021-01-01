@@ -26,7 +26,7 @@ type HomepageHandler struct {
 	RepoChangelogs   []dashboard.DashboardRepoChangelog
 }
 
-func NewHomepage(dashboardService *dashboard.DashboardService) *HomepageHandler {
+func NewHomepageHandler(dashboardService *dashboard.DashboardService) *HomepageHandler {
 	var placeholderRepos []dashboard.DashboardRepo
 	var placeholderChangelogs []dashboard.DashboardRepoChangelog
 

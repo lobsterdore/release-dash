@@ -38,15 +38,35 @@ var _ = Describe("Release Dash", func() {
 			resp, err := client.Do(req)
 			Expect(err).ToNot(HaveOccurred())
 
-			Expect(err).To(BeNil())
-			Expect(resp.StatusCode).To(Equal(http.StatusOK))
-
 			bodyRaw, _ := ioutil.ReadAll(resp.Body)
 			body := string(bodyRaw)
 
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 			Expect(body).Should(ContainSubstring("test-repo"))
 			Expect(body).Should(ContainSubstring("from-tag > to-tag"))
 			Expect(body).Should(ContainSubstring("test-commit"))
+		})
+
+	})
+
+	Context("Test Healthcheck", func() {
+		It("shows healthcheck", func() {
+			ctx := context.Background()
+
+			serviceEndpoint, err := intSupport.AppContainer.Endpoint(ctx, "")
+			Expect(err).ToNot(HaveOccurred())
+
+			client := &http.Client{}
+			req, err := http.NewRequest("GET", "http://"+serviceEndpoint+"/healthcheck", nil)
+			Expect(err).ToNot(HaveOccurred())
+
+			resp, err := client.Do(req)
+			Expect(err).ToNot(HaveOccurred())
+
+			bodyRaw, _ := ioutil.ReadAll(resp.Body)
+
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
+			Expect(bodyRaw).To(MatchJSON(`{"status":"OK","errors":[]}`))
 		})
 
 	})
