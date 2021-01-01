@@ -7,7 +7,7 @@ PKGER_VERSION?=v0.17.1
 
 PWD=$(shell pwd)
 
-PATH:=$(PWD)/bin:${PATH}
+PATH:=$(PWD)/bin:$(PATH)
 export PATH
 
 export BUILDKIT_PROGRESS=plain
@@ -27,7 +27,6 @@ clean:
 .PHONY: deps
 deps: deps_tools mocks
 	$(MAKE) mocks
-	go mod tidy
 	go mod download
 
 .PHONY: deps_test
@@ -69,12 +68,13 @@ run_src: deps
 	go run main.go
 
 .PHONY: test_all
-test_all: deps deps_test mocks test_unit test_integration
+test_all: deps deps_test mocks
+	go test -count 1 -timeout=120s -cover -race -v -tags=integration ./...
 
 .PHONY: test_integration
 test_integration:
-	ginkgo -r --progress integration ./testintegration
+	go test -count 1 -timeout=120s -cover -race -v -tags=integration ./testintegration
 
 .PHONY: test_unit
 test_unit: mocks
-	go test -count 1 -v $(shell go list ./... | grep -v /testintegration)
+	go test -count 1 -timeout=30s -cover -race -v ./...
