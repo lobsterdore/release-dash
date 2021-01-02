@@ -25,6 +25,7 @@ type ScmCommit struct {
 
 type ScmRepository struct {
 	DefaultBranch string
+	HtmlUrl       string
 	Name          string
 	OwnerName     string
 }

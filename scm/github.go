@@ -121,6 +121,7 @@ func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 	for _, repo := range allRepos {
 		scmRepo := ScmRepository{
 			DefaultBranch: *repo.DefaultBranch,
+			HtmlUrl:       *repo.HTMLURL,
 			Name:          *repo.Name,
 			OwnerName:     *repo.Owner.Login,
 		}

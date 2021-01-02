@@ -104,6 +104,7 @@ func TestUserReposHasRepos(t *testing.T) {
 	defer teardown()
 
 	defaultBranch := "main"
+	htmlUrl := "url"
 	repo := "test-repo"
 	owner := "o"
 
@@ -115,6 +116,7 @@ func TestUserReposHasRepos(t *testing.T) {
 
 	expectedScmRepos := []scm.ScmRepository{scm.ScmRepository{
 		DefaultBranch: defaultBranch,
+		HtmlUrl:       htmlUrl,
 		Name:          repo,
 		OwnerName:     owner,
 	}}

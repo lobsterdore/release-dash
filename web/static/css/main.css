@@ -1,5 +1,5 @@
 body {
-    background-color: #f4f4f4;    
+    background-color: #f4f4f4;
 }
 
 h1 {
@@ -11,10 +11,13 @@ h2 {
     margin: 10px 0;
 }
 
-.changelog-even,
-.changelog-odd {
+.changelog {
     margin-bottom: 0;
-} 
+}
+
+.changelog-title h2 .material-icons {
+    margin: 4px 5px 0px 0px;
+}
 
 .changelog-even .card {
     background-color: #ffc400;

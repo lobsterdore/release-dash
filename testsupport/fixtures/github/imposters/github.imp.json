@@ -92,7 +92,7 @@
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"[{\"id\":1,\"name\":\"test-repo\",\"default_branch\":\"main\",\"owner\":{\"login\":\"o\"}}]"
+      "body":"[{\"id\":1,\"name\":\"test-repo\",\"default_branch\":\"main\",\"html_url\":\"url\",\"owner\":{\"login\":\"o\"}}]"
     }
   },
   {
