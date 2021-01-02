@@ -90,7 +90,7 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	resBody := rr.Body.String()
 
 	assert.Equal(t, rr.Code, http.StatusOK)
-	assert.Contains(t, resBody, "<h2>"+mockRepoName+"</h2>")
+	assert.Contains(t, resBody, mockRepoName)
 	assert.Contains(t, resBody, "dev > stg")
 	assert.Contains(t, resBody, mockMessage)
 }
