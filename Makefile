@@ -68,8 +68,7 @@ run_src: deps
 	go run main.go
 
 .PHONY: test_all
-test_all: deps deps_test mocks
-	go test -count 1 -timeout=120s -cover -race -v -tags=integration ./...
+test_all: deps deps_test mocks test_unit test_integration
 
 .PHONY: test_integration
 test_integration:

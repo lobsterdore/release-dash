@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
+	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web"
@@ -44,5 +45,10 @@ func main() {
 		os.Exit(3)
 	}
 
-	web.NewWeb(cfg, ctx, githubAdapter).Run(ctx)
+	localCacheAdapter := cache.NewLocalCacheAdapter(
+		cfg.Cache.DefaultExpirationMinutes,
+		cfg.Cache.CleanupIntervalMinutes,
+	)
+
+	web.NewWeb(cfg, ctx, githubAdapter, localCacheAdapter).Run(ctx)
 }

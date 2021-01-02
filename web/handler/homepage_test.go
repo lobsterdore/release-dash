@@ -14,12 +14,14 @@ import (
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/web/handler"
 
+	mock_cache "github.com/lobsterdore/release-dash/mocks/cache"
 	mock_dashboard "github.com/lobsterdore/release-dash/mocks/dashboard"
 )
 
 func TestHomepageHasRepoHasChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
+	mockCacheService := mock_cache.NewMockCacheAdapter(ctrl)
 	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
 
 	mockOwner := "o"
@@ -30,19 +32,6 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 		OwnerName: mockOwner,
 		Name:      mockRepoName,
 	}
-
-	var mockDashboardRepos []dashboard.DashboardRepo
-	mockConfig := dashboard.DashboardRepoConfig{
-		EnvironmentTags: []string{"dev", "stg"},
-		Name:            "app",
-	}
-
-	mockDashboardRepo := dashboard.DashboardRepo{
-		Config:     &mockConfig,
-		Repository: mockRepo,
-	}
-
-	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
 	mockCtx := context.Background()
 
@@ -68,12 +57,15 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	var mockRepoChangelogs []dashboard.DashboardRepoChangelog
 	mockRepoChangelogs = append(mockRepoChangelogs, mockRepoChangelog)
 
+	mockCacheService.
+		EXPECT().
+		Get("homepage_changelog_data").
+		Times(1).
+		Return(mockRepoChangelogs, true)
+
 	homepageHandler := handler.HomepageHandler{
-		DashboardRepos:   mockDashboardRepos,
+		CacheService:     mockCacheService,
 		DashboardService: mockDashboardService,
-		HasChangelogData: true,
-		HasDashboardData: true,
-		RepoChangelogs:   mockRepoChangelogs,
 	}
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -98,38 +90,21 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 func TestHomepageHasRepoNoChanges(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
+	mockCacheService := mock_cache.NewMockCacheAdapter(ctrl)
 	mockDashboardService := mock_dashboard.NewMockDashboardProvider(ctrl)
-
-	mockOwner := "o"
-	mockRepoName := "r"
-
-	mockRepo := scm.ScmRepository{
-		Name:      mockRepoName,
-		OwnerName: mockOwner,
-	}
-
-	var mockDashboardRepos []dashboard.DashboardRepo
-	mockConfig := dashboard.DashboardRepoConfig{
-		EnvironmentTags: []string{"dev", "stg"},
-		Name:            "app",
-	}
-
-	mockDashboardRepo := dashboard.DashboardRepo{
-		Config:     &mockConfig,
-		Repository: mockRepo,
-	}
-
-	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
 
 	mockCtx := context.Background()
 	var mockRepoChangelogs []dashboard.DashboardRepoChangelog
 
+	mockCacheService.
+		EXPECT().
+		Get("homepage_changelog_data").
+		Times(1).
+		Return(mockRepoChangelogs, true)
+
 	homepageHandler := handler.HomepageHandler{
-		DashboardRepos:   mockDashboardRepos,
+		CacheService:     mockCacheService,
 		DashboardService: mockDashboardService,
-		HasChangelogData: true,
-		HasDashboardData: true,
-		RepoChangelogs:   mockRepoChangelogs,
 	}
 
 	req, err := http.NewRequest("GET", "/", nil)

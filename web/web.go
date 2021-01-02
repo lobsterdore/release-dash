@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/lobsterdore/release-dash/cache"
 	"github.com/lobsterdore/release-dash/config"
 	"github.com/lobsterdore/release-dash/dashboard"
 	"github.com/lobsterdore/release-dash/logging"
@@ -32,11 +33,11 @@ type web struct {
 	HomepageHandler    *handler.HomepageHandler
 }
 
-func NewWeb(cfg config.Config, ctx context.Context, scmService scm.ScmAdapter) WebProvider {
+func NewWeb(cfg config.Config, ctx context.Context, scmService scm.ScmAdapter, cacheService cache.CacheAdapter) WebProvider {
 	dashboardService := dashboard.NewDashboardService(ctx, cfg, scmService)
 
 	healthcheckHandler := handler.NewHealthcheckHandler()
-	homepageHandler := handler.NewHomepageHandler(dashboardService)
+	homepageHandler := handler.NewHomepageHandler(dashboardService, cacheService)
 
 	web := web{
 		Config:             cfg,
