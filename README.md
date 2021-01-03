@@ -9,7 +9,8 @@ environment to another.
 
 The dashboard requires a Github PAT to run, any repo that the PAT has read access to
 will be inspected, if a ```.releasedash.yml``` file is found in the root of the repo
-then it will appear on the board.
+then it will appear on the board. For each repo a list of tags is supplied via the
+```.releasedash.yml``` config file, these tags are diffed to produce a changelog.
 
 ## How to run
 
@@ -47,14 +48,17 @@ For a full list of available environment vars see [config/configuration.go](conf
 
 Some key env vars are:
 
-* ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS``` controls the interval for grabbing
+* ```GITHUB_PAT``` the Github Personal Access Token used to read repos
+* ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS``` (default 60) controls the interval for grabbing
 the changelog for each repository that should appear on the dashboard
-* ```GITHUB_REPO_FETCH_TIMER_SECONDS``` controls the interval for looking up repos
+* ```GITHUB_REPO_FETCH_TIMER_SECONDS``` (default 600) controls the interval for looking up repos
 that should appear on the dashboard
+* ```LOGGING_LEVEL``` (default error) verbosity of logs, set to debug to see detailed info on each
+repo read by the dash
 
-## How to register repos
+## How to register repos and commits
 
-When started the service will kick off two background processes, one to grab a list of
+When started the service will kick of two background processes, one to grab a list of
 repos that should appear on the dashboard and another to grab the changelogs for
 all of these repos.
 
