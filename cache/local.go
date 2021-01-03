@@ -12,9 +12,9 @@ type LocalCacheAdapter struct {
 	DefaultExpiration time.Duration
 }
 
-func NewLocalCacheAdapter(DefaultExpirationSeconds int, CleanupIntervalSeconds int) *LocalCacheAdapter {
-	defaultExpiration := time.Duration(DefaultExpirationSeconds) * time.Second
-	c := cache.New(defaultExpiration, time.Duration(CleanupIntervalSeconds)*time.Second)
+func NewLocalCacheAdapter(defaultExpirationSeconds int, cleanupIntervalSeconds int) *LocalCacheAdapter {
+	defaultExpiration := time.Duration(defaultExpirationSeconds) * time.Second
+	c := cache.New(defaultExpiration, time.Duration(cleanupIntervalSeconds)*time.Second)
 
 	service := LocalCacheAdapter{
 		Client:            c,
