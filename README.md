@@ -62,10 +62,13 @@ When started the service will kick of two background processes, one to grab a li
 repos that should appear on the dashboard and another to grab the changelogs for
 all of these repos.
 
-For a repo to appear on the dashboard the following criteria must be met:
+For a repo and it's commits to appear on the dashboard the following criteria must
+be met:
 
 * Readable via the Github Personal Access Token supplied to the dashboard
-* A file called '.releasedash.yml' exists in the repos root
+* A file called '.releasedash.yml' exists in the repos root with a list of
+environment tags
+* Environment tags must exist to perform diffs
 
 ### Accessiable via GH PAT
 
