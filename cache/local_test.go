@@ -9,7 +9,7 @@ import (
 )
 
 func TestCacheNotSet(t *testing.T) {
-	localCache := cache.NewLocalCacheAdapter(5, 5)
+	localCache := cache.NewLocalCacheAdapter(60, 60)
 
 	_, found := localCache.Get("test-key")
 
@@ -17,9 +17,9 @@ func TestCacheNotSet(t *testing.T) {
 }
 
 func TestCacheSet(t *testing.T) {
-	localCache := cache.NewLocalCacheAdapter(5, 5)
+	localCache := cache.NewLocalCacheAdapter(60, 60)
 
-	localCache.Set("test-key", "test-value")
+	localCache.Set("test-key", "test-value", "")
 
 	testData, found := localCache.Get("test-key")
 

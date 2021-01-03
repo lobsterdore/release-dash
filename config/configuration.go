@@ -5,8 +5,8 @@ import (
 )
 
 type cache struct {
-	CleanupIntervalMinutes   int `env:"CACHE_CLEANUP_INTERVAL_MINUTES" envDefault:"2"`
-	DefaultExpirationMinutes int `env:"CACHE_DEFAULT_EXPIRATION_MINUTES" envDefault:"1"`
+	CleanupIntervalSeconds   int `env:"CACHE_CLEANUP_INTERVAL_SECONDS" envDefault:"60"`
+	DefaultExpirationSeconds int `env:"CACHE_DEFAULT_EXPIRATION_SECONDS" envDefault:"1800"`
 }
 
 type Config struct {
@@ -25,7 +25,7 @@ type github struct {
 }
 
 type logging struct {
-	Level string `env:"LOGGING_LEVEL" envDefault:"info"`
+	Level string `env:"LOGGING_LEVEL" envDefault:"error"`
 }
 
 type server struct {
@@ -36,9 +36,9 @@ type server struct {
 
 type serverTimeout struct {
 	Idle   int `env:"SERVER_TIMEOUT_IDLE" envDefault:"65"`
-	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"30"`
-	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"30"`
-	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"30"`
+	Read   int `env:"SERVER_TIMEOUT_WRITE" envDefault:"10"`
+	Server int `env:"SERVER_TIMEOUT_SERVER" envDefault:"10"`
+	Write  int `env:"SERVER_TIMEOUT_READ" envDefault:"10"`
 }
 
 func NewConfig() (Config, error) {

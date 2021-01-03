@@ -4,6 +4,7 @@ import (
 	"context"
 	"html/template"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -42,20 +43,21 @@ func (h *HomepageHandler) FetchReposTicker(timerSeconds int) {
 			func() {
 				mux.Lock()
 				defer mux.Unlock()
-				h.FetchRepos(ctx)
+				expireSeconds := strconv.Itoa(timerSeconds * 2)
+				h.FetchRepos(ctx, expireSeconds)
 			}()
 		}
 	}()
 }
 
-func (h *HomepageHandler) FetchRepos(ctx context.Context) {
+func (h *HomepageHandler) FetchRepos(ctx context.Context, expireSeconds string) {
 	log.Info().Msg("Dashboard repo data fetching")
 	dashboardRepos, err := h.DashboardService.GetDashboardRepos(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("Dashboard repo data fetch failed")
 		return
 	}
-	h.CacheService.Set("homepage_repo_data", dashboardRepos)
+	h.CacheService.Set("homepage_repo_data", dashboardRepos, expireSeconds)
 	log.Info().Msg("Dashboard repo data refreshed")
 }
 
@@ -68,20 +70,21 @@ func (h *HomepageHandler) FetchChangelogsTicker(timerSeconds int) {
 			func() {
 				mux.Lock()
 				defer mux.Unlock()
-				h.FetchChangelogs(ctx)
+				expireSeconds := strconv.Itoa(timerSeconds * 2)
+				h.FetchChangelogs(ctx, expireSeconds)
 			}()
 		}
 	}()
 }
 
-func (h *HomepageHandler) FetchChangelogs(ctx context.Context) {
+func (h *HomepageHandler) FetchChangelogs(ctx context.Context, expireSeconds string) {
 	log.Info().Msg("Dashboard changelog data fetching")
 
 	cachedData, found := h.CacheService.Get("homepage_repo_data")
 	if found {
 		dashboardRepos := cachedData.([]dashboard.DashboardRepo)
 		dashboardChangelogs := h.DashboardService.GetDashboardChangelogs(ctx, dashboardRepos)
-		h.CacheService.Set("homepage_changelog_data", dashboardChangelogs)
+		h.CacheService.Set("homepage_changelog_data", dashboardChangelogs, expireSeconds)
 		log.Info().Msg("Dashboard changelog repo data refreshed")
 	} else {
 		log.Info().Msg("Dashboard repo data not present yet")

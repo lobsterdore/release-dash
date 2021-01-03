@@ -19,6 +19,7 @@ func main() {
 	_ = pkger.Include("/web/templates")
 	_ = pkger.Include("/web/static")
 
+	log.Log().Msg("Reading config")
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to retrieve configuration")
@@ -32,7 +33,7 @@ func main() {
 		log.Error().Err(err).Msgf("Could not get and set log level %s, using default", cfg.Logging.Level)
 	}
 
-	log.Info().Msg("Configuring server")
+	log.Log().Msg("Starting server")
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Duration(cfg.Server.Timeout.Server)*time.Second,
@@ -46,8 +47,8 @@ func main() {
 	}
 
 	localCacheAdapter := cache.NewLocalCacheAdapter(
-		cfg.Cache.DefaultExpirationMinutes,
-		cfg.Cache.CleanupIntervalMinutes,
+		cfg.Cache.DefaultExpirationSeconds,
+		cfg.Cache.CleanupIntervalSeconds,
 	)
 
 	web.NewWeb(cfg, ctx, githubAdapter, localCacheAdapter).Run(ctx)

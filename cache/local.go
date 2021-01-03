@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -11,9 +12,9 @@ type LocalCacheAdapter struct {
 	DefaultExpiration time.Duration
 }
 
-func NewLocalCacheAdapter(defaultExpirationMinutes int, cleanupIntervalMinutes int) *LocalCacheAdapter {
-	defaultExpiration := time.Duration(defaultExpirationMinutes) * time.Minute
-	c := cache.New(defaultExpiration, time.Duration(cleanupIntervalMinutes)*time.Minute)
+func NewLocalCacheAdapter(DefaultExpirationSeconds int, CleanupIntervalSeconds int) *LocalCacheAdapter {
+	defaultExpiration := time.Duration(DefaultExpirationSeconds) * time.Second
+	c := cache.New(defaultExpiration, time.Duration(CleanupIntervalSeconds)*time.Second)
 
 	service := LocalCacheAdapter{
 		Client:            c,
@@ -28,6 +29,12 @@ func (c LocalCacheAdapter) Get(key string) (interface{}, bool) {
 	return value, found
 }
 
-func (c LocalCacheAdapter) Set(key string, value interface{}) {
-	c.Client.Set(key, value, c.DefaultExpiration)
+func (c LocalCacheAdapter) Set(key string, value interface{}, expireSeconds string) {
+	expiration := c.DefaultExpiration
+	if expireSeconds != "" {
+		if i, err := strconv.Atoi(expireSeconds); err == nil {
+			expiration = time.Duration(i) * time.Second
+		}
+	}
+	c.Client.Set(key, value, expiration)
 }
