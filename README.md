@@ -1,10 +1,17 @@
-# Release Dash ![build](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
+# Release Dash
+
+![build](https://github.com/lobsterdore/release-dash/workflows/Docker/badge.svg)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/lobsterdore/release-dash?style=flat)](https://github.com/lobsterdore/release-dash/tags)
+
+> A dashboard for visualising commits in pipelines.
 
 [![release-dash homepage](/docs/screenshot.png)](https://dash.techpunch.co.uk/)
 
-A dashboard for visualising commits in pipelines so developers know what will go out.
-Useful for pipelines that have non-prd environments with a manual gate, developers can
-check the dashboard to see what will go out when a release is pushed from one
+## What it does
+
+Designed for pipelines that have multiple environments with manual gates, developers
+can check the dashboard to see what will go out when a release is pushed from one
 environment to another.
 
 The dashboard requires a Github PAT to run, any repo that the PAT has read access to
@@ -15,7 +22,8 @@ then it will appear on the board. For each repo a list of tags is supplied via t
 ## Useful links
 
 * [Demo site](https://dash.techpunch.co.uk/)
-* [Images on Dockerhub](https://hub.docker.com/r/lobsterdore/release-dash)
+* [Public Docker images](https://hub.docker.com/r/lobsterdore/release-dash)
+* [Example of a registered repo](https://github.com/lobsterdore/release-dash-test-repo-1)
 
 ## How to run
 
@@ -55,9 +63,9 @@ For a full list of available environment vars see [config/configuration.go](conf
 
 Some key env vars are:
 
-* ```GITHUB_PAT``` the Github Personal Access Token used to read repos
 * ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS``` (default 60) controls the interval for grabbing
 the changelog for each repository that should appear on the dashboard
+* ```GITHUB_PAT``` the Github Personal Access Token used to read repos
 * ```GITHUB_REPO_FETCH_TIMER_SECONDS``` (default 600) controls the interval for looking up repos
 that should appear on the dashboard
 * ```LOGGING_LEVEL``` (default error) verbosity of logs, set to debug to see detailed info on each
@@ -138,7 +146,7 @@ look something like this:
 * Build and test service repo
 * Deploy sevice to dev environment
 * Force update ```dev``` tag in repo post deployment
-* Repeat the same process for other envs
+* Repeat the same tagging process for other envs
 
 To force push an environment tag you can do the following:
 
