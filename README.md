@@ -12,21 +12,17 @@ will be inspected, if a ```.releasedash.yml``` file is found in the root of the 
 then it will appear on the board. For each repo a list of tags is supplied via the
 ```.releasedash.yml``` config file, these tags are diffed to produce a changelog.
 
+## Useful links
+
+* [Demo site](https://dash.techpunch.co.uk/)
+* [Images on Dockerhub](https://hub.docker.com/r/lobsterdore/release-dash)
+
 ## How to run
 
 ### Requirements
 
-* GO 1.14>
+* GO 1.14> (for native)
 * Github PAT
-
-### Native
-
-```BASH
-# Assuming direnv is installed
-echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
-direnv allow
-make run
-```
 
 ### Docker
 
@@ -34,15 +30,26 @@ make run
 # Assuming direnv is installed
 echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
 direnv allow
-make docker_run
+# See https://hub.docker.com/r/lobsterdore/release-dash for versions
+docker run -dit -e GITHUB_PAT -p 8080:8080 lobsterdore/release-dash:[VERSION]
 ```
 
 ### Kubes
 
-A [basic helm chart](https://github.com/lobsterdore/release-dash-helm) if available
+A [basic helm chart](https://github.com/lobsterdore/release-dash-helm) is available
 for running on Kubernetes.
 
-### Configuration via Environment vars
+### Native
+
+```BASH
+git clone git@github.com:lobsterdore/release-dash.git
+# Assuming direnv is installed
+echo "export GITHUB_PAT=\"[PAT]\"" > .envrc
+direnv allow
+make run
+```
+
+### Configuration
 
 For a full list of available environment vars see [config/configuration.go](config/configuration.go).
 
@@ -117,7 +124,7 @@ The changelog for all repos is fetched via a background task on a regular tick
 interval which can be controlled via the ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS```
 env var in [config/configuration.go](config/configuration.go)).
 
-### Environment tags
+### Diffs via environment tags
 
 As noted in the [Configuration via .releasedash.yml](#configuration-via-releasedashyml)
 section, tags are used to perform diffs between different environments, this
