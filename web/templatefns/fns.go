@@ -34,4 +34,7 @@ var TemplateFnsMap = template.FuncMap{
 
 		return math.Mod(v, a) == 0
 	},
+	"dividetoint": func(dividend int, divisor int) int {
+		return int(math.RoundToEven(float64(dividend) / float64(divisor)))
+	},
 }

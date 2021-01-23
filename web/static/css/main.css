@@ -2,6 +2,11 @@ body {
     background-color: #f4f4f4;
 }
 
+.container {
+    max-width: none;
+    width: 85%;
+}
+
 h1 {
     font-size: 3.4em;
 }
@@ -28,11 +33,15 @@ h2 {
 }
 
 .card .card-toolbar {
-    padding: 24px 24px 0 24px;
+    padding: 12px 24px 0 24px;
 }
 
 .card .card-content {
-    padding-bottom: 6px;
+    padding-bottom: 1px;
+}
+
+.card .card-content .circle.responsive-img {
+    max-width: 60px;
 }
 
 .card .card-link {

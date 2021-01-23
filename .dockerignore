@@ -1,9 +1,13 @@
 
+.dockerignore
+.editorconfig
+.envrc
 .git*
 .venv*
-vendor
 docker-compose.yml
 Dockerfile
+LICENSE
 README.md
+docs/
 mocks/
 vendor/

@@ -1,25 +1,24 @@
 {{ define "content" }}
       <div class="container">
-  {{range $index, $repoChangelog := .RepoChangelogs }}
+  {{ range $index, $repoChangelog := .RepoChangelogs }}
         <div class="row changelog {{ if $index | divisibleby 2 }}changelog-even{{ else }}changelog-odd{{ end }}">
           <div class="col s12 changelog-title">
               <h2><a class="black-text" href="{{ .Repository.HtmlUrl }}" target="_blank"><i class="material-icons left">link</i>{{ .Repository.Name }}</a></h2>
           </div>
-    {{range .ChangelogCommits }}
-          <div class="col s4">
+    {{ $length := len .ChangelogCommits }}
+    {{ range .ChangelogCommits }}
+          <div class="col s{{ dividetoint 12 $length }}">
             <div class="card z-depth-1">
               <div class="card-toolbar">
                 <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToTag }} > {{ .FromTag }}</div>
               </div>
               <div class="card-content">
-      {{if .Commits }}
-        {{range .Commits }}
+      {{ if .Commits }}
+        {{ range .Commits }}
                 <div class="row">
                   <div class="col s2"><img src="{{ .AuthorAvatarUrl }}" class="circle responsive-img" /></div>
                   <div class="col s10">
-                    <span class="black-text">
-                      {{ .Message }}
-                    </span>
+                    <span class="black-text">{{ .Message }}</span>
                     <div class="card-link"><span><a class="white-text" href="{{ .HtmlUrl }}" target="_blank"><i class="material-icons left">link</i>View Commit</a></span></div>
 
                   </div>
