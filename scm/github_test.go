@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/base64"
 	"testing"
+	"time"
 
+	"github.com/flowchartsman/retry"
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/testsupport"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +22,8 @@ func TestChangelogHasChanges(t *testing.T) {
 	toTag := "to-tag"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -54,7 +57,8 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 	toTag := "to-tag"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -88,7 +92,8 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 	toTag := "missing-tag"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -109,7 +114,8 @@ func TestUserReposHasRepos(t *testing.T) {
 	owner := "o"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -132,7 +138,8 @@ func TestUserReposListError(t *testing.T) {
 	defer teardown()
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -153,7 +160,8 @@ func TestGetRepoBranchHasBranch(t *testing.T) {
 	sha := "s"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -178,7 +186,8 @@ func TestGetRepoBranchError(t *testing.T) {
 	owner := "o"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -201,7 +210,8 @@ func TestGetRepoFileHasFile(t *testing.T) {
 	expectedRepoFile, _ := base64.StdEncoding.DecodeString(content)
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
@@ -222,7 +232,8 @@ func TestGetRepoFileMissingFile(t *testing.T) {
 	path := ".releasedash.yml"
 
 	githubAdapter := scm.GithubAdapter{
-		Client: client,
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
 	}
 
 	ctx := context.Background()
