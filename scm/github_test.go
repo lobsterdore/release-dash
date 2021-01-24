@@ -3,14 +3,54 @@ package scm_test
 import (
 	"context"
 	"encoding/base64"
+	"errors"
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/flowchartsman/retry"
+	"github.com/google/go-github/github"
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/testsupport"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestCheckForRetryRateLimited(t *testing.T) {
+	resp := &github.Response{
+		Response: &http.Response{
+			StatusCode: 403,
+		},
+	}
+	err := &github.RateLimitError{}
+	retryErr := scm.CheckForRetry(resp, err)
+
+	assert.Error(t, retryErr)
+	assert.NotEqual(t, retryErr, err)
+}
+
+func TestCheckForRetryNotRateLimited(t *testing.T) {
+	resp := &github.Response{
+		Response: &http.Response{
+			StatusCode: 500,
+		},
+	}
+	err := errors.New("Not rate limited")
+	retryErr := scm.CheckForRetry(resp, err)
+
+	assert.Error(t, retryErr)
+	assert.Equal(t, retryErr.Error(), err.Error())
+}
+
+func TestCheckForRetryNoError(t *testing.T) {
+	resp := &github.Response{
+		Response: &http.Response{
+			StatusCode: 200,
+		},
+	}
+	retryErr := scm.CheckForRetry(resp, nil)
+
+	assert.NoError(t, retryErr)
+}
 
 func TestChangelogHasChanges(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()

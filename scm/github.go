@@ -46,7 +46,7 @@ func NewGithubAdapter(ctx context.Context, pat string, urlDefault string, urlUpl
 	return &service, nil
 }
 
-func checkForRetry(resp *github.Response, err error) error {
+func CheckForRetry(resp *github.Response, err error) error {
 	switch {
 	case resp.StatusCode == 403:
 		if _, ok := err.(*github.RateLimitError); ok {
@@ -69,7 +69,7 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 	err = c.Retrier.Run(func() error {
 		var errReq error
 		refFrom, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
-		return checkForRetry(resp, errReq)
+		return CheckForRetry(resp, errReq)
 	})
 	if err != nil {
 		if resp.StatusCode != 404 {
@@ -82,7 +82,7 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 	err = c.Retrier.Run(func() error {
 		var errReq error
 		refTo, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
-		return checkForRetry(resp, errReq)
+		return CheckForRetry(resp, errReq)
 	})
 	if err != nil {
 		if resp.StatusCode != 404 {
@@ -105,7 +105,7 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 		_ = c.Retrier.Run(func() error {
 			var errReq error
 			commits, resp, errReq = c.Client.Repositories.ListCommits(ctx, owner, repo, opt)
-			return checkForRetry(resp, errReq)
+			return CheckForRetry(resp, errReq)
 		})
 		if len(commits) == 0 {
 			log.Debug().Msgf("Repo %s/%s does not have any commits", owner, repo)
@@ -146,7 +146,7 @@ func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 		err := c.Retrier.Run(func() error {
 			var errReq error
 			repos, resp, errReq = c.Client.Repositories.List(ctx, user, opts)
-			return checkForRetry(resp, errReq)
+			return CheckForRetry(resp, errReq)
 		})
 		if err != nil {
 			return nil, fmt.Errorf("Could not get user repos: %s", err)
@@ -179,7 +179,7 @@ func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo st
 	err := c.Retrier.Run(func() error {
 		var errReq error
 		branches, resp, errReq = c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
-		return checkForRetry(resp, errReq)
+		return CheckForRetry(resp, errReq)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Could not get repo branches: %s", err)
@@ -204,7 +204,7 @@ func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo stri
 	err := c.Retrier.Run(func() error {
 		var errReq error
 		repoTree, resp, errReq = c.Client.Git.GetTree(ctx, owner, repo, sha, true)
-		return checkForRetry(resp, errReq)
+		return CheckForRetry(resp, errReq)
 	})
 	if err != nil {
 		return nil, fmt.Errorf("Could not get repo tree: %s", err)
