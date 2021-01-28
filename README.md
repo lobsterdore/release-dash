@@ -22,8 +22,26 @@ then it will appear on the board. For each repo a list of tags is supplied via t
 ## Useful links
 
 * [Demo site](https://dash.techpunch.co.uk/)
-* [Public Docker images](https://hub.docker.com/r/lobsterdore/release-dash)
+* [Docker images](https://hub.docker.com/r/lobsterdore/release-dash)
 * [Example of a registered repo](https://github.com/lobsterdore/release-dash-test-repo-1)
+
+## Use case
+
+This dashboard is intended to show developers, and potentially people that manage
+developers, commits that are sitting in environments waiting to be released, it's useful for:
+
+* Ensuring that commits are pushed to production regularly
+* Showing a pile up of unreleased commits
+* Checking if changes needs to be pushed before committing more changes
+
+The dashboard makes an assumption that the commit history of your repos is readable by people
+other than the developer that committed a given change, some discipline is required on the part
+of committers to produce legible messages.
+
+The dashboard will show all commits between environments, so this will include features, chores,
+tech debt and bug fixes, this makes the dashboard an internal tool only since it will show
+commits that are not useful for people that have no investment in the inner workings of a project
+and it's repository.
 
 ## How to run
 
@@ -85,7 +103,7 @@ be met:
 environment tags
 * Environment tags must exist to perform diffs
 
-### Accessiable via GH PAT
+### Accessible via GH PAT
 
 The Github Personal Access Token added to this service needs read access to
 all repos that should appear on the dashboard. The list of repos is fetched
@@ -139,12 +157,19 @@ section, tags are used to perform diffs between different environments, this
 diff is then used to show any changes that are in place between environments for a
 service repo.
 
-The recommended way to maintain release tags is to force update them after a
-release of a service to a given environment, the flow of a release pipeline might
+Each environment should have a tag in each repository registered with the release-dash,
+for example your dev environment should have a 'dev' tag in each repo, this tag should
+match the commit hash of the version that is deployed to a given environment. For example
+if you just deployed hash bb5ac8 to dev then your dev tag should point to bb5ac8. These
+tags allow for easy diffing between environments without having to know which version
+numbers are deployed.
+
+The recommended way to maintain environment tags is to force update them after a
+deployment of a service to a given env, the flow of a release pipeline might
 look something like this:
 
 * Build and test service repo
-* Deploy sevice to dev environment
+* Deploy service to dev environment
 * Force update ```dev``` tag in repo post deployment
 * Repeat the same tagging process for other envs
 
