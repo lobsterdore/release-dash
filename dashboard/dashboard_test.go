@@ -170,15 +170,93 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 		Name:            "app",
 	}
 
-	expectedRepoA := dashboard.DashboardRepo{
+	expectedRepos := []dashboard.DashboardRepo{
+		{
+			Config:     &mockConfig,
+			Repository: mockRepoA,
+		},
+		{
+			Config:     &mockConfig,
+			Repository: mockRepoB,
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedRepos, repos)
+}
+
+func TestGetDashboardReposBadConfigFile(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
+
+	mockCtx := context.Background()
+	mockOwner := "o"
+	mockRepoName := "r"
+	mockSha := "s"
+
+	mockRepoA := scm.ScmRepository{
+		DefaultBranch: "main",
+		Name:          mockRepoName + "a",
+		OwnerName:     mockOwner,
+	}
+	mockRepoB := scm.ScmRepository{
+		DefaultBranch: "main",
+		Name:          mockRepoName + "b",
+		OwnerName:     mockOwner,
+	}
+	mockRepos := []scm.ScmRepository{mockRepoB, mockRepoA}
+
+	mockScm.
+		EXPECT().
+		GetUserRepos(mockCtx, "").
+		Times(1).
+		Return(mockRepos, nil)
+
+	mockRepoBranch := scm.ScmBranch{
+		CurrentHash: mockSha,
+		Name:        "main",
+	}
+	mockScm.
+		EXPECT().
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName+"a", "main").
+		Times(1).
+		Return(&mockRepoBranch, nil)
+	mockScm.
+		EXPECT().
+		GetRepoBranch(mockCtx, mockOwner, mockRepoName+"b", "main").
+		Times(1).
+		Return(&mockRepoBranch, nil)
+
+	mockGoodConfigB64 := "LS0tCgplbnZpcm9ubWVudF90YWdzOgogIC0gZGV2Cm5hbWU6IGFwcAo="
+	mockGoodRepoContent, _ := base64.StdEncoding.DecodeString(mockGoodConfigB64)
+
+	mockBadConfigB64 := "LS0tCgplbnZpcm9ubWVudAo="
+	mockBadRepoContent, _ := base64.StdEncoding.DecodeString(mockBadConfigB64)
+
+	mockScm.
+		EXPECT().
+		GetRepoFile(mockCtx, mockOwner, mockRepoName+"a", mockSha, ".releasedash.yml").
+		Times(1).
+		Return(mockGoodRepoContent, nil)
+	mockScm.
+		EXPECT().
+		GetRepoFile(mockCtx, mockOwner, mockRepoName+"b", mockSha, ".releasedash.yml").
+		Times(1).
+		Return(mockBadRepoContent, nil)
+
+	repos, err := dashboardService.GetDashboardRepos(mockCtx)
+
+	mockConfig := dashboard.DashboardRepoConfig{
+		EnvironmentTags: []string{"dev"},
+		Name:            "app",
+	}
+
+	expectedRepos := []dashboard.DashboardRepo{{
 		Config:     &mockConfig,
 		Repository: mockRepoA,
-	}
-	expectedRepoB := dashboard.DashboardRepo{
-		Config:     &mockConfig,
-		Repository: mockRepoB,
-	}
-	expectedRepos := []dashboard.DashboardRepo{expectedRepoA, expectedRepoB}
+	}}
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedRepos, repos)
