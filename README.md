@@ -77,17 +77,24 @@ make run
 
 ### Configuration
 
-For a full list of available environment vars see [config/configuration.go](config/configuration.go).
+The following environment variables are available:
 
-Some key env vars are:
-
-* ```GITHUB_CHANGELOG_FETCH_TIMER_SECONDS``` (default 60) controls the interval for grabbing
-the changelog for each repository that should appear on the dashboard
-* ```GITHUB_PAT``` the Github Personal Access Token used to read repos
-* ```GITHUB_REPO_FETCH_TIMER_SECONDS``` (default 600) controls the interval for looking up repos
-that should appear on the dashboard
-* ```LOGGING_LEVEL``` (default error) verbosity of logs, set to debug to see detailed info on each
-repo read by the dash
+|Variable|Default|Description|
+|---|---|---|
+|CACHE_CLEANUP_INTERVAL_SECONDS|60|Time between cache purges, see [https://github.com/patrickmn/go-cache](https://github.com/patrickmn/go-cache)|
+|CACHE_DEFAULT_EXPIRATION_SECONDS|1800|Time to keep cached Repo and Changelog data for, should be greater than fetch timers|
+|GITHUB_CHANGELOG_FETCH_TIMER_SECONDS|60|Time between fetches of diffs for each repo and environment|
+|GITHUB_PAT|~|Github Personal Access Token used to read repos|
+|GITHUB_REPO_FETCH_TIMER_SECONDS|600|Time between fetches of repo list|
+|GITHUB_URL_DEFAULT|~|URL for Github API, defaults to standard Github API URL|
+|GITHUB_URL_UPLOAD|~|URL for Github Uploads, defaults to standard Github Upload URL|
+|LOGGING_LEVEL|error|Level for logs, see [https://github.com/rs/zerolog](https://github.com/rs/zerolog)|
+|SERVER_HOST|0.0.0.0|Host to bind web server to|
+|SERVER_PORT|8080|Port to bind web server to|
+|SERVER_TIMEOUT_IDLE|65|Idle timeout for connections|
+|SERVER_TIMEOUT_WRITE|10|Write timeout for connections|
+|SERVER_TIMEOUT_SERVER|10|Overall timeout for connections|
+|SERVER_TIMEOUT_READ|10|Read timeout for connections|
 
 ## How to register repos and commits
 
