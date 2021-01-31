@@ -25,8 +25,8 @@ build:
 .PHONY: build_all
 build_all:
 	GOOS=darwin GOARCH=amd64 $(MAKE) build
-	GOOS=linux GOARCH=arm $(MAKE) build
 	GOOS=linux GOARCH=386 $(MAKE) build
+	GOOS=linux GOARCH=arm $(MAKE) build
 	GOOS=linux GOARCH=arm64 $(MAKE) build
 	GOOS=linux GOARCH=amd64 $(MAKE) build
 	GOOS=windows GOARCH=386 $(MAKE) build

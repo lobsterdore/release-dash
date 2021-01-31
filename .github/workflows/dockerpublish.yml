@@ -45,7 +45,13 @@ jobs:
           cd $GITHUB_WORKSPACE/$APP_NAME
           make build_all
           mkdir -p $GITHUB_WORKSPACE/releases
+          tar cvfz $GITHUB_WORKSPACE/releases/release-dash-darwin-amd64.tar.tz -C $(go env GOPATH)/bin/darwin_amd64 release-dash
+          tar cvfz $GITHUB_WORKSPACE/releases/release-dash-linux-386.tar.tz -C $(go env GOPATH)/bin/linux_386 release-dash
+          tar cvfz $GITHUB_WORKSPACE/releases/release-dash-linux-arm.tar.tz -C $(go env GOPATH)/bin/linux_arm release-dash
+          tar cvfz $GITHUB_WORKSPACE/releases/release-dash-linux-arm64.tar.tz -C $(go env GOPATH)/bin/linux_arm64 release-dash
           tar cvfz $GITHUB_WORKSPACE/releases/release-dash-linux-amd64.tar.tz -C $(go env GOPATH)/bin release-dash
+          zip -jvr $GITHUB_WORKSPACE/releases/release-dash-windows-386.zip $(go env GOPATH)/bin/windows_386/release-dash.exe
+          zip -jvr $GITHUB_WORKSPACE/releases/release-dash-windows-amd64.zip $(go env GOPATH)/bin/windows_amd64/release-dash.exe
 
       - name: Build image
         run: |
@@ -108,7 +114,47 @@ jobs:
           release_name: Release ${{ steps.tag_release.outputs.new_tag }}
           tag_name: ${{ steps.tag_release.outputs.new_tag }}
 
-      - name: Upload Binaries
+      - name: Upload MacOS x86 64 Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/gzip
+          asset_name: release-dash-darwin-amd64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-darwin-amd64.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Linux x86 32 Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/gzip
+          asset_name: release-dash-linux-386-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-linux-386.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Linux ARM Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/gzip
+          asset_name: release-dash-linux-arm-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-linux-arm.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Linux ARM 64 Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/gzip
+          asset_name: release-dash-linux-arm64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-linux-arm64.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Linux x86 64 Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -116,4 +162,24 @@ jobs:
           asset_content_type: application/gzip
           asset_name: release-dash-linux-amd64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
           asset_path: ${{ github.workspace }}/releases/release-dash-linux-amd64.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Windows x86 32 Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/zip
+          asset_name: release-dash-windows-386-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-windows-386.tar.tz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+      - name: Upload Windows x86 64 Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_content_type: application/zip
+          asset_name: release-dash-windows-amd64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
+          asset_path: ${{ github.workspace }}/releases/release-dash-windows-amd64.tar.tz
           upload_url: ${{ steps.create_release.outputs.upload_url }}
