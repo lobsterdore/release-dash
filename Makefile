@@ -5,6 +5,8 @@ GOMOCK_VERSION?=v1.4.4
 KILLGRAVE_VERSION?=v0.4.0
 PKGER_VERSION?=v0.17.1
 
+#GOOS=linux GOARCH=amd64
+
 PWD=$(shell pwd)
 
 PATH:=$(PWD)/bin:$(PATH)
@@ -19,6 +21,16 @@ SHELL:=env PATH=$(PATH) /bin/bash
 build:
 	pkger
 	go install -v .
+
+.PHONY: build_all
+build_all:
+	GOOS=darwin GOARCH=amd64 $(MAKE) build
+	GOOS=linux GOARCH=arm $(MAKE) build
+	GOOS=linux GOARCH=386 $(MAKE) build
+	GOOS=linux GOARCH=arm64 $(MAKE) build
+	GOOS=linux GOARCH=amd64 $(MAKE) build
+	GOOS=windows GOARCH=386 $(MAKE) build
+	GOOS=windows GOARCH=amd64 $(MAKE) build
 
 .PHONY: clean
 clean:

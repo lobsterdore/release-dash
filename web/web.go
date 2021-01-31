@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/lobsterdore/release-dash/cache"
@@ -62,7 +60,7 @@ func (w web) Run(ctx context.Context) {
 		WriteTimeout: time.Duration(w.Config.Server.Timeout.Write) * time.Second,
 	}
 
-	signal.Notify(runChan, os.Interrupt, syscall.SIGTSTP)
+	_ = notifySignals(runChan)
 
 	log.Log().Msgf("Server is starting on %s", server.Addr)
 
