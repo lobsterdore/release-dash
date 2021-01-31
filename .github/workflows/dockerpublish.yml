@@ -170,8 +170,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           asset_content_type: application/zip
-          asset_name: release-dash-windows-386-${{ steps.tag_release.outputs.new_tag }}.tar.tz
-          asset_path: ${{ github.workspace }}/releases/release-dash-windows-386.tar.tz
+          asset_name: release-dash-windows-386-${{ steps.tag_release.outputs.new_tag }}.zip
+          asset_path: ${{ github.workspace }}/releases/release-dash-windows-386.zip
           upload_url: ${{ steps.create_release.outputs.upload_url }}
 
       - name: Upload Windows x86 64 Binary
@@ -180,6 +180,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           asset_content_type: application/zip
-          asset_name: release-dash-windows-amd64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
-          asset_path: ${{ github.workspace }}/releases/release-dash-windows-amd64.tar.tz
+          asset_name: release-dash-windows-amd64-${{ steps.tag_release.outputs.new_tag }}.zip
+          asset_path: ${{ github.workspace }}/releases/release-dash-windows-amd64.zip
           upload_url: ${{ steps.create_release.outputs.upload_url }}
