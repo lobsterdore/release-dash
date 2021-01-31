@@ -43,8 +43,7 @@ jobs:
       - name: Build binaries
         run: |
           cd $GITHUB_WORKSPACE/$APP_NAME
-          make build_all
-          tar cvfz $GITHUB_WORKSPACE/release-dash-linux-amd64.tar.tz $GOPATH/go/bin/release-dash
+          go env
 
       - name: Build image
         run: |
@@ -106,13 +105,3 @@ jobs:
         with:
           release_name: Release ${{ steps.tag_release.outputs.new_tag }}
           tag_name: ${{ steps.tag_release.outputs.new_tag }}
-
-      - name: Upload Binaries
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          asset_content_type: application/gzip
-          asset_name: release-dash-linux-amd64-${{ steps.tag_release.outputs.new_tag }}.tar.tz
-          asset_path: ${{ github.workspace }}/release-dash-linux-amd64.tar.tz
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
