@@ -44,7 +44,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/$APP_NAME
           make build_all
-          tar cvfz $GITHUB_WORKSPACE/release-dash-linux-amd64.tar.tz $GOROOT/go/bin/release-dash
+          tar cvfz $GITHUB_WORKSPACE/release-dash-linux-amd64.tar.tz $GOPATH/go/bin/release-dash
 
       - name: Build image
         run: |
