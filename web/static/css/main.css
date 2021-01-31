@@ -1,5 +1,5 @@
 body {
-    background-color: #f4f4f4;
+    background-color: #242b30;
 }
 
 .container {
@@ -16,20 +16,21 @@ h2 {
     margin: 10px 0;
 }
 
+.brand-logo {
+    text-transform: uppercase;
+    margin: 20px 0 0 0;
+}
+
 .changelog {
     margin-bottom: 0;
 }
 
+.changelog-title {
+    text-transform: capitalize;
+}
+
 .changelog-title h2 .material-icons {
     margin: 4px 5px 0px 0px;
-}
-
-.changelog-even .card {
-    background-color: #ffc400;
-}
-
-.changelog-odd .card {
-    background-color: #7c4dff;
 }
 
 .card .card-toolbar {
