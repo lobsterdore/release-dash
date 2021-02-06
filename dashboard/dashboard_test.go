@@ -82,7 +82,7 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 		Times(1).
 		Return(mockRepos, nil)
 
-	mockRepoBranch := scm.ScmBranch{
+	mockRepoBranch := scm.ScmRef{
 		CurrentHash: mockSha,
 		Name:        "main",
 	}
@@ -135,7 +135,7 @@ func TestGetDashboardReposHasRepos(t *testing.T) {
 		Times(1).
 		Return(mockRepos, nil)
 
-	mockRepoBranch := scm.ScmBranch{
+	mockRepoBranch := scm.ScmRef{
 		CurrentHash: mockSha,
 		Name:        "main",
 	}
@@ -214,7 +214,7 @@ func TestGetDashboardReposBadConfigFile(t *testing.T) {
 		Times(1).
 		Return(mockRepos, nil)
 
-	mockRepoBranch := scm.ScmBranch{
+	mockRepoBranch := scm.ScmRef{
 		CurrentHash: mockSha,
 		Name:        "main",
 	}

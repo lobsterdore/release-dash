@@ -206,15 +206,15 @@ func TestGetRepoBranchHasBranch(t *testing.T) {
 
 	ctx := context.Background()
 
-	expectedScmBranch := scm.ScmBranch{
+	expectedScmBranch := scm.ScmRef{
 		CurrentHash: sha,
 		Name:        branch,
 	}
 
-	scmBranch, err := githubAdapter.GetRepoBranch(ctx, owner, repo, branch)
+	ScmRef, err := githubAdapter.GetRepoBranch(ctx, owner, repo, branch)
 
 	assert.NoError(t, err)
-	assert.Equal(t, &expectedScmBranch, scmBranch)
+	assert.Equal(t, &expectedScmBranch, ScmRef)
 }
 
 func TestGetRepoBranchError(t *testing.T) {

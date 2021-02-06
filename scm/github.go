@@ -173,29 +173,27 @@ func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 	return allScmRepos, nil
 }
 
-func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmBranch, error) {
-	var branches []*github.Branch
+func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmRef, error) {
+	var refBranch *github.Reference
 	var resp *github.Response
 	err := c.Retrier.Run(func() error {
 		var errReq error
-		branches, resp, errReq = c.Client.Repositories.ListBranches(ctx, owner, repo, nil)
+		refBranch, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "heads/"+branchName)
 		return CheckForRetry(resp, errReq)
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Could not get repo branches: %s", err)
+		return nil, fmt.Errorf("Could not get repo: %s", err)
 	}
 
-	for _, branch := range branches {
-		if *branch.Name == branchName {
-			scmBranch := ScmBranch{
-				CurrentHash: *branch.Commit.SHA,
-				Name:        *branch.Name,
-			}
-			return &scmBranch, nil
-		}
+	if refBranch == nil {
+		return nil, nil
 	}
 
-	return nil, nil
+	ScmRef := ScmRef{
+		CurrentHash: *refBranch.Object.SHA,
+		Name:        branchName,
+	}
+	return &ScmRef, nil
 }
 
 func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
