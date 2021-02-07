@@ -62,40 +62,22 @@ func CheckForRetry(resp *github.Response, err error) error {
 func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
 	log.Debug().Msgf("Grabbing changelog for repo %s/%s, from-tag %s, to-tag %s", owner, repo, fromTag, toTag)
 
-	var err error
-
-	var refFrom *github.Reference
-	var resp *github.Response
-	err = c.Retrier.Run(func() error {
-		var errReq error
-		refFrom, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+fromTag)
-		return CheckForRetry(resp, errReq)
-	})
+	refFrom, err := c.GetRepoTag(ctx, owner, repo, fromTag)
 	if err != nil {
-		if resp.StatusCode != 404 {
-			return nil, fmt.Errorf("Could not get tag for repo: %s", err)
-		}
-		log.Debug().Msgf("Repo %s/%s does not have tag %s", owner, repo, fromTag)
+		return nil, err
 	}
 
-	var refTo *github.Reference
-	err = c.Retrier.Run(func() error {
-		var errReq error
-		refTo, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+toTag)
-		return CheckForRetry(resp, errReq)
-	})
+	refTo, err := c.GetRepoTag(ctx, owner, repo, toTag)
 	if err != nil {
-		if resp.StatusCode != 404 {
-			return nil, fmt.Errorf("Could not get tag for repo: %s", err)
-		}
-		log.Debug().Msgf("Repo %s/%s does not have tag %s", owner, repo, toTag)
+		return nil, err
 	}
-
 	if refTo == nil {
 		return nil, nil
 	}
 
-	comparison := &github.CommitsComparison{}
+	var resp *github.Response
+	var comparison *github.CommitsComparison
+
 	if refFrom == nil {
 		opt := &github.CommitsListOptions{
 			SHA: toTag,
@@ -111,12 +93,12 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 			log.Debug().Msgf("Repo %s/%s does not have any commits", owner, repo)
 			return nil, nil
 		}
-		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *commits[len(commits)-1].SHA, *refTo.Object.SHA)
+		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *commits[len(commits)-1].SHA, refTo.CurrentHash)
 		if err != nil {
 			return nil, fmt.Errorf("Could not get repo tag comparison: %s", err)
 		}
 	} else {
-		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *refFrom.Object.SHA, *refTo.Object.SHA)
+		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, refFrom.CurrentHash, refTo.CurrentHash)
 		if err != nil {
 			return nil, fmt.Errorf("Could not get repo tag comparison: %s", err)
 		}
@@ -133,6 +115,81 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 	}
 
 	return &allScmCommits, nil
+}
+
+func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmRef, error) {
+	var refBranch *github.Reference
+	var resp *github.Response
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		refBranch, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "heads/"+branchName)
+		return CheckForRetry(resp, errReq)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Could not get repo: %s", err)
+	}
+
+	if refBranch == nil {
+		return nil, nil
+	}
+	ScmRef := ScmRef{
+		CurrentHash: *refBranch.Object.SHA,
+		Name:        branchName,
+	}
+	return &ScmRef, nil
+}
+
+func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
+	var repoTree *github.Tree
+	var resp *github.Response
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		repoTree, resp, errReq = c.Client.Git.GetTree(ctx, owner, repo, sha, true)
+		return CheckForRetry(resp, errReq)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Could not get repo tree: %s", err)
+	}
+
+	for _, treeEntry := range repoTree.Entries {
+		if *treeEntry.Path == filePath {
+			content, _, _, err := c.Client.Repositories.GetContents(ctx, owner, repo, filePath, nil)
+			if err != nil {
+				return nil, fmt.Errorf("Could not get repo file contents: %s", err)
+			}
+
+			raw, err := base64.StdEncoding.DecodeString(*content.Content)
+			if err != nil {
+				return nil, fmt.Errorf("Could not decode repo file: %s", err)
+			}
+
+			return raw, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (c *GithubAdapter) GetRepoTag(ctx context.Context, owner string, repo string, tagName string) (*ScmRef, error) {
+	var refTag *github.Reference
+	var resp *github.Response
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		refTag, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+tagName)
+		return CheckForRetry(resp, errReq)
+	})
+	if err != nil {
+		if resp.StatusCode != 404 {
+			return nil, fmt.Errorf("Could not get tag for repo: %s", err)
+		}
+		log.Debug().Msgf("Repo %s/%s does not have tag %s", owner, repo, tagName)
+		return nil, nil
+	}
+	ScmRef := ScmRef{
+		CurrentHash: *refTag.Object.SHA,
+		Name:        tagName,
+	}
+	return &ScmRef, nil
 }
 
 func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRepository, error) {
@@ -171,58 +228,4 @@ func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRep
 	}
 
 	return allScmRepos, nil
-}
-
-func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmRef, error) {
-	var refBranch *github.Reference
-	var resp *github.Response
-	err := c.Retrier.Run(func() error {
-		var errReq error
-		refBranch, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "heads/"+branchName)
-		return CheckForRetry(resp, errReq)
-	})
-	if err != nil {
-		return nil, fmt.Errorf("Could not get repo: %s", err)
-	}
-
-	if refBranch == nil {
-		return nil, nil
-	}
-
-	ScmRef := ScmRef{
-		CurrentHash: *refBranch.Object.SHA,
-		Name:        branchName,
-	}
-	return &ScmRef, nil
-}
-
-func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo string, sha string, filePath string) ([]byte, error) {
-	var repoTree *github.Tree
-	var resp *github.Response
-	err := c.Retrier.Run(func() error {
-		var errReq error
-		repoTree, resp, errReq = c.Client.Git.GetTree(ctx, owner, repo, sha, true)
-		return CheckForRetry(resp, errReq)
-	})
-	if err != nil {
-		return nil, fmt.Errorf("Could not get repo tree: %s", err)
-	}
-
-	for _, treeEntry := range repoTree.Entries {
-		if *treeEntry.Path == filePath {
-			content, _, _, err := c.Client.Repositories.GetContents(ctx, owner, repo, filePath, nil)
-			if err != nil {
-				return nil, fmt.Errorf("Could not get repo file contents: %s", err)
-			}
-
-			raw, err := base64.StdEncoding.DecodeString(*content.Content)
-			if err != nil {
-				return nil, fmt.Errorf("Could not decode repo file: %s", err)
-			}
-
-			return raw, nil
-		}
-	}
-
-	return nil, nil
 }

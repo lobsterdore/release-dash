@@ -71,12 +71,12 @@ func TestChangelogHasChanges(t *testing.T) {
 	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
-		scm.ScmCommit{
+		{
 			AuthorAvatarUrl: "a",
 			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
-		scm.ScmCommit{
+		{
 			AuthorAvatarUrl: "a",
 			Message:         "test-commit",
 			HtmlUrl:         "h",
@@ -106,12 +106,12 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
-		scm.ScmCommit{
+		{
 			AuthorAvatarUrl: "a",
 			Message:         "test-commit",
 			HtmlUrl:         "h",
 		},
-		scm.ScmCommit{
+		{
 			AuthorAvatarUrl: "a",
 			Message:         "test-commit",
 			HtmlUrl:         "h",
@@ -142,52 +142,6 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Nil(t, changelog)
-}
-
-func TestUserReposHasRepos(t *testing.T) {
-	client, teardown := testsupport.SetupGithubClientMock()
-	defer teardown()
-
-	defaultBranch := "main"
-	htmlUrl := "url"
-	repo := "test-repo"
-	owner := "o"
-
-	githubAdapter := scm.GithubAdapter{
-		Client:  client,
-		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
-	}
-
-	ctx := context.Background()
-
-	expectedScmRepos := []scm.ScmRepository{scm.ScmRepository{
-		DefaultBranch: defaultBranch,
-		HtmlUrl:       htmlUrl,
-		Name:          repo,
-		OwnerName:     owner,
-	}}
-
-	scmRepos, err := githubAdapter.GetUserRepos(ctx, "")
-
-	assert.NoError(t, err)
-	assert.Equal(t, expectedScmRepos, scmRepos)
-}
-
-func TestUserReposListError(t *testing.T) {
-	client, teardown := testsupport.SetupGithubClientMock()
-	defer teardown()
-
-	githubAdapter := scm.GithubAdapter{
-		Client:  client,
-		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
-	}
-
-	ctx := context.Background()
-
-	scmRepos, err := githubAdapter.GetUserRepos(ctx, "500")
-
-	assert.Error(t, err)
-	assert.Nil(t, scmRepos)
 }
 
 func TestGetRepoBranchHasBranch(t *testing.T) {
@@ -282,4 +236,119 @@ func TestGetRepoFileMissingFile(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Nil(t, repoFile)
+}
+
+func TestGetRepoTagHasTag(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	tag := "from-tag"
+	sha := "812b303948b570247b727aeb8c1b187336ad4256"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	scmTag, err := githubAdapter.GetRepoTag(ctx, owner, repo, tag)
+
+	expectedScmTag := scm.ScmRef{
+		CurrentHash: sha,
+		Name:        tag,
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedScmTag, scmTag)
+}
+
+func TestGetRepoTagMissingTag(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	tag := " missing-tag"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	scmTag, err := githubAdapter.GetRepoTag(ctx, owner, repo, tag)
+
+	assert.NoError(t, err)
+	assert.Nil(t, scmTag)
+}
+
+func TestGetRepoTagError(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "500"
+	tag := "from-tag"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	scmTag, err := githubAdapter.GetRepoTag(ctx, owner, repo, tag)
+
+	assert.Error(t, err)
+	assert.Nil(t, scmTag)
+}
+
+func TestUserReposHasRepos(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	defaultBranch := "main"
+	htmlUrl := "url"
+	repo := "test-repo"
+	owner := "o"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	expectedScmRepos := []scm.ScmRepository{{
+		DefaultBranch: defaultBranch,
+		HtmlUrl:       htmlUrl,
+		Name:          repo,
+		OwnerName:     owner,
+	}}
+
+	scmRepos, err := githubAdapter.GetUserRepos(ctx, "")
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedScmRepos, scmRepos)
+}
+
+func TestUserReposListError(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	scmRepos, err := githubAdapter.GetUserRepos(ctx, "500")
+
+	assert.Error(t, err)
+	assert.Nil(t, scmRepos)
 }

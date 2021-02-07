@@ -66,6 +66,18 @@
   {
     "request":{
       "method":"GET",
+      "endpoint":"/api-v3/repos/o/500/git/refs/tags/from-tag"
+    },
+    "response":{
+      "status":500,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
       "endpoint":"/api-v3/repos/o/test-repo/commits",
       "params":{
         "sha":"to-tag"
