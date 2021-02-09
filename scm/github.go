@@ -75,33 +75,62 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 		return nil, nil
 	}
 
-	var resp *github.Response
-	var comparison *github.CommitsComparison
-
+	var fromSha string
 	if refFrom == nil {
-		opt := &github.CommitsListOptions{
-			SHA: toTag,
+		commits, err := c.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+		if err != nil {
+			return nil, nil
 		}
-
-		var commits []*github.RepositoryCommit
-		_ = c.Retrier.Run(func() error {
-			var errReq error
-			commits, resp, errReq = c.Client.Repositories.ListCommits(ctx, owner, repo, opt)
-			return CheckForRetry(resp, errReq)
-		})
 		if len(commits) == 0 {
 			log.Debug().Msgf("Repo %s/%s does not have any commits", owner, repo)
 			return nil, nil
 		}
-		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, *commits[len(commits)-1].SHA, refTo.CurrentHash)
-		if err != nil {
-			return nil, fmt.Errorf("Could not get repo tag comparison: %s", err)
-		}
+		fromSha = *commits[len(commits)-1].SHA
 	} else {
-		comparison, _, err = c.Client.Repositories.CompareCommits(ctx, owner, repo, refFrom.CurrentHash, refTo.CurrentHash)
-		if err != nil {
-			return nil, fmt.Errorf("Could not get repo tag comparison: %s", err)
-		}
+		fromSha = refFrom.CurrentHash
+
+	}
+
+	allScmCommits, err := c.GetRepoCompareCommits(ctx, owner, repo, fromSha, refTo.CurrentHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return allScmCommits, nil
+}
+
+func (c *GithubAdapter) GetRepoCommitsToTagOnly(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
+	opt := &github.CommitsListOptions{
+		SHA: toTag,
+	}
+
+	var resp *github.Response
+	var commits []*github.RepositoryCommit
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		commits, resp, errReq = c.Client.Repositories.ListCommits(ctx, owner, repo, opt)
+		return CheckForRetry(resp, errReq)
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("Could not get repo commits for to tag only: %s", err)
+	}
+
+	return commits, nil
+}
+
+func (c *GithubAdapter) GetRepoCompareCommits(ctx context.Context, owner string, repo string, fromSha string, toSha string) (*[]ScmCommit, error) {
+	var resp *github.Response
+	var comparison *github.CommitsComparison
+
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		comparison, resp, errReq = c.Client.Repositories.CompareCommits(ctx, owner, repo, fromSha, toSha)
+		return CheckForRetry(resp, errReq)
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("Could not get repo comparison: %s", err)
 	}
 
 	var allScmCommits []ScmCommit
@@ -115,6 +144,7 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 	}
 
 	return &allScmCommits, nil
+
 }
 
 func (c *GithubAdapter) GetRepoBranch(ctx context.Context, owner string, repo string, branchName string) (*ScmRef, error) {
