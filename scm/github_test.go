@@ -144,6 +144,112 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 	assert.Nil(t, changelog)
 }
 
+func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	toTag := "to-tag"
+	sha := "812b303948b570247b727aeb8c1b187336ad4256"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	commits, err := githubAdapter.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+
+	expectedCommits := []*github.RepositoryCommit{{
+		SHA: &sha,
+	}}
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedCommits, commits)
+
+}
+
+func TestGetRepoCommitsToTagOnlyError(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "500"
+	toTag := "to-tag"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	commits, err := githubAdapter.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+
+	assert.Error(t, err)
+	assert.Nil(t, commits)
+
+}
+
+func TestGetRepoCompareCommitsHasCommits(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	repo := "test-repo"
+	owner := "o"
+	fromSha := "812b303948b570247b727aeb8c1b187336ad4256"
+	toSha := "3e0f3d8c432ca2a03a3222fb55de63934338022f"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	expectedComparison := []scm.ScmCommit{
+		{
+			AuthorAvatarUrl: "a",
+			Message:         "test-commit",
+			HtmlUrl:         "h",
+		},
+		{
+			AuthorAvatarUrl: "a",
+			Message:         "test-commit",
+			HtmlUrl:         "h",
+		},
+	}
+
+	comparison, err := githubAdapter.GetRepoCompareCommits(ctx, owner, repo, fromSha, toSha)
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedComparison, comparison)
+}
+
+func TestGetRepoCompareCommitsError(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	repo := "500"
+	owner := "o"
+	fromSha := "812b303948b570247b727aeb8c1b187336ad4256"
+	toSha := "3e0f3d8c432ca2a03a3222fb55de63934338022f"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	comparison, err := githubAdapter.GetRepoCompareCommits(ctx, owner, repo, fromSha, toSha)
+
+	assert.Error(t, err)
+	assert.Nil(t, comparison)
+}
+
 func TestGetRepoBranchHasBranch(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()

@@ -54,6 +54,18 @@
   {
     "request":{
       "method":"GET",
+      "endpoint":"/api-v3/repos/o/500/compare/812b303948b570247b727aeb8c1b187336ad4256...3e0f3d8c432ca2a03a3222fb55de63934338022f"
+    },
+    "response":{
+      "status":500,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
       "endpoint":"/api-v3/repos/o/test-repo/git/refs/tags/missing-tag"
     },
     "response":{
@@ -89,6 +101,21 @@
         "Content-Type":"application/json; charset=utf-8"
       },
       "body":"[{\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\"}]"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/500/commits",
+      "params":{
+        "sha":"to-tag"
+      }
+    },
+    "response":{
+      "status":500,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      }
     }
   },
   {
