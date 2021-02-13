@@ -262,6 +262,47 @@ func TestGetDashboardReposBadConfigFile(t *testing.T) {
 	assert.Equal(t, expectedRepos, repos)
 }
 
+func TestGetDashboardRepoConfigWithAllOptions(t *testing.T) {
+	ctrl := gomock.NewController(t)
+
+	mockScm := mock_scm.NewMockScmAdapter(ctrl)
+	dashboardService := dashboard.DashboardService{ScmService: mockScm}
+
+	mockCtx := context.Background()
+	mockOwner := "o"
+	mockRepo := "r"
+	mockDefaultBranch := "main"
+	mockSha := "s"
+
+	mockRepoBranch := scm.ScmRef{
+		CurrentHash: mockSha,
+		Name:        "main",
+	}
+	mockScm.
+		EXPECT().
+		GetRepoBranch(mockCtx, mockOwner, mockRepo, mockDefaultBranch).
+		Times(1).
+		Return(&mockRepoBranch, nil)
+
+	mockConfigB64 := "LS0tCgplbnZpcm9ubWVudF9icmFuY2hlczoKICAtIHByZXByb2QKICAtIHByb2QKZW52aXJvbm1lbnRfdGFnczoKICAtIGRldgogIC0gcHJkCm5hbWU6IGFwcAo="
+	mockRepoContent, _ := base64.StdEncoding.DecodeString(mockConfigB64)
+	mockScm.
+		EXPECT().
+		GetRepoFile(mockCtx, mockOwner, mockRepo, mockSha, ".releasedash.yml").
+		Times(1).
+		Return(mockRepoContent, nil)
+
+	mockConfig := dashboard.DashboardRepoConfig{
+		EnvironmentBranches: []string{"preprod", "prod"},
+		EnvironmentTags:     []string{"dev", "prd"},
+		Name:                "app",
+	}
+
+	config, err := dashboardService.GetDashboardRepoConfig(mockCtx, mockOwner, mockRepo, mockDefaultBranch)
+	assert.NoError(t, err)
+	assert.Equal(t, &mockConfig, config)
+}
+
 func TestGetDashboardRepoConfigNoBranch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 

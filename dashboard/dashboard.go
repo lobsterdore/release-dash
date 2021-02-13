@@ -31,8 +31,9 @@ type DashboardRepo struct {
 }
 
 type DashboardRepoConfig struct {
-	EnvironmentTags []string `yaml:"environment_tags"`
-	Name            string   `yaml:"name"`
+	EnvironmentBranches []string `yaml:"environment_branches"`
+	EnvironmentTags     []string `yaml:"environment_tags"`
+	Name                string   `yaml:"name"`
 }
 
 type DashboardRepoChangelog struct {
