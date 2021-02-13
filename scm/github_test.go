@@ -68,7 +68,7 @@ func TestChangelogHasChanges(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
 		{
@@ -103,7 +103,7 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
 		{
@@ -138,7 +138,7 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelog(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
 
 	assert.NoError(t, err)
 	assert.Nil(t, changelog)
@@ -150,8 +150,8 @@ func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
 
 	owner := "o"
 	repo := "test-repo"
-	toTag := "to-tag"
-	sha := "812b303948b570247b727aeb8c1b187336ad4256"
+	toSha := "3e0f3d8c432ca2a03a3222fb55de63934338022f"
+	foundSha := "812b303948b570247b727aeb8c1b187336ad4256"
 
 	githubAdapter := scm.GithubAdapter{
 		Client:  client,
@@ -160,10 +160,10 @@ func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
 
 	ctx := context.Background()
 
-	commits, err := githubAdapter.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+	commits, err := githubAdapter.GetRepoCommitsToSha(ctx, owner, repo, toSha)
 
 	expectedCommits := []*github.RepositoryCommit{{
-		SHA: &sha,
+		SHA: &foundSha,
 	}}
 
 	assert.NoError(t, err)
@@ -177,7 +177,7 @@ func TestGetRepoCommitsToTagOnlyError(t *testing.T) {
 
 	owner := "o"
 	repo := "500"
-	toTag := "to-tag"
+	toSha := "3e0f3d8c432ca2a03a3222fb55de63934338022f"
 
 	githubAdapter := scm.GithubAdapter{
 		Client:  client,
@@ -186,7 +186,7 @@ func TestGetRepoCommitsToTagOnlyError(t *testing.T) {
 
 	ctx := context.Background()
 
-	commits, err := githubAdapter.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+	commits, err := githubAdapter.GetRepoCommitsToSha(ctx, owner, repo, toSha)
 
 	assert.Error(t, err)
 	assert.Nil(t, commits)

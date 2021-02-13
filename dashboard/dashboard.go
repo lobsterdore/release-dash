@@ -154,7 +154,7 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 				fromTag := environmentTags[nextIndex]
 				log.Debug().Msgf("Getting changelog for tags %s - %s", fromTag, toTag)
 
-				changelog, err := d.ScmService.GetChangelog(ctx, org, repo, fromTag, toTag)
+				changelog, err := d.ScmService.GetChangelogByTag(ctx, org, repo, fromTag, toTag)
 				if err == nil {
 					changelogCommits := DashboardChangelogCommits{
 						FromTag: fromTag,

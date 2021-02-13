@@ -359,7 +359,7 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	mockCtx := context.Background()
 	mockScm.
 		EXPECT().
-		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
+		GetChangelogByTag(mockCtx, mockOwner, mockRepoName, "stg", "dev").
 		Times(1).
 		Return(&mockCommitsCompare, nil)
 
@@ -411,7 +411,7 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 
 	mockScm.
 		EXPECT().
-		GetChangelog(mockCtx, mockOwner, mockRepoName, "stg", "dev").
+		GetChangelogByTag(mockCtx, mockOwner, mockRepoName, "stg", "dev").
 		Times(1).
 		Return(nil, errors.New(""))
 

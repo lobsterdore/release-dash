@@ -59,25 +59,10 @@ func CheckForRetry(resp *github.Response, err error) error {
 	return nil
 }
 
-func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
-	log.Debug().Msgf("Grabbing changelog for repo %s/%s, from-tag %s, to-tag %s", owner, repo, fromTag, toTag)
-
-	refFrom, err := c.GetRepoTag(ctx, owner, repo, fromTag)
-	if err != nil {
-		return nil, err
-	}
-
-	refTo, err := c.GetRepoTag(ctx, owner, repo, toTag)
-	if err != nil {
-		return nil, err
-	}
-	if refTo == nil {
-		return nil, nil
-	}
-
+func (c *GithubAdapter) GetChangelogByRef(ctx context.Context, owner string, repo string, refFrom *ScmRef, refTo *ScmRef) (*[]ScmCommit, error) {
 	var fromSha string
 	if refFrom == nil {
-		commits, err := c.GetRepoCommitsToTagOnly(ctx, owner, repo, toTag)
+		commits, err := c.GetRepoCommitsToSha(ctx, owner, repo, refTo.CurrentHash)
 		if err != nil {
 			return nil, nil
 		}
@@ -99,7 +84,31 @@ func (c *GithubAdapter) GetChangelog(ctx context.Context, owner string, repo str
 	return allScmCommits, nil
 }
 
-func (c *GithubAdapter) GetRepoCommitsToTagOnly(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
+func (c *GithubAdapter) GetChangelogByTag(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
+	log.Debug().Msgf("Grabbing changelog for repo %s/%s, from-tag %s, to-tag %s", owner, repo, fromTag, toTag)
+
+	refFrom, err := c.GetRepoTag(ctx, owner, repo, fromTag)
+	if err != nil {
+		return nil, err
+	}
+
+	refTo, err := c.GetRepoTag(ctx, owner, repo, toTag)
+	if err != nil {
+		return nil, err
+	}
+	if refTo == nil {
+		return nil, nil
+	}
+
+	allScmCommits, err := c.GetChangelogByRef(ctx, owner, repo, refFrom, refTo)
+	if err != nil {
+		return nil, err
+	}
+
+	return allScmCommits, nil
+}
+
+func (c *GithubAdapter) GetRepoCommitsToSha(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
 	opt := &github.CommitsListOptions{
 		SHA: toTag,
 	}

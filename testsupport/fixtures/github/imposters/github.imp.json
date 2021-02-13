@@ -92,7 +92,7 @@
       "method":"GET",
       "endpoint":"/api-v3/repos/o/test-repo/commits",
       "params":{
-        "sha":"to-tag"
+        "sha":"3e0f3d8c432ca2a03a3222fb55de63934338022f"
       }
     },
     "response":{
@@ -108,7 +108,7 @@
       "method":"GET",
       "endpoint":"/api-v3/repos/o/500/commits",
       "params":{
-        "sha":"to-tag"
+        "sha":"3e0f3d8c432ca2a03a3222fb55de63934338022f"
       }
     },
     "response":{
