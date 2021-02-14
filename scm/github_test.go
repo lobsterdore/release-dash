@@ -52,7 +52,7 @@ func TestCheckForRetryNoError(t *testing.T) {
 	assert.NoError(t, retryErr)
 }
 
-func TestChangelogHasChanges(t *testing.T) {
+func TestGetChangelogByTagHasChanges(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -68,7 +68,7 @@ func TestChangelogHasChanges(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogForTags(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
 		{
@@ -87,7 +87,7 @@ func TestChangelogHasChanges(t *testing.T) {
 	assert.Equal(t, &expectedChangelog, changelog)
 }
 
-func TestChangelogHasChangesMissingFromTag(t *testing.T) {
+func TestGetChangelogByTagHasChangesMissingFromTag(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -103,7 +103,7 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogForTags(ctx, owner, repo, fromTag, toTag)
 
 	expectedChangelog := []scm.ScmCommit{
 		{
@@ -122,7 +122,7 @@ func TestChangelogHasChangesMissingFromTag(t *testing.T) {
 	assert.Equal(t, &expectedChangelog, changelog)
 }
 
-func TestChangelogHasChangesMissingToTag(t *testing.T) {
+func TestGetChangelogByTagHasChangesMissingToTag(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -138,13 +138,13 @@ func TestChangelogHasChangesMissingToTag(t *testing.T) {
 
 	ctx := context.Background()
 
-	changelog, err := githubAdapter.GetChangelogByTag(ctx, owner, repo, fromTag, toTag)
+	changelog, err := githubAdapter.GetChangelogForTags(ctx, owner, repo, fromTag, toTag)
 
 	assert.NoError(t, err)
 	assert.Nil(t, changelog)
 }
 
-func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
+func TestGetRepoCommitsForShaHasCommits(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -160,7 +160,7 @@ func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
 
 	ctx := context.Background()
 
-	commits, err := githubAdapter.GetRepoCommitsToSha(ctx, owner, repo, toSha)
+	commits, err := githubAdapter.GetRepoCommitsForSha(ctx, owner, repo, toSha)
 
 	expectedCommits := []*github.RepositoryCommit{{
 		SHA: &foundSha,
@@ -171,7 +171,7 @@ func TestGetRepoCommitsToTagOnlyHasCommits(t *testing.T) {
 
 }
 
-func TestGetRepoCommitsToTagOnlyError(t *testing.T) {
+func TestGetRepoCommitsForShaError(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -186,7 +186,7 @@ func TestGetRepoCommitsToTagOnlyError(t *testing.T) {
 
 	ctx := context.Background()
 
-	commits, err := githubAdapter.GetRepoCommitsToSha(ctx, owner, repo, toSha)
+	commits, err := githubAdapter.GetRepoCommitsForSha(ctx, owner, repo, toSha)
 
 	assert.Error(t, err)
 	assert.Nil(t, commits)

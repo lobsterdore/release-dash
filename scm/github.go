@@ -59,10 +59,10 @@ func CheckForRetry(resp *github.Response, err error) error {
 	return nil
 }
 
-func (c *GithubAdapter) GetChangelogByRef(ctx context.Context, owner string, repo string, refFrom *ScmRef, refTo *ScmRef) (*[]ScmCommit, error) {
+func (c *GithubAdapter) GetChangelogForRefs(ctx context.Context, owner string, repo string, refFrom *ScmRef, refTo *ScmRef) (*[]ScmCommit, error) {
 	var fromSha string
 	if refFrom == nil {
-		commits, err := c.GetRepoCommitsToSha(ctx, owner, repo, refTo.CurrentHash)
+		commits, err := c.GetRepoCommitsForSha(ctx, owner, repo, refTo.CurrentHash)
 		if err != nil {
 			return nil, nil
 		}
@@ -84,7 +84,7 @@ func (c *GithubAdapter) GetChangelogByRef(ctx context.Context, owner string, rep
 	return allScmCommits, nil
 }
 
-func (c *GithubAdapter) GetChangelogByTag(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
+func (c *GithubAdapter) GetChangelogForTags(ctx context.Context, owner string, repo string, fromTag string, toTag string) (*[]ScmCommit, error) {
 	log.Debug().Msgf("Grabbing changelog for repo %s/%s, from-tag %s, to-tag %s", owner, repo, fromTag, toTag)
 
 	refFrom, err := c.GetRepoTag(ctx, owner, repo, fromTag)
@@ -100,7 +100,7 @@ func (c *GithubAdapter) GetChangelogByTag(ctx context.Context, owner string, rep
 		return nil, nil
 	}
 
-	allScmCommits, err := c.GetChangelogByRef(ctx, owner, repo, refFrom, refTo)
+	allScmCommits, err := c.GetChangelogForRefs(ctx, owner, repo, refFrom, refTo)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (c *GithubAdapter) GetChangelogByTag(ctx context.Context, owner string, rep
 	return allScmCommits, nil
 }
 
-func (c *GithubAdapter) GetRepoCommitsToSha(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
+func (c *GithubAdapter) GetRepoCommitsForSha(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
 	opt := &github.CommitsListOptions{
 		SHA: toTag,
 	}
