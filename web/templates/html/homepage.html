@@ -10,7 +10,7 @@
           <div class="col s{{ dividetoint 12 $length }}">
             <div class="card z-depth-1 purple darken-3">
               <div class="card-toolbar">
-                <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToTag }} > {{ .FromTag }}</div>
+                <div class="card-toolbar-title white-text"><i class="material-icons left">equalizer</i>{{ .ToRef }} > {{ .FromRef }}</div>
               </div>
               <div class="card-content">
       {{ if .Commits }}
@@ -29,7 +29,7 @@
                     <i class="material-icons dp48 left white-text">broken_image</i>
                   </div>
                   <div class="col s10">
-                    <span class="white-text">Repo doesn't have any enviroment tags</span>
+                    <span class="white-text">Repo doesn't have environment tags/branches</span>
                   </div>
                 </div>
       {{ end }}

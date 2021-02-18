@@ -43,8 +43,8 @@ type DashboardRepoChangelog struct {
 
 type DashboardChangelogCommits struct {
 	Commits []scm.ScmCommit
-	FromTag string
-	ToTag   string
+	FromRef string
+	ToRef   string
 }
 
 func NewDashboardService(ctx context.Context, config config.Config, scmService scm.ScmAdapter) *DashboardService {
@@ -66,6 +66,20 @@ func NewDashboardRepoConfig(content []byte) (*DashboardRepoConfig, error) {
 	}
 
 	return repoConfig, nil
+}
+
+func (c *DashboardRepoConfig) HasEnvironmentBranches() bool {
+	if c.EnvironmentBranches == nil || len(c.EnvironmentBranches) == 0 {
+		return false
+	}
+	return true
+}
+
+func (c *DashboardRepoConfig) HasEnvironmentTags() bool {
+	if c.EnvironmentTags == nil || len(c.EnvironmentTags) == 0 {
+		return false
+	}
+	return true
 }
 
 func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRepo, error) {
@@ -146,19 +160,35 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 
 		log.Debug().Msgf("Getting changelog for Repo %s/%s", org, repo)
 
-		environmentTags := dashboardRepo.Config.EnvironmentTags
+		var environmentRefs []string
+		repoConfig := dashboardRepo.Config
+		if repoConfig.HasEnvironmentBranches() {
+			environmentRefs = dashboardRepo.Config.EnvironmentBranches
+		} else if repoConfig.HasEnvironmentTags() {
+			environmentRefs = dashboardRepo.Config.EnvironmentTags
+		} else {
+			continue
+		}
 
-		for index, toTag := range environmentTags {
+		for index, toRef := range environmentRefs {
 			nextIndex := index + 1
-			if nextIndex < len(environmentTags) {
-				fromTag := environmentTags[nextIndex]
-				log.Debug().Msgf("Getting changelog for tags %s - %s", fromTag, toTag)
+			if nextIndex < len(environmentRefs) {
+				fromRef := environmentRefs[nextIndex]
+				log.Debug().Msgf("Getting changelog for tags %s - %s", fromRef, toRef)
 
-				changelog, err := d.ScmService.GetChangelogForTags(ctx, org, repo, fromTag, toTag)
+				var changelog *[]scm.ScmCommit
+				var err error
+
+				if repoConfig.HasEnvironmentBranches() {
+					changelog, err = d.ScmService.GetChangelogForBranches(ctx, org, repo, fromRef, toRef)
+				} else {
+					changelog, err = d.ScmService.GetChangelogForTags(ctx, org, repo, fromRef, toRef)
+				}
+
 				if err == nil {
 					changelogCommits := DashboardChangelogCommits{
-						FromTag: fromTag,
-						ToTag:   toTag,
+						FromRef: fromRef,
+						ToRef:   toRef,
 					}
 					if changelog != nil {
 						changelogCommits.Commits = *changelog

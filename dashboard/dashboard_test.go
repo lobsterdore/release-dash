@@ -329,44 +329,72 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 	dashboardService := dashboard.DashboardService{ScmService: mockScm}
 
 	mockOwner := "o"
-	mockRepoName := "r"
 
-	mockRepo := scm.ScmRepository{
+	mockTagRepoName := "r-tag"
+	mockTagRepo := scm.ScmRepository{
 		DefaultBranch: "main",
-		Name:          mockRepoName,
+		Name:          mockTagRepoName,
 		OwnerName:     mockOwner,
 	}
+	mockTagCommitsCompare := []scm.ScmCommit{{Message: "m"}}
 
-	mockConfig := dashboard.DashboardRepoConfig{
-		EnvironmentTags: []string{"dev", "stg"},
-		Name:            "app",
+	mockBranchRepoName := "r-branch"
+	mockBranchRepo := scm.ScmRepository{
+		DefaultBranch: "main",
+		Name:          mockBranchRepoName,
+		OwnerName:     mockOwner,
 	}
+	mockBranchCommitsCompare := []scm.ScmCommit{{Message: "m"}}
 
-	mockDashboardRepos := []dashboard.DashboardRepo{{
-		Config:     &mockConfig,
-		Repository: mockRepo,
-	}}
-
-	mockCommit := scm.ScmCommit{Message: "m"}
-	mockCommitsCompare := []scm.ScmCommit{mockCommit}
+	mockDashboardRepos := []dashboard.DashboardRepo{
+		{
+			Config: &dashboard.DashboardRepoConfig{
+				EnvironmentBranches: []string{"pre-prod", "prod"},
+				Name:                "app",
+			},
+			Repository: mockBranchRepo,
+		},
+		{
+			Config: &dashboard.DashboardRepoConfig{
+				EnvironmentTags: []string{"dev", "stg"},
+				Name:            "app",
+			},
+			Repository: mockTagRepo,
+		},
+	}
 
 	mockCtx := context.Background()
 	mockScm.
 		EXPECT().
-		GetChangelogForTags(mockCtx, mockOwner, mockRepoName, "stg", "dev").
+		GetChangelogForBranches(mockCtx, mockOwner, mockBranchRepoName, "prod", "pre-prod").
 		Times(1).
-		Return(&mockCommitsCompare, nil)
-
-	expectedRepoChangelogs := []dashboard.DashboardRepoChangelog{{
-		ChangelogCommits: []dashboard.DashboardChangelogCommits{{
-			Commits: mockCommitsCompare,
-			FromTag: "stg",
-			ToTag:   "dev",
-		}},
-		Repository: mockRepo,
-	}}
+		Return(&mockBranchCommitsCompare, nil)
+	mockScm.
+		EXPECT().
+		GetChangelogForTags(mockCtx, mockOwner, mockTagRepoName, "stg", "dev").
+		Times(1).
+		Return(&mockTagCommitsCompare, nil)
 
 	repoChangelogs := dashboardService.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
+
+	expectedRepoChangelogs := []dashboard.DashboardRepoChangelog{
+		{
+			ChangelogCommits: []dashboard.DashboardChangelogCommits{{
+				Commits: mockBranchCommitsCompare,
+				FromRef: "prod",
+				ToRef:   "pre-prod",
+			}},
+			Repository: mockBranchRepo,
+		},
+		{
+			ChangelogCommits: []dashboard.DashboardChangelogCommits{{
+				Commits: mockTagCommitsCompare,
+				FromRef: "stg",
+				ToRef:   "dev",
+			}},
+			Repository: mockTagRepo,
+		},
+	}
 
 	assert.Equal(t, expectedRepoChangelogs, repoChangelogs)
 }

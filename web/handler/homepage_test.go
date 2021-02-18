@@ -46,8 +46,8 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 
 	mockChangelogCommits := dashboard.DashboardChangelogCommits{
 		Commits: mockCommitsCompare,
-		FromTag: "stg",
-		ToTag:   "dev",
+		FromRef: "stg",
+		ToRef:   "dev",
 	}
 	mockRepoChangelog := dashboard.DashboardRepoChangelog{
 		ChangelogCommits: []dashboard.DashboardChangelogCommits{mockChangelogCommits},
