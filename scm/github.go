@@ -59,6 +59,30 @@ func CheckForRetry(resp *github.Response, err error) error {
 	return nil
 }
 
+func (c *GithubAdapter) GetChangelogForBranches(ctx context.Context, owner string, repo string, fromBranch string, toBranch string) (*[]ScmCommit, error) {
+	log.Debug().Msgf("Grabbing changelog for repo %s/%s, from-branch %s, to-branch %s", owner, repo, fromBranch, toBranch)
+
+	refFrom, err := c.GetRepoBranch(ctx, owner, repo, fromBranch)
+	if err != nil {
+		return nil, err
+	}
+
+	refTo, err := c.GetRepoBranch(ctx, owner, repo, toBranch)
+	if err != nil {
+		return nil, err
+	}
+	if refTo == nil {
+		return nil, nil
+	}
+
+	allScmCommits, err := c.GetChangelogForRefs(ctx, owner, repo, refFrom, refTo)
+	if err != nil {
+		return nil, err
+	}
+
+	return allScmCommits, nil
+}
+
 func (c *GithubAdapter) GetChangelogForRefs(ctx context.Context, owner string, repo string, refFrom *ScmRef, refTo *ScmRef) (*[]ScmCommit, error) {
 	var fromSha string
 	if refFrom == nil {

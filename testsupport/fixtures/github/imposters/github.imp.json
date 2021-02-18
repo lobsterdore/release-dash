@@ -152,6 +152,32 @@
   {
     "request":{
       "method":"GET",
+      "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/from-branch"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/heads/from-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
+      "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/to-branch"
+    },
+    "response":{
+      "status":200,
+      "headers":{
+        "Content-Type":"application/json; charset=utf-8"
+      },
+      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/heads/to-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
+    }
+  },
+  {
+    "request":{
+      "method":"GET",
       "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/main"
     },
     "response":{

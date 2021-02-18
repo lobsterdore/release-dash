@@ -52,7 +52,42 @@ func TestCheckForRetryNoError(t *testing.T) {
 	assert.NoError(t, retryErr)
 }
 
-func TestGetChangelogByTagHasChanges(t *testing.T) {
+func TestGetChangelogForBranchesHasChanges(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	fromBranch := "from-branch"
+	toBranch := "to-branch"
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	changelog, err := githubAdapter.GetChangelogForBranches(ctx, owner, repo, fromBranch, toBranch)
+
+	expectedChangelog := []scm.ScmCommit{
+		{
+			AuthorAvatarUrl: "a",
+			Message:         "test-commit",
+			HtmlUrl:         "h",
+		},
+		{
+			AuthorAvatarUrl: "a",
+			Message:         "test-commit",
+			HtmlUrl:         "h",
+		},
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedChangelog, changelog)
+}
+
+func TestGetChangelogForTagsHasChanges(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -87,7 +122,7 @@ func TestGetChangelogByTagHasChanges(t *testing.T) {
 	assert.Equal(t, &expectedChangelog, changelog)
 }
 
-func TestGetChangelogByTagHasChangesMissingFromTag(t *testing.T) {
+func TestGetChangelogForTagsHasChangesMissingFromTag(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
@@ -122,7 +157,7 @@ func TestGetChangelogByTagHasChangesMissingFromTag(t *testing.T) {
 	assert.Equal(t, &expectedChangelog, changelog)
 }
 
-func TestGetChangelogByTagHasChangesMissingToTag(t *testing.T) {
+func TestGetChangelogForTagsHasChangesMissingToTag(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()
 
