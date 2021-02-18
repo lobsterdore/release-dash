@@ -67,14 +67,11 @@ func TestGetDashboardReposNoConfigFiles(t *testing.T) {
 	mockRepoName := "r"
 	mockSha := "s"
 
-	var mockRepos []scm.ScmRepository
-
-	mockRepo := scm.ScmRepository{
+	mockRepos := []scm.ScmRepository{{
 		DefaultBranch: "main",
 		Name:          mockRepoName,
 		OwnerName:     mockOwner,
-	}
-	mockRepos = append(mockRepos, mockRepo)
+	}}
 
 	mockScm.
 		EXPECT().
@@ -340,18 +337,15 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 		OwnerName:     mockOwner,
 	}
 
-	var mockDashboardRepos []dashboard.DashboardRepo
 	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := dashboard.DashboardRepo{
+	mockDashboardRepos := []dashboard.DashboardRepo{{
 		Config:     &mockConfig,
 		Repository: mockRepo,
-	}
-
-	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
+	}}
 
 	mockCommit := scm.ScmCommit{Message: "m"}
 	mockCommitsCompare := []scm.ScmCommit{mockCommit}
@@ -363,17 +357,14 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 		Times(1).
 		Return(&mockCommitsCompare, nil)
 
-	expectedChangelogCommits := dashboard.DashboardChangelogCommits{
-		Commits: mockCommitsCompare,
-		FromTag: "stg",
-		ToTag:   "dev",
-	}
-	expectedRepoChangelog := dashboard.DashboardRepoChangelog{
-		ChangelogCommits: []dashboard.DashboardChangelogCommits{expectedChangelogCommits},
-		Repository:       mockRepo,
-	}
-
-	expectedRepoChangelogs := []dashboard.DashboardRepoChangelog{expectedRepoChangelog}
+	expectedRepoChangelogs := []dashboard.DashboardRepoChangelog{{
+		ChangelogCommits: []dashboard.DashboardChangelogCommits{{
+			Commits: mockCommitsCompare,
+			FromTag: "stg",
+			ToTag:   "dev",
+		}},
+		Repository: mockRepo,
+	}}
 
 	repoChangelogs := dashboardService.GetDashboardChangelogs(mockCtx, mockDashboardRepos)
 
@@ -390,24 +381,19 @@ func TestGetDashboardChangelogsNoChanges(t *testing.T) {
 	mockOwner := "o"
 	mockRepoName := "r"
 
-	mockRepo := scm.ScmRepository{
-		DefaultBranch: "main",
-		Name:          mockRepoName,
-		OwnerName:     mockOwner,
-	}
-
-	var mockDashboardRepos []dashboard.DashboardRepo
 	mockConfig := dashboard.DashboardRepoConfig{
 		EnvironmentTags: []string{"dev", "stg"},
 		Name:            "app",
 	}
 
-	mockDashboardRepo := dashboard.DashboardRepo{
-		Config:     &mockConfig,
-		Repository: mockRepo,
-	}
-
-	mockDashboardRepos = append(mockDashboardRepos, mockDashboardRepo)
+	mockDashboardRepos := []dashboard.DashboardRepo{{
+		Config: &mockConfig,
+		Repository: scm.ScmRepository{
+			DefaultBranch: "main",
+			Name:          mockRepoName,
+			OwnerName:     mockOwner,
+		},
+	}}
 
 	mockScm.
 		EXPECT().
