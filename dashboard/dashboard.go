@@ -41,6 +41,15 @@ type DashboardRepoChangelog struct {
 	Repository       scm.ScmRepository
 }
 
+func (d DashboardRepoChangelog) HasChangelogCommits() bool {
+	for _, changelogCommit := range d.ChangelogCommits {
+		if len(changelogCommit.Commits) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
 type DashboardChangelogCommits struct {
 	Commits []scm.ScmCommit
 	FromRef string
