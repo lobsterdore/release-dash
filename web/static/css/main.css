@@ -1,5 +1,6 @@
 body {
     background-color: #242b30;
+    font-size: 12px;
 }
 
 .container {
@@ -7,18 +8,26 @@ body {
     width: 85%;
 }
 
-h1 {
-    font-size: 3.4em;
-}
-
 h2 {
-    font-size: 1.7em;
+    font-size: 16px;
     margin: 10px 0;
 }
 
-.brand-logo {
+.navbar-fixed,
+.navbar,
+.nav-wrapper {
+    height: 50px;
+    line-height: 50px;
+}
+
+nav.navbar .brand-logo {
+    font-size: 14px;
+    margin: 16px 0 0 0;
     text-transform: uppercase;
-    margin: 20px 0 0 0;
+}
+
+.material-icons {
+    line-height: 0.8;
 }
 
 .changelog {
@@ -30,19 +39,19 @@ h2 {
 }
 
 .changelog-title h2 .material-icons {
-    margin: 4px 5px 0px 0px;
+    margin: 0 5px 0px 0px;
 }
 
 .card .card-toolbar {
-    padding: 12px 24px 0 24px;
+    padding: 16px 24px 0 24px;
 }
 
 .card .card-content {
-    padding-bottom: 1px;
+    padding: 10px 24px 2px 24px;
 }
 
 .card .card-content .circle.responsive-img {
-    max-width: 60px;
+    max-width: 30px;
 }
 
 .card .card-link {
@@ -50,11 +59,11 @@ h2 {
 }
 
 .card .card-link a {
-    font-size: 0.9em;
+    font-size: 10px;
 }
 
 .card .card-link .material-icons {
-    font-size: 1.7em;
+    font-size: 18px;
     margin-right: 5px;
 }
 
