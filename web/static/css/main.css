@@ -1,5 +1,5 @@
 body {
-    background-color: #242b30;
+    background-color: #eaeaea;
     font-size: 12px;
 }
 
@@ -34,15 +34,12 @@ nav.navbar .brand-logo {
     margin-bottom: 0;
 }
 
-.changelog-title {
-    text-transform: capitalize;
-}
-
 .changelog-title h2 .material-icons {
     margin: 0 5px 0px 0px;
 }
 
 .card .card-toolbar {
+    font-weight: bold;
     padding: 16px 24px 0 24px;
 }
 
