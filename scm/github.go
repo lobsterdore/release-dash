@@ -235,24 +235,38 @@ func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo stri
 
 func (c *GithubAdapter) GetRepoTag(ctx context.Context, owner string, repo string, tagName string) (*ScmRef, error) {
 	var refTag *github.Reference
-	var resp *github.Response
-	err := c.Retrier.Run(func() error {
+	var refResp *github.Response
+	errRef := c.Retrier.Run(func() error {
 		var errReq error
-		refTag, resp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+tagName)
-		return CheckForRetry(resp, errReq)
+		refTag, refResp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+tagName)
+		return CheckForRetry(refResp, errReq)
 	})
-	if err != nil {
-		if resp.StatusCode != 404 {
-			return nil, fmt.Errorf("Could not get tag for repo: %s", err)
+	if errRef != nil {
+		if refResp.StatusCode != 404 {
+			return nil, fmt.Errorf("Could not get tag for repo: %s", errRef)
 		}
 		log.Debug().Msgf("Repo %s/%s does not have tag %s", owner, repo, tagName)
 		return nil, nil
 	}
-	ScmRef := ScmRef{
-		CurrentHash: *refTag.Object.SHA,
-		Name:        tagName,
+
+	var tag *github.Tag
+	var tagResp *github.Response
+	var scmRef ScmRef
+	errTag := c.Retrier.Run(func() error {
+		var errReq error
+		tag, tagResp, errReq = c.Client.Git.GetTag(ctx, owner, repo, *refTag.Object.SHA)
+		return CheckForRetry(tagResp, errReq)
+	})
+
+	if errTag == nil {
+		scmRef.CurrentHash = *tag.Object.SHA
+		scmRef.Name = tagName
+	} else {
+		scmRef.CurrentHash = *refTag.Object.SHA
+		scmRef.Name = tagName
 	}
-	return &ScmRef, nil
+
+	return &scmRef, nil
 }
 
 func (c *GithubAdapter) GetUserRepos(ctx context.Context, user string) ([]ScmRepository, error) {
