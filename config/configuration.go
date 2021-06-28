@@ -5,7 +5,7 @@ import (
 )
 
 type cache struct {
-	CleanupIntervalSeconds   int `env:"CACHE_CLEANUP_INTERVAL_SECONDS" envDefault:"60"`
+	CleanupIntervalSeconds   int `env:"CACHE_CLEANUP_INTERVAL_SECONDS" envDefault:"180"`
 	DefaultExpirationSeconds int `env:"CACHE_DEFAULT_EXPIRATION_SECONDS" envDefault:"1800"`
 }
 
@@ -17,7 +17,7 @@ type Config struct {
 }
 
 type github struct {
-	ChangelogFetchTimerSeconds int    `env:"GITHUB_CHANGELOG_FETCH_TIMER_SECONDS" envDefault:"120"`
+	ChangelogFetchTimerSeconds int    `env:"GITHUB_CHANGELOG_FETCH_TIMER_SECONDS" envDefault:"180"`
 	Pat                        string `env:"GITHUB_PAT" envDefault:""`
 	RepoFetchTimerSeconds      int    `env:"GITHUB_REPO_FETCH_TIMER_SECONDS" envDefault:"900"`
 	UrlDefault                 string `env:"GITHUB_URL_DEFAULT" envDefault:""`

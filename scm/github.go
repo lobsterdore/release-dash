@@ -7,8 +7,10 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/die-net/lrucache"
 	"github.com/flowchartsman/retry"
 	"github.com/google/go-github/github"
+	"github.com/gregjones/httpcache"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 )
@@ -19,11 +21,19 @@ type GithubAdapter struct {
 }
 
 func NewGithubAdapter(ctx context.Context, pat string, urlDefault string, urlUpload string) (*GithubAdapter, error) {
+	var lruMaxSize int64 = 1024 * 1024 * 1024
+	var lruCacheMaxAgeInSeconds int64 = 2629800
+
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: pat},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-	client := github.NewClient(tc)
+
+	httpCache := lrucache.New(lruMaxSize, lruCacheMaxAgeInSeconds)
+	httpCacheTransport := httpcache.NewTransport(httpCache)
+	httpCacheTransport.Transport = tc.Transport
+
+	client := github.NewClient(httpCacheTransport.Client())
 
 	if urlDefault != "" && urlUpload != "" {
 		parsedUrlDefault, err := url.Parse(urlDefault)
@@ -48,13 +58,12 @@ func NewGithubAdapter(ctx context.Context, pat string, urlDefault string, urlUpl
 
 func CheckForRetry(resp *github.Response, err error) error {
 	switch {
-	case resp.StatusCode == 403:
+	case resp != nil && resp.StatusCode == 403:
 		if _, ok := err.(*github.RateLimitError); ok {
 			return fmt.Errorf("Retrying after rate limit response: %s", err)
 		}
 	case err != nil:
 		return retry.Stop(err)
-
 	}
 	return nil
 }
@@ -194,13 +203,14 @@ func (c *GithubAdapter) GetRepoCompareCommits(ctx context.Context, owner string,
 	var allScmCommits []ScmCommit
 	for _, commit := range comparison.Commits {
 		scmCommit := ScmCommit{
-			AuthorAvatarUrl: *commit.Author.AvatarURL,
-			Message:         *commit.Commit.Message,
-			HtmlUrl:         *commit.HTMLURL,
+			Message: *commit.Commit.Message,
+			HtmlUrl: *commit.HTMLURL,
+		}
+		if commit.Author != nil && commit.Author.AvatarURL != nil {
+			scmCommit.AuthorAvatarUrl = *commit.Author.AvatarURL
 		}
 		allScmCommits = append(allScmCommits, scmCommit)
 	}
-
 	return &allScmCommits, nil
 
 }
