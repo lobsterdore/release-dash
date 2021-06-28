@@ -28,30 +28,32 @@ func TestHomepageHasRepoHasChanges(t *testing.T) {
 	mockRepoName := "r"
 	mockAvatarURL := "au"
 
-	mockRepo := scm.ScmRepository{
-		OwnerName: mockOwner,
-		Name:      mockRepoName,
-	}
-
 	mockCtx := context.Background()
 
 	mockMessage := "mock message"
 	mockUrl := "u"
-	mockCommit := scm.ScmCommit{
-		AuthorAvatarUrl: mockAvatarURL,
-		Message:         mockMessage,
-		HtmlUrl:         mockUrl,
-	}
-	mockCommitsCompare := []scm.ScmCommit{mockCommit}
 
 	mockChangelogCommits := dashboard.DashboardChangelogCommits{
-		Commits: mockCommitsCompare,
+		Commits: []scm.ScmCommit{
+			{
+				AuthorAvatarUrl: mockAvatarURL,
+				Message:         mockMessage,
+				HtmlUrl:         mockUrl,
+			},
+		},
 		FromRef: "stg",
 		ToRef:   "dev",
 	}
 	mockRepoChangelog := dashboard.DashboardRepoChangelog{
 		ChangelogCommits: []dashboard.DashboardChangelogCommits{mockChangelogCommits},
-		Repository:       mockRepo,
+		Config: &dashboard.DashboardRepoConfig{
+			EnvironmentTags: []string{"dev", "stg"},
+			Name:            mockRepoName,
+		},
+		Repository: scm.ScmRepository{
+			OwnerName: mockOwner,
+			Name:      mockRepoName,
+		},
 	}
 
 	var mockRepoChangelogs []dashboard.DashboardRepoChangelog

@@ -179,6 +179,60 @@ func TestGetChangelogForTagsHasChangesMissingToTag(t *testing.T) {
 	assert.Nil(t, changelog)
 }
 
+func TestGetCommitFromTagWithCommit(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	expectedSha := "812b303948b570247b727aeb8c1b187336ad4256"
+	gitObjType := "commit"
+
+	gitObj := &github.GitObject{
+		SHA:  &expectedSha,
+		Type: &gitObjType,
+	}
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	sha, err := githubAdapter.GetCommitFromTag(ctx, owner, repo, gitObj)
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedSha, sha)
+}
+
+func TestGetCommitFromTagWithTag(t *testing.T) {
+	client, teardown := testsupport.SetupGithubClientMock()
+	defer teardown()
+
+	owner := "o"
+	repo := "test-repo"
+	expectedSha := "812b303948b570247b727aeb8c1b187336ad4256"
+	gitObjType := "tag"
+
+	gitObj := &github.GitObject{
+		SHA:  &expectedSha,
+		Type: &gitObjType,
+	}
+
+	githubAdapter := scm.GithubAdapter{
+		Client:  client,
+		Retrier: retry.NewRetrier(5, 5*time.Second, 30*time.Second),
+	}
+
+	ctx := context.Background()
+
+	sha, err := githubAdapter.GetCommitFromTag(ctx, owner, repo, gitObj)
+
+	assert.NoError(t, err)
+	assert.Equal(t, &expectedSha, sha)
+}
+
 func TestGetRepoCommitsForShaHasCommits(t *testing.T) {
 	client, teardown := testsupport.SetupGithubClientMock()
 	defer teardown()

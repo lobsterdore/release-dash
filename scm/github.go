@@ -132,6 +132,31 @@ func (c *GithubAdapter) GetChangelogForTags(ctx context.Context, owner string, r
 	return allScmCommits, nil
 }
 
+func (c *GithubAdapter) GetCommitFromTag(ctx context.Context, owner string, repo string, gitObj *github.GitObject) (*string, error) {
+	if *gitObj.Type == "commit" {
+		return gitObj.SHA, nil
+	}
+
+	var tag *github.Tag
+	var resp *github.Response
+
+	err := c.Retrier.Run(func() error {
+		var errReq error
+		tag, resp, errReq = c.Client.Git.GetTag(ctx, owner, repo, *gitObj.SHA)
+		return CheckForRetry(resp, errReq)
+	})
+
+	if err != nil {
+		if resp.StatusCode != 404 {
+			return nil, fmt.Errorf("Could not get tag for repo: %s", err)
+		}
+		log.Debug().Msgf("Repo %s/%s could not find tag for SHA %s", owner, repo, *gitObj.SHA)
+		return nil, nil
+	}
+
+	return c.GetCommitFromTag(ctx, owner, repo, tag.Object)
+}
+
 func (c *GithubAdapter) GetRepoCommitsForSha(ctx context.Context, owner string, repo string, toTag string) ([]*github.RepositoryCommit, error) {
 	opt := &github.CommitsListOptions{
 		SHA: toTag,
@@ -236,6 +261,7 @@ func (c *GithubAdapter) GetRepoFile(ctx context.Context, owner string, repo stri
 func (c *GithubAdapter) GetRepoTag(ctx context.Context, owner string, repo string, tagName string) (*ScmRef, error) {
 	var refTag *github.Reference
 	var refResp *github.Response
+
 	errRef := c.Retrier.Run(func() error {
 		var errReq error
 		refTag, refResp, errReq = c.Client.Git.GetRef(ctx, owner, repo, "tags/"+tagName)
@@ -249,21 +275,14 @@ func (c *GithubAdapter) GetRepoTag(ctx context.Context, owner string, repo strin
 		return nil, nil
 	}
 
-	var tag *github.Tag
-	var tagResp *github.Response
-	var scmRef ScmRef
-	errTag := c.Retrier.Run(func() error {
-		var errReq error
-		tag, tagResp, errReq = c.Client.Git.GetTag(ctx, owner, repo, *refTag.Object.SHA)
-		return CheckForRetry(tagResp, errReq)
-	})
+	tagCommit, errTag := c.GetCommitFromTag(ctx, owner, repo, refTag.Object)
+	if errTag != nil {
+		return nil, fmt.Errorf("Could not get tag for repo: %s", errTag)
+	}
 
-	if errTag == nil {
-		scmRef.CurrentHash = *tag.Object.SHA
-		scmRef.Name = tagName
-	} else {
-		scmRef.CurrentHash = *refTag.Object.SHA
-		scmRef.Name = tagName
+	scmRef := ScmRef{
+		CurrentHash: *tagCommit,
+		Name:        tagName,
 	}
 
 	return &scmRef, nil

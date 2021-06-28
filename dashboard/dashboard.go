@@ -38,6 +38,7 @@ type DashboardRepoConfig struct {
 
 type DashboardRepoChangelog struct {
 	ChangelogCommits []DashboardChangelogCommits
+	Config           *DashboardRepoConfig
 	Repository       scm.ScmRepository
 }
 
@@ -164,6 +165,7 @@ func (d *DashboardService) GetDashboardChangelogs(ctx context.Context, dashboard
 		repo := dashboardRepo.Repository.Name
 		repoChangelog := DashboardRepoChangelog{
 			ChangelogCommits: []DashboardChangelogCommits{},
+			Config:           dashboardRepo.Config,
 			Repository:       dashboardRepo.Repository,
 		}
 

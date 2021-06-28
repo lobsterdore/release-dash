@@ -384,6 +384,10 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 				FromRef: "prod",
 				ToRef:   "pre-prod",
 			}},
+			Config: &dashboard.DashboardRepoConfig{
+				EnvironmentBranches: []string{"pre-prod", "prod"},
+				Name:                "app",
+			},
 			Repository: mockBranchRepo,
 		},
 		{
@@ -392,6 +396,10 @@ func TestGetDashboardChangelogsHasChanges(t *testing.T) {
 				FromRef: "stg",
 				ToRef:   "dev",
 			}},
+			Config: &dashboard.DashboardRepoConfig{
+				EnvironmentTags: []string{"dev", "stg"},
+				Name:            "app",
+			},
 			Repository: mockTagRepo,
 		},
 	}

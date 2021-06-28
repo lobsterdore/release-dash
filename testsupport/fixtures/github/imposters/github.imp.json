@@ -9,7 +9,7 @@
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/tags/from-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/tags/from-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
+      "body":"{\"ref\": \"refs/tags/from-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/tags/from-tag\",\"object\": {\"type\": \"tag\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
     }
   },
   {
@@ -25,10 +25,6 @@
       "body":"{\"ref\": \"refs/tags/to-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/tags/to-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
     }
   },
-
-
-
-
   {
     "request":{
       "method":"GET",
@@ -55,10 +51,6 @@
       "body":"{\"sha\":\"812b303948b570247b727aeb8c1b187336ad4256\",\"url\":\"https://api.github.com/repos/o/test-repo/git/tags/3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"object\":{\"sha\":\"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"},\"tag\":\"to-tag\"}"
     }
   },
-
-
-
-
   {
     "request":{
       "method":"GET",
