@@ -42,7 +42,7 @@ var _ = Describe("Release Dash", func() {
 			body := string(bodyRaw)
 
 			Expect(resp.StatusCode).To(Equal(http.StatusOK))
-			Expect(body).Should(ContainSubstring("test-repo"))
+			Expect(body).Should(ContainSubstring("r"))
 			Expect(body).Should(ContainSubstring("from-tag > to-tag"))
 			Expect(body).Should(ContainSubstring("test-commit"))
 		})
