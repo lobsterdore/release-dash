@@ -9,9 +9,7 @@ require (
 	github.com/flowchartsman/retry v1.2.0
 	github.com/friendsofgo/killgrave v0.4.0 // indirect
 	github.com/golang/mock v1.4.4
-	github.com/google/btree v1.0.1 // indirect
-	github.com/google/go-github v17.0.0+incompatible
-	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/google/go-github/v36 v36.0.0
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/m4ns0ur/httpcache v0.0.0-20200426190423-1040e2e8823f
 	github.com/markbates/pkger v0.17.1
@@ -19,7 +17,6 @@ require (
 	github.com/onsi/ginkgo v1.14.2
 	github.com/onsi/gomega v1.10.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
 	github.com/testcontainers/testcontainers-go v0.9.0

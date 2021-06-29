@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/flowchartsman/retry"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v36/github"
 	"github.com/lobsterdore/release-dash/scm"
 	"github.com/lobsterdore/release-dash/testsupport"
 	"github.com/stretchr/testify/assert"

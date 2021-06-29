@@ -2,27 +2,27 @@
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/tags/from-tag"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/tags/from-tag"
     },
     "response":{
       "status":200,
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/tags/from-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/tags/from-tag\",\"object\": {\"type\": \"tag\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
+      "body":"{\"ref\": \"refs/tags/from-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/ref/tags/from-tag\",\"object\": {\"type\": \"tag\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
     }
   },
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/tags/to-tag"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/tags/to-tag"
     },
     "response":{
       "status":200,
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/tags/to-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/tags/to-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
+      "body":"{\"ref\": \"refs/tags/to-tag\",\"url\": \"https://api.github.com/repos/o/test-repo/git/ref/tags/to-tag\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
     }
   },
   {
@@ -92,7 +92,7 @@
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/tags/missing-tag"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/tags/missing-tag"
     },
     "response":{
       "status":404,
@@ -104,7 +104,7 @@
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/500/git/refs/tags/from-tag"
+      "endpoint":"/api-v3/repos/o/500/git/ref/tags/from-tag"
     },
     "response":{
       "status":500,
@@ -178,46 +178,46 @@
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/from-branch"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/heads/from-branch"
     },
     "response":{
       "status":200,
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/heads/from-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
+      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/ref/heads/from-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"812b303948b570247b727aeb8c1b187336ad4256\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/812b303948b570247b727aeb8c1b187336ad4256\"}}"
     }
   },
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/to-branch"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/heads/to-branch"
     },
     "response":{
       "status":200,
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/heads/to-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
+      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/ref/heads/to-branch\",\"object\": {\"type\": \"commit\",\"sha\": \"3e0f3d8c432ca2a03a3222fb55de63934338022f\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/3e0f3d8c432ca2a03a3222fb55de63934338022f\"}}"
     }
   },
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/test-repo/git/refs/heads/main"
+      "endpoint":"/api-v3/repos/o/test-repo/git/ref/heads/main"
     },
     "response":{
       "status":200,
       "headers":{
         "Content-Type":"application/json; charset=utf-8"
       },
-      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/refs/heads/main\",\"object\": {\"type\": \"commit\",\"sha\": \"s\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/s\"}}"
+      "body":"{\"ref\": \"refs/heads/main\",\"url\": \"https://api.github.com/repos/o/test-repo/git/ref/heads/main\",\"object\": {\"type\": \"commit\",\"sha\": \"s\",\"url\": \"https://api.github.com/repos/o/test-repo/git/commits/s\"}}"
     }
   },
   {
     "request":{
       "method":"GET",
-      "endpoint":"/api-v3/repos/o/500/git/refs/heads/main"
+      "endpoint":"/api-v3/repos/o/500/git/ref/heads/main"
     },
     "response":{
       "status":500,

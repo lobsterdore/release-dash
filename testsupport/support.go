@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v36/github"
 )
 
 func GetProjectPath(relativePath string) string {
