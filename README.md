@@ -89,9 +89,9 @@ The following environment variables are available:
 
 |Variable|Default|Description|
 |---|---|---|
-|CACHE_CLEANUP_INTERVAL_SECONDS|60|Time between cache purges, see [https://github.com/patrickmn/go-cache](https://github.com/patrickmn/go-cache)|
+|CACHE_CLEANUP_INTERVAL_SECONDS|300|Time between cache purges, see [https://github.com/patrickmn/go-cache](https://github.com/patrickmn/go-cache)|
 |CACHE_DEFAULT_EXPIRATION_SECONDS|1800|Time to keep cached Repo and Changelog data for, should be greater than fetch timers|
-|GITHUB_CHANGELOG_FETCH_TIMER_SECONDS|120|Time between fetches of diffs for each repo and environment|
+|GITHUB_CHANGELOG_FETCH_TIMER_SECONDS|180|Time between fetches of diffs for each repo and environment|
 |GITHUB_PAT|~|Github Personal Access Token used to read repos|
 |GITHUB_REPO_FETCH_TIMER_SECONDS|900|Time between fetches of repo list|
 |GITHUB_URL_DEFAULT|~|URL for Github API, defaults to standard Github API URL|

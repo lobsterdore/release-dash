@@ -122,7 +122,7 @@ func (d *DashboardService) GetDashboardRepos(ctx context.Context) ([]DashboardRe
 	}
 
 	sort.Slice(dashboardRepos, func(i, j int) bool {
-		comparison := strings.Compare(dashboardRepos[i].Repository.Name, dashboardRepos[j].Repository.Name)
+		comparison := strings.Compare(dashboardRepos[i].Config.Name, dashboardRepos[j].Config.Name)
 		return comparison != 1
 	})
 

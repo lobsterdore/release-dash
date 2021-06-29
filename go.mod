@@ -13,7 +13,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/m4ns0ur/httpcache v0.0.0-20200426190423-1040e2e8823f
 	github.com/markbates/pkger v0.17.1
 	github.com/mash/go-accesslog v1.2.0
 	github.com/onsi/ginkgo v1.14.2

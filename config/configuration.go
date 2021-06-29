@@ -5,7 +5,7 @@ import (
 )
 
 type cache struct {
-	CleanupIntervalSeconds   int `env:"CACHE_CLEANUP_INTERVAL_SECONDS" envDefault:"180"`
+	CleanupIntervalSeconds   int `env:"CACHE_CLEANUP_INTERVAL_SECONDS" envDefault:"300"`
 	DefaultExpirationSeconds int `env:"CACHE_DEFAULT_EXPIRATION_SECONDS" envDefault:"1800"`
 }
 
