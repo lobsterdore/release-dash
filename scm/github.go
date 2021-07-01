@@ -21,8 +21,8 @@ type GithubAdapter struct {
 }
 
 func NewGithubAdapter(ctx context.Context, pat string, urlDefault string, urlUpload string) (*GithubAdapter, error) {
-	var lruMaxSize int64 = 1024 * 1024 * 1024
-	var lruCacheMaxAgeInSeconds int64 = 2629800
+	var lruMaxSize int64 = 1024 * 1024 * 256
+	var lruCacheMaxAgeInSeconds int64 = 3600
 
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: pat},
