@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"time"
 
@@ -91,5 +92,9 @@ func (w web) SetupRouter(ctx context.Context) *http.ServeMux {
 	router.HandleFunc("/", w.HomepageHandler.Http)
 	router.HandleFunc("/healthcheck", w.HealthcheckHandler.Http)
 
+	if w.Config.Profiling.Enabled {
+		log.Log().Msg("Enabling profiling")
+		router.HandleFunc("/debug/pprof/", pprof.Index)
+	}
 	return router
 }

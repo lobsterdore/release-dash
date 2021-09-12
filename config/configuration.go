@@ -10,10 +10,11 @@ type cache struct {
 }
 
 type Config struct {
-	Cache   cache
-	Github  github
-	Logging logging
-	Server  server
+	Cache     cache
+	Github    github
+	Logging   logging
+	Profiling profiling
+	Server    server
 }
 
 type github struct {
@@ -26,6 +27,10 @@ type github struct {
 
 type logging struct {
 	Level string `env:"LOGGING_LEVEL" envDefault:"error"`
+}
+
+type profiling struct {
+	Enabled bool `env:"PROFILING_ENABLED" envDefault:"false"`
 }
 
 type server struct {
